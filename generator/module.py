@@ -17,8 +17,10 @@ class Generator:
         # check input existence
         if tag not in self.entities['type'].values:
             print('ERROR: Tag {} does not exist, try anther one.'.format(tag))
+            return
         if target_lang not in self.entities['language'].values:
             print('ERROR: Language {} does not exist, try anther one.'.format(target_lang))
+            return
 
         # random get one 
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
