@@ -9,22 +9,35 @@ def filter_aliases(aliases: list) -> list:
     E.g. ['s r f 1', 'SRF 1'] becomes ['SRF 1']
     """
     original_aliases = list(aliases)
-    regex = re.compile(r'\b[a-z]\b')
-    set_lowercased_aliases = set([alias.lower() for alias in aliases])
+    regex = re.compile(r'\b[a-zA-Z]\b')
     for alias in original_aliases:
-        if alias.islower() and regex.finditer(alias):
-            uppercased_alias = alias.upper()
-            uppercased_alias = restore_abbreviations_in_text(text=uppercased_alias).strip()
-            if uppercased_alias.lower() in set_lowercased_aliases:
-                aliases.remove(alias)
-    return aliases
+        if regex.findall(alias):  #modified 
+            uppercased_alias = restore_abbreviations_in_text(text=alias, uppercase=True).strip()
+            aliases.remove(alias)
+            if uppercased_alias not in aliases:
+                aliases.append(uppercased_alias)
+    return list(set(aliases))
+
+def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
+    """
+    Restores malformed abbreviations in text.
+    E.g. 'Go to S R F 1' becomes 'Go to SRF 1'.
+    """
+    abbreviations = find_space_separated_abbreviations(text=text)
+    if abbreviations:
+        for abbreviation in abbreviations:
+            if uppercase:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation.upper())
+            else:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation)
+    return text
 
 def find_space_separated_abbreviations(text: str) -> list:
     """
     Finds abbreviations in text written with space among their letters.
     E.g. 'Go to S R F 1' finds 'SRF' as abbreviation.
     """
-    regex = re.compile(r'\b[A-Z]\b')
+    regex = re.compile(r'\b[a-zA-Z]\b')
 
     # initialize values
     abbreviations = []
@@ -51,15 +64,4 @@ def find_space_separated_abbreviations(text: str) -> list:
         abbreviations.append(abbreviation)
 
     return abbreviations
-
-def restore_abbreviations_in_text(text: str) -> str:
-    """
-    Restores malformed abbreviations in text.
-    E.g. 'Go to S R F 1' becomes 'Go to SRF 1'.
-    """
-    abbreviations = find_space_separated_abbreviations(text=text)
-    if abbreviations:
-        for abbreviation in abbreviations:
-            text = text.replace(' '.join(list(abbreviation)), abbreviation)
-    return text
 
