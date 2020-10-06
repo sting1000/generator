@@ -13,35 +13,18 @@ class Generator:
         self.normalizer = Normalizer().normalize_text
         self.method = method
 
-    def get_entities(self, tag: str, target_lang: str) -> list:
+    def get_value_from_tag(self, tag: str, target_lang: str) -> list:
         """
-        randomly generate an entity given language and spcific tag
-        return: a list of {method} entities
+        randomly generate a value according to tag (such as 'MyCloudArea') and language (like "fr")
         """
-        # check input existence
+        # get entity
         if tag not in self.entities['type'].values:
             print('ERROR: Tag {} does not exist, try anther one.'.format(tag))
             return
         if target_lang not in self.entities['language'].values:
             print('ERROR: Language {} does not exist, try anther one.'.format(target_lang))
             return
-
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
-        
-        if self.method == "one":
-            selected_entities = [selected_entities.sample(n=1)]
-        elif self.method == "all":
-            selected_entities = selected_entities
-        else:
-            print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
-        return selected_entities
-
-    def get_value_from_tag(self, tag: str, target_lang: str) -> list:
-        """
-        randomly generate a value according to tag (such as 'MyCloudArea') and language (like "fr")
-        """
-        # get entity
-        selected_entities = self.get_entities(tag, target_lang)
         
         # find all values in the entity
         values_pool = []
@@ -54,7 +37,8 @@ class Generator:
             for value in filtered_values:
                 filtered_values.remove(value)
                 normalized_value = self.normalizer(value, target_lang)
-                filtered_values.remove(normalized_value)
+                if normalized_value in filtered_values:
+                    filtered_values.remove(normalized_value)
                 filtered_values.append(value)
             values_pool += filtered_values
         
@@ -76,14 +60,13 @@ class Generator:
 
         E.g. {MyCloudArea} auf #myCloud anzeigen -> Fotos auf #myCloud anzeigen
         """
-        command_pool = []
+        template_command_pool = []
         tags = [s[1 : -1] for s in re.findall(r'{\S+}', template)]
         for tag in tags:
             selected_values = self.get_value_from_tag(tag, target_lang)
-            for selected_value in selected_values:
-                command_pool.append(re.sub('{' + tag + '}', selected_value, template, 1))
-            
-        return template
+            for selected_value in self.apply_method(selected_values):
+                template_command_pool.append(re.sub('{' + tag + '}', selected_value, template, 1))
+        return template_command_pool
 
     def get_command(self, target_id: str, target_lang: str, verbose = False) -> str:
         """
@@ -98,15 +81,15 @@ class Generator:
         if verbose: 
             print("After tag removal: \n\t{}".format(template)) 
 
-        template  = self.normalizer(template, target_lang)
-        if verbose:
-            print("After normalizer: \n\t{}".format(template)) 
-            
+        # template  = self.normalizer(template, target_lang)
+        # if verbose:
+        #     print("After normalizer: \n\t{}".format(template)) 
+
         return template
 
     def apply_method(self, li:list):
         if self.method == "one":
-            selected_values = [li.sample(n=1)]
+            selected_values = [random.choice(li.sample)]
         elif self.method == "all":
             selected_values = li
         else:
