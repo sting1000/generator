@@ -13,7 +13,7 @@ class Generator:
         self.normalizer = Normalizer().normalize_text
         self.method = method
 
-    def get_value_from_tag(self, tag: str, target_lang: str) -> list:
+    def get_values_from_tag(self, tag: str, target_lang: str) -> list:
         """
         randomly generate a value according to tag (such as 'MyCloudArea') and language (like "fr")
         """
@@ -28,12 +28,13 @@ class Generator:
         
         # find all values in the entity
         values_pool = []
-        for selected_entity in selected_entities:
-            aliases = selected_entity['aliases'].values[0]
-            value = [selected_entity['value'].values[0]]
-            normalized_value = [selected_entity['normalizedValue'].values[0]]
+        for _, selected_entity in selected_entities.iterrows():
+            aliases = selected_entity['aliases']
+            value = [selected_entity['value']]
+            normalized_value = [selected_entity['normalizedValue']]
             filtered_values = filter_aliases(aliases + value + normalized_value)
 
+            # remove the normailzed case
             for value in filtered_values:
                 filtered_values.remove(value)
                 normalized_value = self.normalizer(value, target_lang)
@@ -45,16 +46,14 @@ class Generator:
         selected_values = self.apply_method(filtered_values)
         return selected_values
 
-    def get_template(self, target_id: str, target_lang: str) -> str:
+    def get_templates(self, target_id: str, target_lang: str) -> list:
         """
         radomly choose a template from given id and language
         """
         pattern_list = self.templates[self.templates['id'] == target_id][target_lang].values[0]['texts']
-        pattern = random.choice(pattern_list)['ttsText'] 
-        
-        return pattern
+        return self.apply_method([p['ttsText'] for p in pattern_list])
 
-    def remove_tags(self, template: str, target_lang: str) -> list:
+    def replace_tags(self, template: str, target_lang: str) -> list:
         """
         replace tags in template accordingly
 
@@ -62,34 +61,35 @@ class Generator:
         """
         template_command_pool = []
         tags = [s[1 : -1] for s in re.findall(r'{\S+}', template)]
+        
+        if not tags:
+            return [template]
+
         for tag in tags:
-            selected_values = self.get_value_from_tag(tag, target_lang)
-            for selected_value in self.apply_method(selected_values):
+            selected_values = self.get_values_from_tag(tag, target_lang)
+            for selected_value in selected_values:
                 template_command_pool.append(re.sub('{' + tag + '}', selected_value, template, 1))
         return template_command_pool
 
-    def get_command(self, target_id: str, target_lang: str, verbose = False) -> str:
+    def get_command(self, target_id: str, target_lang: str, verbose = False) -> list:
         """
         generate a command given id and language
         """
+        command_pool = []
+        templates = self.get_templates(target_id, target_lang)
+        if verbose: 
+            print("Choose template: \n\t{}".format(templates)) 
         
-        template = self.get_template(target_id, target_lang)
+        for template in templates:
+            command_pool += self.replace_tags(template, target_lang)
         if verbose: 
-            print("Choose template: \n\t{}".format(template)) 
+            print("After tag removal: \n\t{}".format(command_pool)) 
 
-        template = self.remove_tags(template, target_lang)
-        if verbose: 
-            print("After tag removal: \n\t{}".format(template)) 
-
-        # template  = self.normalizer(template, target_lang)
-        # if verbose:
-        #     print("After normalizer: \n\t{}".format(template)) 
-
-        return template
+        return command_pool
 
     def apply_method(self, li:list):
         if self.method == "one":
-            selected_values = [random.choice(li.sample)]
+            selected_values = [random.choice(li)]
         elif self.method == "all":
             selected_values = li
         else:
