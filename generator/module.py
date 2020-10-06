@@ -27,6 +27,7 @@ class Generator:
             return
 
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
+        
         if self.method == "one":
             selected_entities = [selected_entities.sample(n=1)]
         elif self.method == "all":
@@ -35,7 +36,7 @@ class Generator:
             print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
         return selected_entities
 
-    def get_value_from_tag(self, tag: str, target_lang: str) -> str:
+    def get_value_from_tag(self, tag: str, target_lang: str) -> list:
         """
         randomly generate a value according to tag (such as 'MyCloudArea') and language (like "fr")
         """
@@ -50,16 +51,15 @@ class Generator:
             normalized_value = [selected_entity['normalizedValue'].values[0]]
             filtered_values = filter_aliases(aliases + value + normalized_value)
 
-            # TODO:how to remove duplication 
             for value in filtered_values:
+                filtered_values.remove(value)
                 normalized_value = self.normalizer(value, target_lang)
                 filtered_values.remove(normalized_value)
-            
+                filtered_values.append(value)
             values_pool += filtered_values
         
-        #random get one
-        selected_value = random.choice(filtered_values)
-        return selected_value
+        selected_values = self.apply_method(filtered_values)
+        return selected_values
 
     def get_template(self, target_id: str, target_lang: str) -> str:
         """
@@ -70,17 +70,18 @@ class Generator:
         
         return pattern
 
-    def remove_tags(self, template: str, target_lang: str) -> str:
+    def remove_tags(self, template: str, target_lang: str) -> list:
         """
         replace tags in template accordingly
 
         E.g. {MyCloudArea} auf #myCloud anzeigen -> Fotos auf #myCloud anzeigen
         """
+        command_pool = []
         tags = [s[1 : -1] for s in re.findall(r'{\S+}', template)]
-
         for tag in tags:
-            selected_value = self.get_value_from_tag(tag, target_lang)
-            template = re.sub('{' + tag + '}', selected_value, template, 1)
+            selected_values = self.get_value_from_tag(tag, target_lang)
+            for selected_value in selected_values:
+                command_pool.append(re.sub('{' + tag + '}', selected_value, template, 1))
             
         return template
 
@@ -88,7 +89,6 @@ class Generator:
         """
         generate a command given id and language
         """
-        
         
         template = self.get_template(target_id, target_lang)
         if verbose: 
@@ -99,8 +99,16 @@ class Generator:
             print("After tag removal: \n\t{}".format(template)) 
 
         template  = self.normalizer(template, target_lang)
-
         if verbose:
             print("After normalizer: \n\t{}".format(template)) 
             
         return template
+
+    def apply_method(self, li:list):
+        if self.method == "one":
+            selected_values = [li.sample(n=1)]
+        elif self.method == "all":
+            selected_values = li
+        else:
+            print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
+        return selected_values
