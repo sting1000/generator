@@ -26,23 +26,14 @@ class Generator:
             return
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
         
+        filtered_values = []
         # find all values in the entity
-        values_pool = []
         for _, selected_entity in selected_entities.iterrows():
             aliases = selected_entity['aliases']
-            value = [selected_entity['value']]
+            value = [str(selected_entity['value'])]
             normalized_value = [selected_entity['normalizedValue']]
-            filtered_values = filter_aliases(aliases + value + normalized_value)
+            filtered_values += filter_aliases(aliases + value + normalized_value, target_lang)
 
-            # remove the normailzed case
-            for value in filtered_values:
-                filtered_values.remove(value)
-                normalized_value = self.normalizer(value, target_lang)
-                if normalized_value in filtered_values:
-                    filtered_values.remove(normalized_value)
-                filtered_values.append(value)
-            values_pool += filtered_values
-        
         selected_values = self.apply_method(filtered_values)
         return selected_values
 
@@ -64,7 +55,6 @@ class Generator:
         
         if not tags:
             return [template]
-
         for tag in tags:
             selected_values = self.get_values_from_tag(tag, target_lang)
             for selected_value in selected_values:
@@ -81,6 +71,7 @@ class Generator:
             print("Choose template: \n\t{}".format(templates)) 
         
         for template in templates:
+            template = self.remove_sharp_sign(template)
             command_pool += self.replace_tags(template, target_lang)
         if verbose: 
             print("After tag removal: \n\t{}".format(command_pool)) 
@@ -95,3 +86,11 @@ class Generator:
         else:
             print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
         return selected_values
+    
+    def remove_sharp_sign(self, sentence: str) -> str:
+        search = re.search(r'\s#[a-zA-Z]+', sentence)
+        while search:
+            pos = search.start() + 1
+            sentence = sentence[:pos] + sentence[(pos+1):]
+            search = re.search(r'\s#[a-zA-Z]+', sentence)
+        return sentence

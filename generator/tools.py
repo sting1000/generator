@@ -1,7 +1,8 @@
 import numpy
 import re
+from generator.normalizer import Normalizer
 
-def filter_aliases(aliases: list) -> list:
+def filter_aliases(aliases: list, language: str) -> list:
     """
     Filters list of aliases to keep only the useful ones.
     It is used to remove all the noisy aliases given by tv that are useful for ASR.
@@ -11,12 +12,22 @@ def filter_aliases(aliases: list) -> list:
     original_aliases = list(aliases)
     regex = re.compile(r'\b[a-zA-Z]\b')
     for alias in original_aliases:
+        alias = str(alias)
         if regex.findall(alias):  #modified 
             uppercased_alias = restore_abbreviations_in_text(text=alias, uppercase=True).strip()
             aliases.remove(alias)
             if uppercased_alias not in aliases:
                 aliases.append(uppercased_alias)
-    return list(set(aliases))
+    
+    # remove norm duplication
+    aliases_set = set(aliases)
+    normalized_aliases_set = set()
+    for alias in aliases_set:
+        norm = Normalizer().normalize_text(alias, language)
+        if norm != alias:
+            normalized_aliases_set.add(norm)
+    
+    return list(aliases_set - normalized_aliases_set)
 
 def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
     """
