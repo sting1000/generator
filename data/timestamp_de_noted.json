@@ -1,0 +1,573 @@
+{
+  "id": {
+    "26": "Localsearch.TemperatureInfo.Init.Utterance",
+    "28": "Localsearch.RainInfo.Init.Utterance",
+    "29": "Localsearch.WeatherInfo.Init.Utterance"
+  },
+  "de": {
+    "26": {
+      "texts": [
+        {
+          "ttsText": "ich brauche die Temperatur für {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "ich möchte gerne wissen wie kalt es in {LocalsearchLocation} ist"
+        },
+        {
+          "ttsText": "ich möchte wissen wie warm es zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime} in {LocalsearchLocation} ist"
+        },
+        {
+          "ttsText": "ist es in {LocalsearchLocation} kalt"
+        },
+        {
+          "ttsText": "ist es in {LocalsearchLocation} {LocalsearchTimeStampStartDay} warm"
+        },
+        {
+          "ttsText": "kannst du mir sagen wie warm es {LocalsearchTimeStampStartDay} wird"
+        },
+        {
+          "ttsText": "sag mir die Temperatur für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "welche Temperaturen sind in {LocalsearchLocation} zu erwarten"
+        },
+        {
+          "ttsText": "wie sind die Temperaturen zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie warm ist es in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie warm wird es {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie viel Grad hat es in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie viel Grad werden es zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wird es in {LocalsearchLocation} um {LocalsearchTimeStampStartTime} warm"
+        },
+        {
+          "ttsText": "kannst du mir sagen wie warm es wird"
+        },
+        {
+          "ttsText": "muss ich frieren"
+        },
+        {
+          "ttsText": "welche Temperaturen sind zu erwarten"
+        },
+        {
+          "ttsText": "werde ich schwitzen"
+        },
+        {
+          "ttsText": "wie kalt ist es"
+        },
+        {
+          "ttsText": "wie warm ist es"
+        },
+        {
+          "ttsText": "wie warm wird es"
+        },
+        {
+          "ttsText": "wie viel Grad hat es"
+        },
+        {
+          "ttsText": "wird es kalt"
+        },
+        {
+          "ttsText": "ich würde gerne wissen wie kalt es in {LocalsearchLocation} ist"
+        },
+        {
+          "ttsText": "ich möchte wissen wie warm es von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime} in {LocalsearchLocation} ist"
+        },
+        {
+          "ttsText": "wie sind die Temperaturen von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie viel Grad ist es in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie viel Grad wird es von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "werde ich kalt haben"
+        },
+        {
+          "ttsText": "wie viel Grad ist es"
+        },
+        {
+          "ttsText": "ich will wissen wie heiss es von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime} in {LocalsearchLocation} ist"
+        },
+        {
+          "ttsText": "ich würde gerne wissen wie warm es {LocalsearchTimeStampStartDay} wird"
+        },
+        {
+          "ttsText": "ist es in {LocalsearchLocation} {LocalsearchTimeStampStartDay} heiss"
+        },
+        {
+          "ttsText": "kannst du mir die Temperaturen um {LocalsearchTimeStampStartTime} sagen"
+        },
+        {
+          "ttsText": "sag die Temperaturen in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "sag kurz die Temperaturen {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "sag mal wie warm es in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "sag mir kurz wie heiss es um {LocalsearchTimeStampStartTime} wird"
+        },
+        {
+          "ttsText": "sag mir wie warm es um {LocalsearchTimeStampStartTime} wird"
+        },
+        {
+          "ttsText": "sagst du mir kurz die Temperaturen für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie heiss ist es"
+        },
+        {
+          "ttsText": "wie heiss wird es"
+        },
+        {
+          "ttsText": "wie hoch sind die Temperaturen in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie hoch sind in {LocalsearchLocation} die Temperaturen {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie sind die Temperaturen in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wie viel Grad sind es"
+        },
+        {
+          "ttsText": "wird es heiss"
+        },
+        {
+          "ttsText": "wie viel Grad sind es um {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        }
+      ]
+    },
+    "28": {
+      "texts": [
+        {
+          "ttsText": "ist es regnerisch"
+        },
+        {
+          "ttsText": "gibt es Regen"
+        },
+        {
+          "ttsText": "brauche ich einen Regenschirm"
+        },
+        {
+          "ttsText": "braucht man einen Schirm"
+        },
+        {
+          "ttsText": "braucht man {LocalsearchTimeStampStartDay} einen Regenschirm"
+        },
+        {
+          "ttsText": "sag mir ob ich {LocalsearchTimeStampStartDay} in {LocalsearchLocation} einen Regenschirm brauche"
+        },
+        {
+          "ttsText": "kannst du mir sagen ob ich einen Regenschirm mitnehmen soll"
+        },
+        {
+          "ttsText": "muss ich einen Regenschirm mitnehmen"
+        },
+        {
+          "ttsText": "sollte man um {LocalsearchTimeStampStartTime} einen Regenschirm mitnehmen"
+        },
+        {
+          "ttsText": "sollte ich einen Schirm dabei haben"
+        },
+        {
+          "ttsText": "die Niederschlagsmenge für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "die Niederschlagsmenge {LocalsearchTimeStampStartDay} bitte"
+        },
+        {
+          "ttsText": "gibt es {LocalsearchTimeStampStartDay} in {LocalsearchLocation} Regen"
+        },
+        {
+          "ttsText": "werde ich um {LocalsearchTimeStampStartTime} einen Regenschirm brauchen"
+        },
+        {
+          "ttsText": "komme ich um {LocalsearchTimeStampStartTime} trocken nach Hause"
+        },
+        {
+          "ttsText": "muss ich von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime} mit Regen rechnen"
+        },
+        {
+          "ttsText": "wie stark wird es {LocalsearchTimeStampStartDay} regnen"
+        },
+        {
+          "ttsText": "wie sehr regnet es um {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} in {LocalsearchLocation} regnen"
+        },
+        {
+          "ttsText": "wird es um {LocalsearchTimeStampStartTime} in {LocalsearchLocation} nass"
+        },
+        {
+          "ttsText": "wie hoch ist die Niederschlagsmenge in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} regnerisch sein"
+        },
+        {
+          "ttsText": "wie viel Niederschlag kann ich um {LocalsearchTimeStampStartTime} in {LocalsearchLocation} erwarten"
+        },
+        {
+          "ttsText": "wie viel regnet es in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "gibt es zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime} in {LocalsearchLocation} Regen"
+        },
+        {
+          "ttsText": "meinst du dass es {LocalsearchTimeStampStartDay} regnet"
+        },
+        {
+          "ttsText": "brauche ich einen Schirm"
+        },
+        {
+          "ttsText": "braucht man einen Regenschirm {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "gibt es {LocalsearchLocation} ein Regenwetter"
+        },
+        {
+          "ttsText": "ich würde gerne wissen ob es in {LocalsearchLocation} {LocalsearchTimeStampStartDay} regnet"
+        },
+        {
+          "ttsText": "muss man einen Schirm mitnehmen um {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "Niederschlag für {LocalsearchTimeStampStart}"
+        },
+        {
+          "ttsText": "pissts"
+        },
+        {
+          "ttsText": "regnet es {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "regnet es {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "regnet es fest"
+        },
+        {
+          "ttsText": "regnet es in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "regnet es in {LocalsearchLocation} zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "schifft es"
+        },
+        {
+          "ttsText": "schiffts"
+        },
+        {
+          "ttsText": "schiffts {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie fest wird es {LocalsearchTimeStampStartDay} regnen"
+        },
+        {
+          "ttsText": "wie ist die Regenwahrscheinlichkeit {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie wahrscheinlich ist Regen {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} in {LocalsearchLocation} schiffen"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} Regenwetter geben"
+        },
+        {
+          "ttsText": "wird es um {LocalsearchTimeStampStartTime} schiffen"
+        },
+        {
+          "ttsText": "wird es in {LocalsearchLocation} um {LocalsearchTimeStampStartTime} regnen"
+        }
+      ]
+    },
+    "29": {
+      "texts": [
+        {
+          "ttsText": "bitte gib mir den Wetterbericht vom {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "bitte sag mir wie das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "#Meteo"
+        },
+        {
+          "ttsText": "den Wetterbericht bitte"
+        },
+        {
+          "ttsText": "gewittert es"
+        },
+        {
+          "ttsText": "gib mir den Wetterbericht"
+        },
+        {
+          "ttsText": "gib mir ein Wetter #Update für {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "gib mir Wetter Infos für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "gibt es {LocalsearchTimeStampStartDay} Schnee"
+        },
+        {
+          "ttsText": "ich brauche Infos über das Wetter"
+        },
+        {
+          "ttsText": "ich möchte die Wetter Info für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "ich möchte Informationen über das Wetter"
+        },
+        {
+          "ttsText": "ich möchte Informationen über das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "ich möchte Wetter Infos für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "ich möchte Wetter Infos für {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "ich möchte wissen wie das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "ich will das Wetter für {LocalsearchTimeStampStartDay} in {LocalsearchLocation} abrufen"
+        },
+        {
+          "ttsText": "ich will wissen ob in {LocalsearchLocation} von {LocalsearchTimeStampStartTime} bis {LocalsearchTimeStampEndTime} die Sonne scheint"
+        },
+        {
+          "ttsText": "ich will wissen wie das Wetter {LocalsearchTimeStampStartDay} wird"
+        },
+        {
+          "ttsText": "ich will wissen wie das Wetter in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "ich würde gerne wissen wie das Wetter wird"
+        },
+        {
+          "ttsText": "ist es sonnig"
+        },
+        {
+          "ttsText": "ist es windig"
+        },
+        {
+          "ttsText": "ist in {LocalsearchLocation} gutes Wetter"
+        },
+        {
+          "ttsText": "kannst du mir den Wetterbericht sagen"
+        },
+        {
+          "ttsText": "kannst du mir sagen wie das Wetter in {LocalsearchLocation} {LocalsearchTimeStampStartDay} wird"
+        },
+        {
+          "ttsText": "kannst du mir sagen wie das Wetter wird"
+        },
+        {
+          "ttsText": "kommt die Sonne {LocalsearchTimeStampStartDay} raus"
+        },
+        {
+          "ttsText": "mich interessiert das Wetter in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "rufe das Wetter ab"
+        },
+        {
+          "ttsText": "sag mir wie das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "scheint {LocalsearchTimeStampStartDay} die Sonne"
+        },
+        {
+          "ttsText": "scheint in {LocalsearchLocation} die Sonne"
+        },
+        {
+          "ttsText": "schneit es"
+        },
+        {
+          "ttsText": "weisst du wie das Wetter {LocalsearchTimeStampStartDay} wird"
+        },
+        {
+          "ttsText": "Wetter Infos für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "Wetter #News"
+        },
+        {
+          "ttsText": "Wetter #News für {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "Wetter #Update bitte"
+        },
+        {
+          "ttsText": "Wetter #Update für {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie ist das Wetter"
+        },
+        {
+          "ttsText": "wie ist das Wetter um {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "wie ist das Wetter in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie ist das Wetter in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie sind die Wetteraussichten für {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie windig ist es um {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "wie wird das Wetter"
+        },
+        {
+          "ttsText": "wie wird das Wetter {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie wird das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "wie wird das Wetter {LocalsearchTimeStampStartDay} zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wie wird das Wetter in {LocalsearchLocation} um {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "wie wird das Wetter zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} schön draussen"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} in {LocalsearchLocation} sonnig"
+        },
+        {
+          "ttsText": "wird es {LocalsearchTimeStampStartDay} in {LocalsearchLocation} windig"
+        },
+        {
+          "ttsText": "blitzt es"
+        },
+        {
+          "ttsText": "donnert und stürmt es"
+        },
+        {
+          "ttsText": "gibt es {LocalsearchTimeStampStartDay} grusiges Wetter"
+        },
+        {
+          "ttsText": "gibt es {LocalsearchTimeStampStartDay} hässliches Wetter"
+        },
+        {
+          "ttsText": "gibt es ein Gewitter"
+        },
+        {
+          "ttsText": "ich hätte gern den Wetterbericht für {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "ich hätte gern den Wetterbericht von {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "ich hätte gern gewusst wie das Wetter {LocalsearchTimeStampStartTime} in {LocalsearchLocation} wird"
+        },
+        {
+          "ttsText": "ist in {LocalsearchLocation} schönes Wetter"
+        },
+        {
+          "ttsText": "kommt die Sonne {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "kommt die Sonne {LocalsearchTimeStampStartTime} hervor"
+        },
+        {
+          "ttsText": "könntest du mir kurz den Wetterbericht sagen"
+        },
+        {
+          "ttsText": "sag die Wetterprognose für {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "sag kurz die Wetteraussichten"
+        },
+        {
+          "ttsText": "sag kurz die Wetterprognose"
+        },
+        {
+          "ttsText": "sag mal kurz das Wetter"
+        },
+        {
+          "ttsText": "sag mir die Wetter Info"
+        },
+        {
+          "ttsText": "sag mir kurz den Wetterbericht"
+        },
+        {
+          "ttsText": "sag mir schnell das Wetter"
+        },
+        {
+          "ttsText": "sag mir schnell die Wettervorhersage"
+        },
+        {
+          "ttsText": "sag mir wie das Wetter wird"
+        },
+        {
+          "ttsText": "scheint die Sonne um {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "stürmt es draussen"
+        },
+        {
+          "ttsText": "tut es {LocalsearchTimeStampStartDay} schneien"
+        },
+        {
+          "ttsText": "tut es schneien"
+        },
+        {
+          "ttsText": "weisst du ob es {LocalsearchTimeStampStartDay} windig wird"
+        },
+        {
+          "ttsText": "wie ist die Wettervorhersage für {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "wie ist die Wettervorschau für {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "wie windig wird es {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "wie wird das Wetter {LocalsearchTimeStampStartDay} in {LocalsearchLocation} zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wie wird das Wetter in {LocalsearchLocation} {LocalsearchTimeStampStartDay} zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wie wird das Wetter in {LocalsearchLocation} zwischen {LocalsearchTimeStampStartTime} und {LocalsearchTimeStampEndTime}"
+        },
+        {
+          "ttsText": "wird {LocalsearchTimeStampStartDay} die Sonne scheinen"
+        }
+      ]
+    }
+  }
+}
