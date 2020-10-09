@@ -1,4 +1,4 @@
-from generator.tools import filter_aliases
+from generator.tools import filter_aliases, remove_sharp_sign
 from generator.normalizer import Normalizer
 import random
 import re
@@ -25,7 +25,7 @@ class Generator:
             print('ERROR: Language {} does not exist, try anther one.'.format(target_lang))
             return
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
-        
+
         filtered_values = []
         # find all values in the entity
         for _, selected_entity in selected_entities.iterrows():
@@ -51,46 +51,40 @@ class Generator:
         E.g. {MyCloudArea} auf #myCloud anzeigen -> Fotos auf #myCloud anzeigen
         """
         template_command_pool = []
-        tags = [s[1 : -1] for s in re.findall(r'{\S+}', template)]
-        
+        tags = [s[1: -1] for s in re.findall(r'{\S+}', template)]
+
         if not tags:
             return [template]
         for tag in tags:
             selected_values = self.get_values_from_tag(tag, target_lang)
             for selected_value in selected_values:
-                template_command_pool.append(re.sub('{' + tag + '}', selected_value, template, 1))
-        return template_command_pool
+                replaced = re.sub('{' + tag + '}', selected_value, template, 1)
+                template_command_pool += self.replace_tags(replaced, target_lang)
+        return self.apply_method(template_command_pool)
 
-    def get_command(self, target_id: str, target_lang: str, verbose = False) -> list:
+    def get_command(self, target_id: str, target_lang: str, verbose=False) -> list:
         """
         generate a command given id and language
         """
         command_pool = []
         templates = self.get_templates(target_id, target_lang)
-        if verbose: 
-            print("Choose template: \n\t{}".format(templates)) 
-        
+        if verbose:
+            print("Choose template: \n\t{}".format(templates))
+
         for template in templates:
-            template = self.remove_sharp_sign(template)
+            template = remove_sharp_sign(template)
             command_pool += self.replace_tags(template, target_lang)
-        if verbose: 
-            print("After tag removal: \n\t{}".format(command_pool)) 
+        if verbose:
+            print("After tag removal: \n\t{}".format(command_pool))
 
         return command_pool
 
-    def apply_method(self, li:list):
+    def apply_method(self, li: list):
         if self.method == "one":
             selected_values = [random.choice(li)]
         elif self.method == "all":
             selected_values = li
         else:
             print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
+            selected_values = []
         return selected_values
-    
-    def remove_sharp_sign(self, sentence: str) -> str:
-        search = re.search(r'\s#[a-zA-Z]+', sentence)
-        while search:
-            pos = search.start() + 1
-            sentence = sentence[:pos] + sentence[(pos+1):]
-            search = re.search(r'\s#[a-zA-Z]+', sentence)
-        return sentence

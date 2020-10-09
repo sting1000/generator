@@ -249,7 +249,7 @@
           "ttsText": "muss man einen Schirm mitnehmen um {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
-          "ttsText": "Niederschlag für {LocalsearchTimeStampStart}"
+          "ttsText": "Niederschlag für {LocalsearchTimeStampStartDay}"
         },
         {
           "ttsText": "pissts"
