@@ -88,3 +88,9 @@ def remove_sharp_sign(sentence: str) -> str:
         sentence = sentence[:pos] + sentence[(pos + 1):]
         search = re.search(regex, sentence)
     return sentence
+
+
+def assign_tag_to_words(sentence: str, tag: str) -> str:
+    regex = r"(?!{\w*)\w+\.?\:?\w*(?!\w*})"
+    result = re.sub(regex, tag, sentence, 0, re.MULTILINE)
+    return result

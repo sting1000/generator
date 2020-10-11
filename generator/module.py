@@ -1,4 +1,4 @@
-from generator.tools import filter_aliases, remove_sharp_sign
+from generator.tools import filter_aliases, remove_sharp_sign, assign_tag_to_words
 from generator.normalizer import Normalizer
 import random
 import re
@@ -6,7 +6,11 @@ import re
 class Generator:
     def __init__(self, templates, entities, method):
         """
-        method: "one", "all"
+        init function
+        Args:
+            templates: Dataframe of templates
+            entities: Dataframe of entities
+            method: "one"/ "all", one to random choice one template, all to generate all possible templates
         """
         self.templates = templates
         self.entities = entities
@@ -15,7 +19,14 @@ class Generator:
 
     def get_values_from_tag(self, tag: str, target_lang: str) -> list:
         """
-        randomly generate a value according to tag (such as 'MyCloudArea') and language (like "fr")
+        get value(s) according to class method (one/ all) given a specific tag
+
+        Args:
+            tag: string like MyCloudArea
+            target_lang: fr de en it
+
+        Returns: list of possible value(s)
+
         """
         # get entity
         if tag not in self.entities['type'].values:
@@ -39,32 +50,56 @@ class Generator:
 
     def get_templates(self, target_id: str, target_lang: str) -> list:
         """
-        radomly choose a template from given id and language
+        get template(s) according to class method (one/all)
+        Args:
+            target_id: the init id in template dataframe
+            target_lang: language of the template
+
+        Returns: list of template(s)
+
         """
         pattern_list = self.templates[self.templates['id'] == target_id][target_lang].values[0]['texts']
         return self.apply_method([p['ttsText'] for p in pattern_list])
 
-    def replace_tags(self, template: str, target_lang: str) -> list:
+    def replace_tags(self, template: str, label: str, target_lang: str) -> list:
         """
-        replace tags in template accordingly
+        replace tags in template accordingly, and given string of label
 
-        E.g. {MyCloudArea} auf #myCloud anzeigen -> Fotos auf #myCloud anzeigen
+        E.g. {MyCloudArea} auf myCloud anzeigen -> Fotos auf myCloud anzeigen, {MyCloudArea} {Template} {Template} {
+        Template}
+
+        Args:
+            template: string of template
+            label: string of labels like {MyCloudArea}, {Template}
+            target_lang: language of template
+
+        Returns: list of tuples: [(template, label)]
+
         """
         template_command_pool = []
         tags = [s[1: -1] for s in re.findall(r'{\S+}', template)]
 
         if not tags:
-            return [template]
+            return [(template, label)]
         for tag in tags:
             selected_values = self.get_values_from_tag(tag, target_lang)
             for selected_value in selected_values:
-                replaced = re.sub('{' + tag + '}', selected_value, template, 1)
-                template_command_pool += self.replace_tags(replaced, target_lang)
+                replaced_template = re.sub('{' + tag + '}', selected_value, template, 1)
+                replaced_label = re.sub('{' + tag + '}', selected_value, label, 1)
+                replaced_label = assign_tag_to_words(replaced_label, '{' + tag + '}')
+                template_command_pool += self.replace_tags(replaced_template, replaced_label, target_lang)
         return self.apply_method(template_command_pool)
 
     def get_command(self, target_id: str, target_lang: str, verbose=False) -> list:
         """
         generate a command given id and language
+        Args:
+            target_id: the init id in template dataframe
+            target_lang: language of template
+            verbose: True to activate print and check the middle state
+
+        Returns: list of tuples: [(template, label)]
+
         """
         command_pool = []
         templates = self.get_templates(target_id, target_lang)
@@ -73,13 +108,22 @@ class Generator:
 
         for template in templates:
             template = remove_sharp_sign(template)
-            command_pool += self.replace_tags(template, target_lang)
+            label = assign_tag_to_words(template, "{Template}")
+            command_pool += self.replace_tags(template, label, target_lang)
         if verbose:
             print("After tag removal: \n\t{}".format(command_pool))
 
         return command_pool
 
-    def apply_method(self, li: list):
+    def apply_method(self, li: list) -> list:
+        """
+        To use self.method choose from li
+        Args:
+            li: list of values
+
+        Returns: list of values
+
+        """
         if self.method == "one":
             selected_values = [random.choice(li)]
         elif self.method == "all":
