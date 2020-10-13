@@ -3,6 +3,7 @@ from generator.normalizer import Normalizer
 import random
 import re
 
+
 class Generator:
     def __init__(self, templates, entities, method):
         """
