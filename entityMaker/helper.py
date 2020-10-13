@@ -1,4 +1,5 @@
 from generator.normalizer import Normalizer
+import pandas as pd
 import random
 
 
@@ -197,13 +198,13 @@ def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
              'Vorgestern',
              'am Montag',
              'am Dienstag',
-             'Am Mittwoch',
+             'am Mittwoch',
              'am Donnerstag',
              'am Freitag',
              'am Samstag',
              'am Sonntag',
              'am Morgen',
-             'Am Abend',
+             'am Abend',
              'am Nachmittag'
         ]
     elif lan == "fr":
@@ -260,9 +261,16 @@ def make_timestamp_date(entity_type, lan, entity_amount=None, random_seed=42):
     all_list = []
     random.seed(random_seed)
 
+    if lan == "en":
+        prepend = 'on '
+    elif lan == 'de':
+        prepend = 'am '
+    else:
+        prepend = ''
+
     for month in range(1, 13):
         for day in range(1, 32):
-            all_list.append(get_item("{}.{}".format(str(month), str(day)), entity_type, lan))
+            all_list.append(get_item(prepend + "{}.{}".format(str(day), str(month)), entity_type, lan))
 
     if entity_amount is None:
         entity_amount = len(all_list)
@@ -283,25 +291,25 @@ def make_timestamp_clock(entity_type, lan, entity_amount=None, random_seed=42):
 
             if lan == 'en':
                 if minute == 0:
-                    aliases.append("at {} o clock".format(str(hour)))
+                    aliases.append("{} o clock".format(str(hour)))
                     if hour > 12:
-                        aliases.append("at {} pm".format(str(hour % 12)))
+                        aliases.append("{} pm".format(str(hour % 12)))
                     else:
-                        aliases.append("at {} am".format(str(hour)))
+                        aliases.append("{} am".format(str(hour)))
                 elif minute == 30:
-                    aliases.append("at half past {}".format(str(hour)))
+                    aliases.append("half past {}".format(str(hour)))
                 else:
                     all_list.append(
-                        get_item("at {}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
+                        get_item("{}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
             elif lan == 'de':
                 if minute == 0:
-                    aliases.append("um {} uhr".format(str(hour)))
+                    aliases.append("{} uhr".format(str(hour)))
                 elif minute == 30:
-                    aliases.append("um halb {}".format(str(hour % 12 + 1)))
+                    aliases.append("halb {}".format(str(hour % 12 + 1)))
                 else:
-                    aliases.append("um {}:{} uhr".format(hour_str, minute_str))
+                    aliases.append("{}:{} uhr".format(hour_str, minute_str))
                     all_list.append(
-                        get_item("um {}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
+                        get_item("{}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
             else:
                 print("ERROR: Wrong language!")
 

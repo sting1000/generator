@@ -62,10 +62,10 @@
           "ttsText": "how warm will it get {LocalsearchTimeStampStartDay}"
         },
         {
-          "ttsText": "how warm will it get {LocalsearchTimeStampStartTime}"
+          "ttsText": "how warm will it get at {LocalsearchTimeStampStartTime}"
         },
         {
-          "ttsText": "I need the temperature for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "I need the temperature for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "I need you to tell me how hot it will get {LocalsearchTimeStampStartDay}"
@@ -89,10 +89,16 @@
           "ttsText": "I would like to know how warm it will be {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "I would like to know how warm it will be at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "I would like to know how warm it will be {LocalsearchTimeStampStartDay} between {LocalsearchTimeStampStartTime} and {LocalsearchTimeStampEndTime}"
         },
         {
           "ttsText": "I'd like to know if it is warm outside"
+        },
+        {
+          "ttsText": "is it going to be hot in {LocalsearchLocation} at {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "is it going to be hot in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
@@ -104,10 +110,16 @@
           "ttsText": "is it warm in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "is it warm in {LocalsearchLocation} at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "tell me how cold it is"
         },
         {
-          "ttsText": "tell me the temperature for {LocalsearchTimeStampStartDay}"
+          "ttsText": "tell me the temperature for {LocalsearchTimeStampStartTime}"
+        },
+        {
+          "ttsText": "tell me the temperature {LocalsearchTimeStampStartDay}"
         },
         {
           "ttsText": "what's the temperature like"
@@ -165,6 +177,9 @@
           "ttsText": "do you think it will rain {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "do you think it will rain at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "how hard is it raining"
         },
         {
@@ -178,6 +193,9 @@
         },
         {
           "ttsText": "how much will it rain {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "how much will it rain at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "how much will it rain in {LocalsearchLocation} from {LocalsearchTimeStampStartTime} to {LocalsearchTimeStampEndTime}"
@@ -201,6 +219,9 @@
           "ttsText": "is it raining {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "is it raining at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "is it a rainy day today"
         },
         {
@@ -216,9 +237,6 @@
           "ttsText": "is it raining in {LocalsearchLocation} from {LocalsearchTimeStampStartTime} to {LocalsearchTimeStampEndTime}"
         },
         {
-          "ttsText": "is it raining in {LocalsearchLocation} from {LocalsearchTimeStampStartDay} to {LocalsearchTimeStampStartDay}"
-        },
-        {
           "ttsText": "is it raining now"
         },
         {
@@ -231,7 +249,7 @@
           "ttsText": "is there rain"
         },
         {
-          "ttsText": "rainfall for {LocalsearchTimeStampStartDay} please"
+          "ttsText": "rainfall for {LocalsearchTimeStampStartTime please"
         },
         {
           "ttsText": "rainfall in {LocalsearchLocation}"
@@ -243,10 +261,13 @@
           "ttsText": "should I have an umbrella with me {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "should I have an umbrella with me at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "tell me if I need an umbrella in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
         },
         {
-          "ttsText": "the rainfall for {LocalsearchTimeStampStartDay}"
+          "ttsText": "the rainfall {LocalsearchTimeStampStartDay}"
         },
         {
           "ttsText": "will I have to take my umbrella {LocalsearchTimeStampStartDay}"
@@ -286,6 +307,9 @@
         },
         {
           "ttsText": "will there be rain {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "will there be rain at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         }
       ]
     },
@@ -310,6 +334,9 @@
           "ttsText": "do you know how the weather is {LocalsearchTimeStampStartDay}"
         },
         {
+          "ttsText": "do you know how the weather is at {LocalsearchTimeStampStartTime}"
+        },
+        {
           "ttsText": "do you know if it will be windy {LocalsearchTimeStampStartDay}"
         },
         {
@@ -322,7 +349,7 @@
           "ttsText": "give me a weather update on {LocalsearchLocation}"
         },
         {
-          "ttsText": "give me information about the weather for {LocalsearchTimeStampStartDay}"
+          "ttsText": "give me information about the weather for {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "give me the weather prediction please"
@@ -331,7 +358,7 @@
           "ttsText": "give me the weather report"
         },
         {
-          "ttsText": "how is the weather forecast for {LocalsearchTimeStampStartDay}"
+          "ttsText": "how is the weather forecast for {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "how is the weather"
@@ -343,13 +370,16 @@
           "ttsText": "how is the weather forecast for {LocalsearchLocation}"
         },
         {
-          "ttsText": "how is the weather forecast for {LocalsearchTimeStampStartDay}"
+          "ttsText": "how is the weather forecast for {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "how is the weather going to be"
         },
         {
           "ttsText": "how is the weather going to be {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "how is the weather going to be at {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "how is the weather going to be between {LocalsearchTimeStampStartTime} and {LocalsearchTimeStampEndTime}"
@@ -373,6 +403,9 @@
           "ttsText": "how will the weather be {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
+          "ttsText": "how will the weather be at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
           "ttsText": "I am interested in the weather in {LocalsearchLocation} {LocalsearchTimeStampStartDay}"
         },
         {
@@ -382,10 +415,10 @@
           "ttsText": "I wanna know how the weather will be in {LocalsearchLocation}"
         },
         {
-          "ttsText": "I want the weather for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "I want the weather for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
-          "ttsText": "I want the weather report for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "I want the weather report for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "I want to know how the weather will be {LocalsearchTimeStampStartDay}"
@@ -400,7 +433,7 @@
           "ttsText": "I would like some info about the weather on {LocalsearchTimeStampStartDay}"
         },
         {
-          "ttsText": "I would like the weather report for {LocalsearchTimeStampStartDay}"
+          "ttsText": "I would like the weather report for {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "I would like to know how the weather is going to be"
@@ -412,10 +445,13 @@
           "ttsText": "I'd like some Information about the weather {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
-          "ttsText": "I'd like the weather report for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "I'd like the weather report for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "is it going to be nice outside {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "is it going to be nice outside at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "is it snowing"
@@ -448,31 +484,40 @@
           "ttsText": "please tell me how the weather will be {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
+          "ttsText": "please tell me how the weather will be at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
           "ttsText": "tell me how the weather will be {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
           "ttsText": "the weather report please"
         },
         {
-          "ttsText": "weather info for {LocalsearchTimeStampStartDay}"
+          "ttsText": "weather info for {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "weather news"
         },
         {
-          "ttsText": "weather news for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "weather news for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
+          "ttsText": "weather news {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
           "ttsText": "weather report please"
         },
         {
-          "ttsText": "weather update for {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
+          "ttsText": "weather update for {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
         },
         {
           "ttsText": "weather update please"
         },
         {
           "ttsText": "what's the weather gonna be like {LocalsearchTimeStampStartDay}"
+        },
+        {
+          "ttsText": "what's the weather gonna be like at {LocalsearchTimeStampStartTime}"
         },
         {
           "ttsText": "what's the weather gonna be like in {LocalsearchLocation}"
@@ -490,13 +535,16 @@
           "ttsText": "will it be sunny {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
+          "ttsText": "will it be sunny at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}"
+        },
+        {
           "ttsText": "will it be windy {LocalsearchTimeStampStartDay} in {LocalsearchLocation}"
         },
         {
-          "ttsText": "will it snow on {LocalsearchTimeStampStartDay}"
+          "ttsText": "will it snow {LocalsearchTimeStampStartDay}"
         },
         {
-          "ttsText": "will there be snow on {LocalsearchTimeStampStartDay}"
+          "ttsText": "will there be snow {LocalsearchTimeStampStartDay}"
         }
       ]
     }
