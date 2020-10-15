@@ -17,6 +17,7 @@ class Generator:
         self.entities = entities
         self.normalizer = Normalizer().normalize_text
         self.method = method
+        self.command_pool = []
 
     def get_values_from_tag(self, tag: str, target_lang: str) -> list:
         """
@@ -36,6 +37,8 @@ class Generator:
         if target_lang not in self.entities['language'].values:
             print('ERROR: Language {} does not exist, try anther one.'.format(target_lang))
             return
+
+        # TODO: comment language selection to have more permutation
         selected_entities = self.entities[self.entities['type'] == tag][self.entities['language'] == target_lang]
 
         filtered_values = []
@@ -102,7 +105,6 @@ class Generator:
         Returns: list of tuples: [(template, label)]
 
         """
-        command_pool = []
         templates = self.get_templates(target_id, target_lang)
         if verbose:
             print("Choose template: \n\t{}".format(templates))
@@ -110,11 +112,10 @@ class Generator:
         for template in templates:
             template = remove_sharp_sign(template)
             label = assign_tag_to_words(template, "{Template}")
-            command_pool += self.replace_tags(template, label, target_lang)
+            self.command_pool += self.replace_tags(template, label, target_lang)
         if verbose:
-            print("After tag removal: \n\t{}".format(command_pool))
-
-        return command_pool
+            print("After tag removal: \n\t{}".format(self.command_pool))
+        return self.command_pool
 
     def apply_method(self, li: list) -> list:
         """
