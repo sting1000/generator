@@ -83,7 +83,6 @@ class Generator:
             print("Choose template: \n\t{}".format(templates))
 
         for template in templates:
-            label = []
             template = [token.strip('#') for token in template.split()]
             template_command_pool = []
 
@@ -95,20 +94,23 @@ class Generator:
                 if re.findall(r'{\S+}', template[pos]):
                     tag = template[pos][1: -1]
                     for selected_value in self.get_values_from_tag(tag, target_lang):
-                        selected_value_norm = self.normalizer(selected_value, target_lang).split()
-                        curr_temp.extend(selected_value_norm)
-                        curr_label.extend(make_bio_tag(selected_value_norm, tag))
+                        selected_value = [token.strip('#') for token in selected_value.split()]
+                        for token in selected_value:
+                            curr_label.extend(self.normalizer(token, target_lang).split())
+                        curr_temp.extend(selected_value)
                         replace_pos(pos + 1, curr_temp, curr_label)
                 else:
+                    # curr_temp.append(template[pos])
+                    # curr_label.append('O')
                     curr_temp.append(template[pos])
-                    curr_label.append('O')
+                    curr_label.append(template[pos])
                     replace_pos(pos + 1, curr_temp, curr_label)
 
             replace_pos(0, [], [])
             self.command_pool += template_command_pool
         if verbose:
             print("After tag removal: \n\t{}".format(self.command_pool))
-        return template_command_pool#self.command_pool
+        return template_command_pool #self.command_pool
 
     def apply_method(self, li: list) -> list:
         """

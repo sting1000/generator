@@ -9,3 +9,7 @@ class Normalizer:
     def normalize_text(self, text: str, language: str) -> str:
         normalized_text, _ = self.preprocessor.process(text=text, language=language)
         return normalized_text
+
+import splitter
+
+splitter.split('artfactory')

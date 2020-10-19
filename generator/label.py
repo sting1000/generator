@@ -19,8 +19,8 @@ class LabelMaker:
         self.command = command
         self.tags = tags
         self.lang = lang
-        self.command_list = self.split_str(self.command)
-        self.tags_list = self.split_str(self.tags)
+        self.command_list = self.command.split()
+        self.tags_list = self.tags.split()
         self.normalizer = Normalizer().normalize_text
 
     def make_derivatives(self) -> list:
@@ -159,8 +159,5 @@ class LabelMaker:
             current_derivative.append(der)
         return [current_derivative]
 
-    def split_str(self, command):
-        # TODO
-        pass
 
 
