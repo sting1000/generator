@@ -1,5 +1,6 @@
-from generator.tools import filter_aliases, remove_sharp_sign, assign_tag_to_words
+from generator.tools import filter_aliases, remove_sharp_sign, assign_tag_to_words, make_bio_tag
 from generator.normalizer import Normalizer
+from tqdm import tqdm
 import random
 import re
 
@@ -65,39 +66,11 @@ class Generator:
         pattern_list = self.templates[self.templates['id'] == target_id][target_lang].values[0]['texts']
         return self.apply_method([p['ttsText'] for p in pattern_list])
 
-    def replace_tags(self, template: str, label: str, target_lang: str) -> list:
-        """
-        replace tags in template accordingly, and given string of label
-
-        E.g. {MyCloudArea} auf myCloud anzeigen -> Fotos auf myCloud anzeigen, {MyCloudArea} {Template} {Template} {
-        Template}
-
-        Args:
-            template: string of template
-            label: string of labels like {MyCloudArea}, {Template}
-            target_lang: language of template
-
-        Returns: list of tuples: [(template, label)]
-
-        """
-        template_command_pool = []
-        tags = [s[1: -1] for s in re.findall(r'{\S+}', template)]
-
-        if not tags:
-            return [(template, label)]
-        for tag in tags:
-            selected_values = self.get_values_from_tag(tag, target_lang)
-            for selected_value in selected_values:
-                replaced_template = re.sub('{' + tag + '}', selected_value, template, 1)
-                replaced_label = re.sub('{' + tag + '}', selected_value, label, 1)
-                replaced_label = assign_tag_to_words(replaced_label, '{' + tag + '}')
-                template_command_pool += self.replace_tags(replaced_template, replaced_label, target_lang)
-        return self.apply_method(template_command_pool)
-
     def get_command(self, target_id: str, target_lang: str, verbose=False) -> list:
         """
         generate a command given id and language
         Args:
+            size:
             target_id: the init id in template dataframe
             target_lang: language of template
             verbose: True to activate print and check the middle state
@@ -110,21 +83,36 @@ class Generator:
             print("Choose template: \n\t{}".format(templates))
 
         for template in templates:
-            template = remove_sharp_sign(template)
-            label = assign_tag_to_words(template, "{Template}")
-            self.command_pool += self.replace_tags(template, label, target_lang)
+            label = []
+            template = [token.strip('#') for token in template.split()]
+            template_command_pool = []
+
+            def replace_pos(pos: int, curr_temp: list, curr_label: list):
+                if pos == len(template):
+                    template_command_pool.append((curr_temp, curr_label))
+                    return
+
+                if re.findall(r'{\S+}', template[pos]):
+                    tag = template[pos][1: -1]
+                    for selected_value in self.get_values_from_tag(tag, target_lang):
+                        selected_value_norm = self.normalizer(selected_value, target_lang).split()
+                        curr_temp.extend(selected_value_norm)
+                        curr_label.extend(make_bio_tag(selected_value_norm, tag))
+                        replace_pos(pos + 1, curr_temp, curr_label)
+                else:
+                    curr_temp.append(template[pos])
+                    curr_label.append('O')
+                    replace_pos(pos + 1, curr_temp, curr_label)
+
+            replace_pos(0, [], [])
+            self.command_pool += template_command_pool
         if verbose:
             print("After tag removal: \n\t{}".format(self.command_pool))
-        return self.command_pool
+        return template_command_pool#self.command_pool
 
     def apply_method(self, li: list) -> list:
         """
         To use self.method choose from li
-        Args:
-            li: list of values
-
-        Returns: list of values
-
         """
         if self.method == "one":
             selected_values = [random.choice(li)]
