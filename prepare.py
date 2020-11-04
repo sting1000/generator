@@ -26,17 +26,17 @@ entities = pd.read_json(data_dir / entities_filename)
 
 # set generator
 gen = Generator(templates=templates, entities=entities, method='one')
-f_source = open(output_dir / ('commands_source_' + '_'.join(languages) + '.txt'), "a")
-f_target = open(output_dir / ('commands_target_' + '_'.join(languages) + '.txt'), "a")
+f_source = open(output_dir / ('commands_written_' + '_'.join(languages) + '.txt'), "w")
+f_target = open(output_dir / ('commands_spoken_' + '_'.join(languages) + '.txt'), "w")
 
 # generate
 for temp_id, size in id_size.items():
     print(temp_id)
     for _ in tqdm(range(size)):
         for lan in languages:
-            command, label = gen.get_command(target_id=temp_id, target_lang=lan, verbose=False)[0]
-            f_source.write("{}\n".format(' '.join(command)))
-            f_target.write("{}\n".format(' '.join(label)))
+            written, spoken = gen.get_command(target_id=temp_id, target_lang=lan, verbose=False)[0]
+            f_source.write("{}\n".format(written))
+            f_target.write("{}\n".format(spoken))
 
 print("Generating extra numbers")
 for num in tqdm(range(extra_num_size)):

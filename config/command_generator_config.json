@@ -6,12 +6,12 @@
   "languages": ["en"],
   "extra_num_size": 1000,
   "id_size": {
-    "Localsearch.TemperatureInfo.Init.Utterance": 30000,
-    "Localsearch.RainInfo.Init.Utterance": 30000,
-    "Localsearch.WeatherInfo.Init.Utterance": 30000,
+    "Localsearch.TemperatureInfo.Init.Utterance": 50000,
+    "Localsearch.RainInfo.Init.Utterance": 50000,
+    "Localsearch.WeatherInfo.Init.Utterance":50000,
     "Tv.TvSearch.Init.Utterance": 30000,
-    "Tv.TvChannelChange.Init.Utterance": 20000,
-    "Tv.RadioChannelChange.Init.Utterance": 20000,
-    "SmartHome.SwitchOnDevice.Init.Utterance": 20000
+    "Tv.TvChannelChange.Init.Utterance": 30000,
+    "Tv.RadioChannelChange.Init.Utterance": 30000,
+    "SmartHome.SwitchOnDevice.Init.Utterance": 30000
   }
 }
