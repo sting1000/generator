@@ -1,0 +1,125 @@
+id,language,text
+SmartHome.SwitchOffDevice.Init.Utterance,en,deactivate {SmartHomeDeviceBrand}
+Tv.OpenApplication.Init.Utterance,en,show me {AppName}
+Router.SwitchOffGuestWiFi.Init.Utterance,en,my guests are done with the Wi-Fi
+Tv.TvChannelChange.Init.Utterance,en,I do not want to see this
+SmartHome.SwitchOnDevice.Init.Utterance,en,I want you to turn my {SmartHomeDeviceCategory} on
+Bluewin.NewsSummary.Init.Utterance,en,what are the news of the day
+Localsearch.TemperatureInfo.Init.Utterance,en,what's the temperature like
+Localsearch.TemperatureInfo.Init.Utterance,en,can you tell me the temperature {LocalsearchTimeStampStartDay}
+Tv.TrickModeSkip.Init.Utterance,en,I would like to fast-forward {Duration}
+Tv.TrickModeSkip.Init.Utterance,en,can you fast-forward {Duration}
+Tv.OpenApplication.Init.Utterance,en,open an app
+Tv.NavigationDown.Init.Utterance,en,one down
+Router.SwitchOnGuestWiFi.Init.Utterance,en,I need guest Wi-Fi
+Tv.RadioChannelChange.Init.Utterance,en,switch to radio channel {RadioChannelPosition}
+Tv.RadioChannelChange.Init.Utterance,en,I don't want to listen to this
+Tv.OpenUiArea.Init.Utterance,en,a {AreaName} please
+Router.SwitchOffWiFi.Init.Utterance,en,turn off the internet
+Tv.TerminateService.Init.Utterance,en,please switch off the TV
+SmartHome.SwitchOffDevice.Init.Utterance,en,turn off the device {SmartHomeDeviceName} in the {SmartHomeDeviceLocation}
+Tv.NavigationUp.Init.Utterance,en,can you go up
+Bluewin.NewsSummary.Init.Utterance,en,news recap
+Tv.TerminateService.Init.Utterance,en,turn on standby
+Localsearch.TemperatureInfo.Init.Utterance,en,how warm will it get
+Tv.WatchFromBeginning.Init.Utterance,en,I want to watch the beginning again
+Tv.NavigationRight.Init.Utterance,en,one right
+Localsearch.WeatherInfo.Init.Utterance,en,how is the weather forecast for {LocalsearchTimeStampStartTime}
+Router.ShowWiFiPassword.Init.Utterance,en,please display the Wi-Fi password
+Tv.NavigationLeft.Init.Utterance,en,to the left
+Router.SwitchOffGuestWiFi.Init.Utterance,en,can you deactivate the guest Wi-Fi
+SmartHome.SwitchOnDevice.Init.Utterance,en,please activate device {SmartHomeDeviceName}
+Tv.RadioChannelChange.Init.Utterance,en,turn the radio on
+Router.ShowWiFiPassword.Init.Utterance,en,can you show me the Wi-Fi password
+Tv.TvSearch.Init.Utterance,en,search for {SportCompetitionName}
+Tv.SkipCommercial.Init.Utterance,en,I wanna skip the commercial
+Localsearch.WeatherInfo.Init.Utterance,en,weather news {LocalsearchTimeStampStartDay} in {LocalsearchLocation}
+Router.SwitchOnGuestWiFi.Init.Utterance,en,turn guest Wi-Fi on for {RouterWiFiDuration}
+Tv.OpenUiArea.Init.Utterance,en,show {AreaName}
+Tv.GenericExitToTv.Init.Utterance,en,go back to the last channel
+Router.SwitchOffWiFi.Init.Utterance,en,switch off Wi-Fi
+Router.ShowWiFiPassword.Init.Utterance,en,please show me the Wi-Fi password
+Tv.InitiateService.Init.Utterance,en,can you turn on the TV
+Tv.VolumeDown.Init.Utterance,en,not so loud
+Bluewin.NewsSummary.Init.Utterance,en,morning news
+Tv.RadioChannelChange.Init.Utterance,en,I'd like to listen to {RadioChannelName}
+Localsearch.RainInfo.Init.Utterance,en,how hard is it raining
+Tv.TrickModePlay.Init.Utterance,en,continue the TV show
+Router.SwitchOnGuestWiFi.Init.Utterance,en,please activate the internet for my guests for {RouterWiFiDuration}
+Tv.InitiateService.Init.Utterance,en,can you please turn on the TV box
+Tv.TvRecommendations.Init.Utterance,en,recommend something
+Tv.VolumeUp.Init.Utterance,en,volume up
+Tv.TvRecommendations.Init.Utterance,en,I need a movie tip
+Tv.TerminateService.Init.Utterance,en,could you please set the box to standby mode
+Tv.WatchFromBeginning.Init.Utterance,en,can you play this from the beginning
+Tv.RadioChannelChange.Init.Utterance,en,can you turn on radio station {RadioChannelPosition}
+SmartHome.StartScene.Init.Utterance,en,can you put on the {SmartHomeSceneName} scene
+Router.SwitchOnWiFi.Init.Utterance,en,turn on the internet
+SmartHome.SwitchOnDevice.Init.Utterance,en,turn my {SmartHomeDeviceBrand} on
+SmartHome.SwitchOnDevice.Init.Utterance,en,start the {SmartHomeDeviceCategory} in the {SmartHomeDeviceLocation}
+Tv.TvSearch.Init.Utterance,en,do you have {VodName}
+Tv.OpenUiArea.Init.Utterance,en,I want to watch a {AreaName}
+SmartHome.StartScene.Init.Utterance,en,please turn on scene {SmartHomeSceneName}
+Localsearch.WeatherInfo.Init.Utterance,en,I would like information about the weather
+Tv.TvRecommendations.Init.Utterance,en,can you recommend something for tonight
+Tv.TrickModePause.Init.Utterance,en,pause TV show
+Tv.TvChannelChange.Init.Utterance,en,please change the channel to channel {TvChannelPosition}
+Localsearch.WeatherInfo.Init.Utterance,en,weather info for {LocalsearchTimeStampStartTime}
+Localsearch.TemperatureInfo.Init.Utterance,en,how cold is it
+Localsearch.WeatherInfo.Init.Utterance,en,is it going to be nice outside at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}
+Localsearch.RainInfo.Init.Utterance,en,is it raining a lot
+SmartHome.SwitchOnDevice.Init.Utterance,en,turn on device {SmartHomeDeviceName} from {SmartHomeDeviceBrand}
+Localsearch.WeatherInfo.Init.Utterance,en,I wanna know how the weather will be in {LocalsearchLocation}
+Router.SwitchOnGuestWiFi.Init.Utterance,en,I want the guest internet on
+Router.SwitchOffWiFi.Init.Utterance,en,wireless network connection off
+SmartHome.SwitchOffDevice.Init.Utterance,en,turn off {SmartHomeDeviceBrand}
+Localsearch.RainInfo.Init.Utterance,en,how much will it rain in {LocalsearchLocation} from {LocalsearchTimeStampStartTime} to {LocalsearchTimeStampEndTime}
+Tv.TvSearch.Init.Utterance,en,show me {VodName}
+Localsearch.TemperatureInfo.Init.Utterance,en,is it cold in {LocalsearchLocation}
+Tv.TrickModePlay.Init.Utterance,en,continue series please
+Tv.TvChannelChange.Init.Utterance,en,go to channel {TvChannelPosition}
+SmartHome.StartScene.Init.Utterance,en,I want to start scene {SmartHomeSceneName}
+Router.ShowGuestWiFiPassword.Init.Utterance,en,I need the guest Wi-Fi password please
+Router.SwitchOnGuestWiFi.Init.Utterance,en,{RouterWiFiDuration} guest internet
+Router.SwitchOnGuestWiFi.Init.Utterance,en,now i need the guest Wi-Fi
+Router.SwitchOnWiFi.Init.Utterance,en,Wi-Fi please
+Router.SwitchOnGuestWiFi.Init.Utterance,en,I'd like guest Wi-Fi please
+Localsearch.RainInfo.Init.Utterance,en,is it raining {LocalsearchTimeStampStartDay}
+Tv.VolumeUp.Init.Utterance,en,can you turn that up
+Localsearch.WeatherInfo.Init.Utterance,en,how will the weather be at {LocalsearchTimeStampStartTime} in {LocalsearchLocation}
+Bluewin.NewsSummary.Init.Utterance,en,give me a news update
+Router.ShowGuestWiFiPassword.Init.Utterance,en,guest Wi-Fi password please
+Tv.GenericExitToTv.Init.Utterance,en,go back to TV
+MyCloud.OpenArea.Init.Utterance,en,go to {MyCloudArea} on myCloud
+Tv.Recording.Init.Utterance,en,add to recorded movies
+Router.SwitchOnWiFi.Init.Utterance,en,Turn on Wi-Fi
+Tv.TvRecommendations.Init.Utterance,en,TV program
+Tv.VolumeUnmute.Init.Utterance,en,could you please turn the sound back on
+Tv.VolumeDown.Init.Utterance,en,turn down the volume a little
+Tv.TvChannelChange.Init.Utterance,en,{TvChannelName}
+SmartHome.SwitchOffDevice.Init.Utterance,en,I would like to turn off the device {SmartHomeDeviceName}
+SmartHome.SwitchOffDevice.Init.Utterance,en,please deactivate {SmartHomeDeviceBrand}
+Tv.VolumeDown.Init.Utterance,en,turn down the sound
+Router.ShowGuestWiFiPassword.Init.Utterance,en,please show me the guest Wi-Fi password
+Localsearch.WeatherInfo.Init.Utterance,en,is there thunder
+Tv.GenericExitToTv.Init.Utterance,en,I would like to go back to the TV
+Router.SwitchOffGuestWiFi.Init.Utterance,en,wireless network for guests off
+Tv.SkipCommercial.Init.Utterance,en,jump to the end of the commercial
+Router.SwitchOffGuestWiFi.Init.Utterance,en,could you please turn off the guest Wi-Fi
+Tv.Recording.Init.Utterance,en,record the movie
+SmartHome.SwitchOnDevice.Init.Utterance,en,turn on {SmartHomeDeviceBrand} please
+Tv.TrickModeSkip.Init.Utterance,en,skip {Duration}
+SmartHome.SwitchOnDevice.Init.Utterance,en,I need you to turn device {SmartHomeDeviceName} on
+Tv.VolumeUp.Init.Utterance,en,the sound is too low
+Tv.TrickModePlay.Init.Utterance,en,please press play
+SmartHome.SwitchOffDevice.Init.Utterance,en,turn off {SmartHomeDeviceBrand} in the {SmartHomeDeviceLocation}
+Tv.WatchNextEpisode.Init.Utterance,en,can you play the next episode
+Tv.TvSearch.Init.Utterance,en,a game with {SportParticipantName}
+Tv.TrickModePause.Init.Utterance,en,can you pause please
+MyCloud.OpenArea.Init.Utterance,en,show me {MyCloudArea} on myCloud
+Router.SwitchOffWiFi.Init.Utterance,en,deactivate the Wi-Fi
+Tv.TvChannelChange.Init.Utterance,en,change the channel please
+Tv.TrickModeSkip.Init.Utterance,en,please fast-forward {Duration}
+Localsearch.RainInfo.Init.Utterance,en,do you think it will rain at {LocalsearchTimeStampStartTime}
+Tv.VolumeMute.Init.Utterance,en,silence the sound
+Router.SwitchOnWiFi.Init.Utterance,en,I want to go online

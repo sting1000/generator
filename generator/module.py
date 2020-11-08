@@ -1,12 +1,16 @@
+import pandas as pd
 from generator.tools import filter_aliases, remove_sharp_sign, assign_tag_to_words, make_bio_tag
 from generator.normalizer import Normalizer
 from generator.cleaning import normalizeString
 import random
 import re
+import itertools
+import time
+from tqdm import tqdm
 
 
 class Generator:
-    def __init__(self, templates, entities, method):
+    def __init__(self, templates, entities, method='all', name=None):
         """
         init function
         Args:
@@ -21,6 +25,8 @@ class Generator:
         self.command_pool = {}
         self.tag_dic = {}
         self.template_dic = {}
+        self.name = name
+        self.tag_tuples_dic = {}
 
     def get_values_from_tag(self, tag: str, target_lang: str) -> list:
         """
@@ -92,7 +98,7 @@ class Generator:
                 if re.findall(r'{\S+}', template[pos]):
                     tag = template[pos][1: -1]
                     for selected_value in self.get_values_from_tag(tag, target_lang):
-                        selected_value = selected_value.split()  # [token.strip('#') for token in selected_value.split()]
+                        selected_value = selected_value.split()
                         for token in selected_value:
                             curr_label.extend(self.normalizer(token, target_lang).split())
                         curr_temp.extend(selected_value)
@@ -123,3 +129,50 @@ class Generator:
             print('ERROR: Method {} does not exist, try anther one.'.format(self.method))
             selected_values = []
         return selected_values
+
+    def permute(self, threshold=300) -> pd.DataFrame:
+        print("Making permutation for " + self.name)
+        time_start = time.time()
+        df_pool = pd.DataFrame(columns=["id", "language", "spoken", "written"])
+        for _, row in tqdm(self.templates.iterrows()):
+            tags = re.findall(r'{\S+}', row['text'])
+            if tags:
+                if ''.join(tags) in self.tag_tuples_dic:
+                    tag_tuples = self.tag_tuples_dic[''.join(tags)]
+                else:
+                    meta_tag_list = []
+                    for tag in tags:
+                        type_condition = self.entities['type'] == tag[1: -1]
+                        lan_condition = self.entities['language'] == row['language']
+                        val_list = self.entities[type_condition][lan_condition]['value'].values
+                        meta_tag_list.append(val_list)
+                    tag_tuples = list(itertools.product(*meta_tag_list))
+                    self.tag_tuples_dic[''.join(tags)] = tag_tuples
+
+                if len(tag_tuples) > threshold:
+                    tag_tuples = random.sample(tag_tuples, threshold)
+                for tup in tag_tuples:
+                    text = row['text']
+                    for ind in range(len(tup)):
+                        text = re.sub(tags[ind], tup[ind], text, count=1)
+                    written = text
+                    spoken = self.normalizer(written, row['language'])
+                    df_pool = df_pool.append({
+                        "id": row['id'],
+                        "language": row['language'],
+                        "spoken": normalizeString(spoken),
+                        "written": normalizeString(written)
+                    }, ignore_index=True)
+            else:
+                written = row['text']
+                spoken = self.normalizer(written, row['language'])
+                df_pool = df_pool.append({
+                         "id": row['id'],
+                         "language": row['language'],
+                         "spoken":  normalizeString(spoken),
+                         "written": normalizeString(written)
+                          }, ignore_index=True)
+
+        time_end = time.time()
+        print('time cost', time_end - time_start, 's')
+        return df_pool
