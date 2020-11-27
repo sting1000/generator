@@ -12,9 +12,14 @@ def unicodeToAscii(s):
 def normalizeString(s):
     s = unicodeToAscii(s.lower().strip())
     s = re.sub(r"([a-zA-Z]+)[\:\-\'\.]", r"\1 ", s)  # colun: dsfa -> colun dsfa
-    s = re.sub(r"[!\"#&'()*,\-;<=>?@_`~|]", r" ", s)  # colun-dsfa -> colun dsfa
+    s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)
+    s = re.sub(r"[!\"#'()*,\-;<=>?@_`~|]", r" ", s)  # colun-dsfa -> colun dsfa
     s = re.sub(r"([\+])", r" \1 ", s)
     s = re.sub(r'\s+', ' ', s)
+    s = re.sub(r' [.\-:] ', ' ', s)
+    s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
+    s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
+    #TODO: 123.abc -> 123 abc
     s = s.strip()
     return s
 

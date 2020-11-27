@@ -130,10 +130,10 @@ class Generator:
             selected_values = []
         return selected_values
 
-    def permute(self, threshold=300) -> pd.DataFrame:
+    def permute(self, threshold=3000) -> pd.DataFrame:
         print("Making permutation for " + self.name)
         time_start = time.time()
-        df_pool = pd.DataFrame(columns=["id", "language", "spoken", "written"])
+        df_pool = pd.DataFrame(columns=["id", "language", "spoken", "written", "entities_dic"])
         for _, row in tqdm(self.templates.iterrows()):
             tags = re.findall(r'{\S+}', row['text'])
             if tags:
@@ -153,15 +153,18 @@ class Generator:
                     tag_tuples = random.sample(tag_tuples, threshold)
                 for tup in tag_tuples:
                     text = row['text']
+                    entities_dic = {}
                     for ind in range(len(tup)):
                         text = re.sub(tags[ind], tup[ind], text, count=1)
+                        entities_dic[normalizeString(tup[ind])] = tags[ind]
                     written = text
                     spoken = self.normalizer(written, row['language'])
                     df_pool = df_pool.append({
                         "id": row['id'],
                         "language": row['language'],
                         "spoken": normalizeString(spoken),
-                        "written": normalizeString(written)
+                        "written": normalizeString(written),
+                        "entities_dic": entities_dic
                     }, ignore_index=True)
             else:
                 written = row['text']
@@ -170,7 +173,8 @@ class Generator:
                          "id": row['id'],
                          "language": row['language'],
                          "spoken":  normalizeString(spoken),
-                         "written": normalizeString(written)
+                         "written": normalizeString(written),
+                         "entities_dic": {}
                           }, ignore_index=True)
 
         time_end = time.time()

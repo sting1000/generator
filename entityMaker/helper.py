@@ -3,7 +3,7 @@ import pandas as pd
 import random
 
 
-def get_item(value, item_type, lan, aliases=None):
+def make_item(value, item_type, lan, aliases=None):
     if aliases is None:
         aliases = []
     item = {
@@ -16,160 +16,132 @@ def get_item(value, item_type, lan, aliases=None):
     return item
 
 
-def make_seconds(entity_type, lan, entity_amount=None, random_seed=42):
+def make_seconds(entity_type, language, amount=None):
     all_list = []
-    #  random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         for num in range(2, 60):
-            all_list.append(get_item("{} seconds".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 second", entity_type, lan, aliases=["a minute"]))
-        all_list.append(get_item("half a second", entity_type, lan, aliases=["half second"]))
-    elif lan == "de":
+            all_list.append(make_item("{} seconds".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 second", entity_type, language, aliases=["a second"]))
+        all_list.append(make_item("half a second", entity_type, language, aliases=["half second"]))
+    elif language == "de":
         for num in range(2, 60):
-            all_list.append(get_item("{} sekunden".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 sekunde", entity_type, lan))
-        all_list.append(get_item("einen halbe sekunde", entity_type, lan))
-    elif lan == "fr":
+            all_list.append(make_item("{} sekunden".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 sekunde", entity_type, language))
+        all_list.append(make_item("einen halbe sekunde", entity_type, language))
+    elif language == "fr":
         for num in range(2, 60):
-            all_list.append(get_item("{} secondes".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 seconde", entity_type, lan))
-        all_list.append(get_item("une demi seconde", entity_type, lan))
-    elif lan == "it":
+            all_list.append(make_item("{} secondes".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 seconde", entity_type, language))
+        all_list.append(make_item("une demi seconde", entity_type, language))
+    elif language == "it":
         for num in range(2, 60):
-            all_list.append(get_item("{} secondi".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 secondo", entity_type, lan))
-        all_list.append(get_item("mezzo secondo", entity_type, lan))
-    else:
-        print("ERROR: Wrong language!")
+            all_list.append(make_item("{} secondi".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 secondo", entity_type, language))
+        all_list.append(make_item("mezzo secondo", entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_minutes(entity_type, lan, entity_amount=None, random_seed=42):
-    """
-    entity_amount: An integer defining the length of the returned list
-    """
+def make_minutes(entity_type, language, amount=None):
     all_list = []
-    #  random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         for num in range(2, 60):
-            all_list.append(get_item("{} minutes".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 minute", entity_type, lan, aliases=["a minute"]))
-        all_list.append(get_item("half a minute", entity_type, lan, aliases=["half minute"]))
-    elif lan == "de":
+            all_list.append(make_item("{} minutes".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 minute", entity_type, language, aliases=["a minute"]))
+        all_list.append(make_item("half a minute", entity_type, language, aliases=["half minute"]))
+    elif language == "de":
         for num in range(2, 60):
-            all_list.append(get_item("{} minuten".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 minute", entity_type, lan))
-        all_list.append(get_item("einen halbe minute", entity_type, lan))
-    elif lan == "fr":
+            all_list.append(make_item("{} minuten".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 minute", entity_type, language))
+        all_list.append(make_item("einen halbe minute", entity_type, language))
+    elif language == "fr":
         for num in range(2, 60):
-            all_list.append(get_item("{} minutes".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 minute", entity_type, lan))
-        all_list.append(get_item("une demi minute", entity_type, lan))
-    elif lan == "it":
+            all_list.append(make_item("{} minutes".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 minute", entity_type, language))
+        all_list.append(make_item("une demi minute", entity_type, language))
+    elif language == "it":
         for num in range(2, 60):
-            all_list.append(get_item("{} minuti".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 minuto", entity_type, lan))
-        all_list.append(get_item("mezzo minuto", entity_type, lan))
-    else:
-        print("ERROR: Wrong language!")
+            all_list.append(make_item("{} minuti".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 minuto", entity_type, language))
+        all_list.append(make_item("mezzo minuto", entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_hours(entity_type, lan, entity_amount=None, random_seed=42):
-    """
-    entity_amount: An integer defining the length of the returned list
-    """
+def make_hours(entity_type, language, amount=None):
     all_list = []
-    # random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         for num in range(2, 24):
-            all_list.append(get_item("{} hours".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 hour", entity_type, lan, aliases=["an hour"]))
-        all_list.append(get_item("half an hour", entity_type, lan, aliases=["half hour"]))
-    elif lan == "de":
+            all_list.append(make_item("{} hours".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 hour", entity_type, language, aliases=["an hour"]))
+        all_list.append(make_item("half an hour", entity_type, language, aliases=["half hour"]))
+    elif language == "de":
         for num in range(2, 24):
-            all_list.append(get_item("{} stunden".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 stunde", entity_type, lan))
-        all_list.append(get_item("einen halbe stunde", entity_type, lan))
-    elif lan == "fr":
+            all_list.append(make_item("{} stunden".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 stunde", entity_type, language))
+        all_list.append(make_item("einen halbe stunde", entity_type, language))
+    elif language == "fr":
         for num in range(2, 24):
-            all_list.append(get_item("{} heures".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 heure", entity_type, lan))
-        all_list.append(get_item("une demi heure", entity_type, lan))
-    elif lan == "it":
+            all_list.append(make_item("{} heures".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 heure", entity_type, language))
+        all_list.append(make_item("une demi heure", entity_type, language))
+    elif language == "it":
         for num in range(2, 24):
-            all_list.append(get_item("{} ore".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 ora", entity_type, lan))
-        all_list.append(get_item("mezzo ora", entity_type, lan, aliases=["mezz ora"]))
-    else:
-        print("ERROR: Wrong language!")
+            all_list.append(make_item("{} ore".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 ora", entity_type, language))
+        all_list.append(make_item("mezzo ora", entity_type, language, aliases=["mezz ora"]))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_days(entity_type, lan, entity_amount=None, max_range=10, random_seed=42):
-    """
-    entity_amount: An integer defining the length of the returned list
-    """
+def make_days(entity_type, language, amount=None, max_range=10):
     all_list = []
-    # random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         for num in range(2, max_range):
-            all_list.append(get_item("{} days".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 day", entity_type, lan, aliases=["a day"]))
-        all_list.append(get_item("half a day", entity_type, lan, aliases=["half day"]))
-    elif lan == "de":
+            all_list.append(make_item("{} days".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 day", entity_type, language, aliases=["a day"]))
+        all_list.append(make_item("half a day", entity_type, language, aliases=["half day"]))
+    elif language == "de":
         for num in range(2, max_range):
-            all_list.append(get_item("{} tage".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 tag", entity_type, lan))
-        all_list.append(get_item("einen halben tag", entity_type, lan))
-    elif lan == "fr":
+            all_list.append(make_item("{} tage".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 tag", entity_type, language))
+        all_list.append(make_item("einen halben tag", entity_type, language))
+    elif language == "fr":
         for num in range(2, max_range):
-            all_list.append(get_item("{} jours".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 jour", entity_type, lan))
-        all_list.append(get_item("une demi journée", entity_type, lan))
-    elif lan == "it":
+            all_list.append(make_item("{} jours".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 jour", entity_type, language))
+        all_list.append(make_item("une demi journée", entity_type, language))
+    elif language == "it":
         for num in range(2, max_range):
-            all_list.append(get_item("{} giorni".format(str(num)), entity_type, lan))
-        all_list.append(get_item("1 giorno", entity_type, lan))
-        all_list.append(get_item("mezzo giornata", entity_type, lan))
-    else:
-        print("ERROR: Wrong language!")
+            all_list.append(make_item("{} giorni".format(str(num)), entity_type, language))
+        all_list.append(make_item("1 giorno", entity_type, language))
+        all_list.append(make_item("mezzo giornata", entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_positions(entity_type, lan, entity_amount=None, max_range=200, random_seed=42):
+def make_positions(entity_type, language, amount=None, max_range=200):
     all_list = []
-    #  random.seed(random_seed)
 
     for num in range(1, max_range):
-        all_list.append(get_item(str(num), entity_type, lan))
+        all_list.append(make_item(str(num), entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
+def make_timestamp_word(entity_type, language, amount=None):
     all_list = []
-    # random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         value_list = [
             'now',
             'today',
@@ -188,7 +160,7 @@ def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
             'in the evening',
             'in the afternoon'
         ]
-    elif lan == "de":
+    elif language == "de":
         value_list = [
             'jetzt',
             'heute',
@@ -207,7 +179,7 @@ def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
             'am Abend',
             'am Nachmittag'
         ]
-    elif lan == "fr":
+    elif language == "fr":
         value_list = [
             'maintenant',
             'aujourd hui',
@@ -226,7 +198,7 @@ def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
             'dans la soirée',
             'dans l après midi'
         ]
-    elif lan == "it":
+    elif language == "it":
         value_list = [
             'adesso',
             'oggi',
@@ -245,98 +217,69 @@ def make_timestamp_word(entity_type, lan, entity_amount=None, random_seed=42):
             'in serata',
             'nel pomeriggio'
         ]
-    else:
-        print("ERROR: Wrong language!")
-        value_list = []
 
     for value in value_list:
-        all_list.append(get_item(value, entity_type, lan))
+        all_list.append(make_item(value, entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_timestamp_date(entity_type, lan, entity_amount=None, random_seed=42):
+def make_timestamp_date(entity_type, language, amount=None):
     all_list = []
-    # random.seed(random_seed)
 
-    if lan == "en":
+    if language == "en":
         prepend = 'on '
-    elif lan == 'de':
+    elif language == 'de':
         prepend = 'am '
     else:
         prepend = ''
 
     for month in range(1, 13):
         for day in range(1, 32):
-            all_list.append(get_item(prepend + "{}.{}".format(str(day), str(month)), entity_type, lan))
+            all_list.append(make_item(prepend + "{}.{}".format(str(day), str(month)), entity_type, language))
 
-    if entity_amount is None:
-        entity_amount = len(all_list)
-    return random.sample(all_list, k=entity_amount)
+    amount = len(all_list) if amount is None else amount
+    return random.sample(all_list, k=amount)
 
 
-def make_timestamp_clock(entity_type, lan, entity_amount=None, random_seed=42, is_special=False):
+def make_timestamp_clock(entity_type, language, amount=None):
     all_list = []
-    special_time_list = []
-    # random.seed(random_seed)
 
     for hour in range(0, 24):
         hour_str = str(hour)
         hour_str = hour_str if len(hour_str) > 1 else "0" + hour_str
 
-        aliases = ["{} o clock".format(str(hour))]
+        aliases = []
         if hour > 12:
             aliases.append("{} pm".format(str(hour % 12)))
             aliases.append("{} p m".format(str(hour % 12)))
         else:
             aliases.append("{} am".format(str(hour)))
             aliases.append("{} a m".format(str(hour % 12)))
-        special_time_list.append(
-            get_item("{}:{}".format(hour_str, '00'), entity_type, lan, aliases=aliases))
+        all_list.append(
+            make_item("{}:{}".format(hour_str, '00'), entity_type, language, aliases=aliases))
 
-        aliases = ["half past {}".format(str(hour))]
-        special_time_list.append(
-            get_item("{}:{}".format(hour_str, '30'), entity_type, lan, aliases=aliases))
+        if language == 'en':
+            aliases = ["half past {}".format(str(hour))]
+        elif language == 'de':
+            aliases = ["halb {}".format(str(hour))]
+        elif language == 'fr':
+            aliases = ["{} heures et demie".format(str(hour))]
+        elif language == 'it':
+            aliases = ["{} e mezza".format(str(hour))]
+        all_list.append(
+            make_item("{}:{}".format(hour_str, '30'), entity_type, language, aliases=aliases))
 
         for minute in range(0, 60):
-            aliases = []
+            if minute == 0 or minute == 30:
+                continue
             minute_str = str(minute)
             minute_str = minute_str if len(minute_str) > 1 else "0" + minute_str
             all_list.append(
-                get_item("{}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
-            # if lan == 'en':
-            #     if minute == 0:
-            #         aliases.append("{} o clock".format(str(hour)))
-            #         if hour > 12:
-            #             aliases.append("{} pm".format(str(hour % 12)))
-            #             aliases.append("{} p m".format(str(hour % 12)))
-            #         else:
-            #             aliases.append("{} am".format(str(hour)))
-            #             aliases.append("{} a m".format(str(hour % 12)))
-            #     elif minute == 30:
-            #         aliases.append("half past {}".format(str(hour)))
-            #     else:
-            #         all_list.append(
-            #             get_item("{}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
-            # elif lan == 'de':
-            #     if minute == 0:
-            #         aliases.append("{} uhr".format(str(hour)))
-            #     elif minute == 30:
-            #         aliases.append("halb {}".format(str(hour % 12 + 1)))
-            #     else:
-            #         aliases.append("{}:{} uhr".format(hour_str, minute_str))
-            #         all_list.append(
-            #             get_item("{}:{}".format(hour_str, minute_str), entity_type, lan, aliases=aliases))
-            # else:
-            #     print("ERROR: Wrong language!")
-    if is_special:
-        return special_time_list
-    else:
-        if entity_amount is None:
-            entity_amount = len(all_list)
-        return random.sample(all_list, entity_amount) + special_time_list
+                make_item("{}:{}".format(hour_str, minute_str), entity_type, language, aliases=[]))
+        amount = len(all_list) if amount is None else amount
+        return random.sample(all_list, amount)
 
 
 def merge_entity_types(entity_df, type_list):
