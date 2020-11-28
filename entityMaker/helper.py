@@ -16,7 +16,7 @@ def make_item(value, item_type, lan, aliases=None):
     return item
 
 
-def make_seconds(entity_type, language, amount=None):
+def make_second(entity_type, language, amount=None):
     all_list = []
 
     if language == "en":
@@ -44,7 +44,7 @@ def make_seconds(entity_type, language, amount=None):
     return random.sample(all_list, k=amount)
 
 
-def make_minutes(entity_type, language, amount=None):
+def make_minute(entity_type, language, amount=None):
     all_list = []
 
     if language == "en":
@@ -72,7 +72,7 @@ def make_minutes(entity_type, language, amount=None):
     return random.sample(all_list, k=amount)
 
 
-def make_hours(entity_type, language, amount=None):
+def make_hour(entity_type, language, amount=None):
     all_list = []
 
     if language == "en":
@@ -128,7 +128,7 @@ def make_days(entity_type, language, amount=None, max_range=10):
     return random.sample(all_list, k=amount)
 
 
-def make_positions(entity_type, language, amount=None, max_range=200):
+def make_position(entity_type, language, amount=None, max_range=200):
     all_list = []
 
     for num in range(1, max_range):

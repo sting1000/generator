@@ -1,4 +1,4 @@
-from entityMaker.maker import generate_LocalsearchTimeStampEndTime, generate_RouterWiFiDuration, \
+from entityMaker.manager import generate_LocalsearchTimeStampEndTime, generate_RouterWiFiDuration, \
     generate_TvChannelPosition, generate_RadioChannelPosition, generate_Duration, generate_LocalsearchTimeStampStartDay, \
     generate_LocalsearchTimeStampStartTime
 from entityMaker.helper import merge_entity_types
