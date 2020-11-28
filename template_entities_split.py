@@ -12,9 +12,9 @@ import time
 warnings.filterwarnings('ignore')
 
 
-def drop_single_class(df, column):
+def drop_single_class(df, column, thresh=5):
     s = df[column].value_counts()
-    return df[~df[column].isin(s[s == 1].index.values)]
+    return df[~df[column].isin(s[s <= thresh].index.values)]
 
 
 # load config values

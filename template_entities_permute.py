@@ -34,7 +34,6 @@ train_train.permute().to_csv(output_dir / ('train_train' + '.csv'), index=False)
 valid_valid.permute().to_csv(output_dir / ('valid_valid' + '.csv'), index=False)
 test_test.permute().to_csv(output_dir / ('test_test' + '.csv'), index=False)
 
-
 train_valid = Generator(templates=df_temp_train, entities=df_entities_valid, name='train_valid')
 train_valid.tag_tuples_dic = valid_valid.tag_tuples_dic
 

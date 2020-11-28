@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 class Generator:
-    def __init__(self, templates, entities, method='all', name=None):
+    def __init__(self, templates, entities, method='all', name=None, threshold=3000):
         """
         init function
         Args:
@@ -27,6 +27,7 @@ class Generator:
         self.template_dic = {}
         self.name = name
         self.tag_tuples_dic = {}
+        self.threshold = threshold
 
     def get_values_from_tag(self, tag: str, target_lang: str) -> list:
         """
@@ -130,11 +131,11 @@ class Generator:
             selected_values = []
         return selected_values
 
-    def permute(self, threshold=3000) -> pd.DataFrame:
+    def permute(self) -> pd.DataFrame:
         print("Making permutation for " + self.name)
         time_start = time.time()
         df_pool = pd.DataFrame(columns=["id", "language", "spoken", "written", "entities_dic"])
-        for _, row in tqdm(self.templates.iterrows()):
+        for i, row in tqdm(self.templates.iterrows()):
             tags = re.findall(r'{\S+}', row['text'])
             if tags:
                 if ''.join(tags) in self.tag_tuples_dic:
@@ -149,8 +150,9 @@ class Generator:
                     tag_tuples = list(itertools.product(*meta_tag_list))
                     self.tag_tuples_dic[''.join(tags)] = tag_tuples
 
-                if len(tag_tuples) > threshold:
-                    tag_tuples = random.sample(tag_tuples, threshold)
+                if len(tag_tuples) > self.threshold:
+                    random.seed(i)
+                    tag_tuples = random.sample(tag_tuples, self.threshold)
                 for tup in tag_tuples:
                     text = row['text']
                     entities_dic = {}
