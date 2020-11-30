@@ -4,6 +4,7 @@ import json
 from generator.module import Generator
 from generator.normalizer import Normalizer
 import warnings
+
 warnings.filterwarnings('ignore')
 
 # load config values
@@ -11,28 +12,34 @@ config_file = Path('config') / 'command_generator_config.json'
 with open(config_file, 'r', encoding='utf-8') as fp:
     config = json.load(fp)
 
-data_dir = Path(config['data_dir'])
+data_dir = Path("data/nmt_data", )
 output_dir = Path(config['output_dir'])
+threshold = config['permute_thresh']
+languages = config['languages']
 
 
-def read_train_valid_test(path, prefix, appendix):
+def read_train_valid_test(path, prefix, appendix, lans):
     train = pd.read_csv(path / (prefix + '_train' + appendix))
     valid = pd.read_csv(path / (prefix + '_valid' + appendix))
     test = pd.read_csv(path / (prefix + '_test' + appendix))
+
+    train = train[train['language'].isin(lans)]
+    valid = valid[valid['language'].isin(lans)]
+    test = test[test['language'].isin(lans)]
     return train, valid, test
 
 
 # read dataframe
-df_temp_train, df_temp_valid, df_temp_test = read_train_valid_test(output_dir, 'templates', '.csv')
-df_entities_train, df_entities_valid, df_entities_test = read_train_valid_test(output_dir, 'entities', '.csv')
+df_temp_train, df_temp_valid, df_temp_test = read_train_valid_test(data_dir, 'templates', '.csv', languages)
+df_entities_train, df_entities_valid, df_entities_test = read_train_valid_test(data_dir, 'entities', '.csv', languages)
 
-train_train = Generator(templates=df_temp_train, entities=df_entities_train, name='train_train')
-valid_valid = Generator(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid')
-test_test = Generator(templates=df_temp_test, entities=df_entities_test, name='test_test')
+train_train = Generator(templates=df_temp_train, entities=df_entities_train, name='train_train', threshold=threshold)
+valid_valid = Generator(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid', threshold=threshold)
+test_test = Generator(templates=df_temp_test, entities=df_entities_test, name='test_test', threshold=threshold)
 
-train_train.permute().to_csv(output_dir / ('train_train' + '.csv'), index=False)
-valid_valid.permute().to_csv(output_dir / ('valid_valid' + '.csv'), index=False)
-test_test.permute().to_csv(output_dir / ('test_test' + '.csv'), index=False)
+train_train.permute(output_dir / ('train_train' + '.json'))
+valid_valid.permute(output_dir / ('valid_valid' + '.json'))
+test_test.permute(output_dir / ('test_test' + '.json'))
 
 train_valid = Generator(templates=df_temp_train, entities=df_entities_valid, name='train_valid')
 train_valid.tag_tuples_dic = valid_valid.tag_tuples_dic
@@ -50,7 +57,8 @@ del valid_valid
 del test_test
 del train_train
 
-train_valid.permute().to_csv(output_dir / ('train_valid' + '.csv'), index=False)
-train_test.permute().to_csv(output_dir / ('train_test' + '.csv'), index=False)
-valid_train.permute().to_csv(output_dir / ('valid_train' + '.csv'), index=False)
-test_train.permute().to_csv(output_dir / ('test_train' + '.csv'), index=False)
+train_valid.permute(output_dir / ('train_valid' + '.json'))
+train_test.permute(output_dir / ('train_test' + '.json'))
+valid_train.permute(output_dir / ('valid_train' + '.json'))
+test_train.permute(output_dir / ('test_train' + '.json'))
+

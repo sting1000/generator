@@ -12,9 +12,14 @@ import time
 warnings.filterwarnings('ignore')
 
 
-def drop_single_class(df, column, thresh=5):
-    s = df[column].value_counts()
-    return df[~df[column].isin(s[s <= thresh].index.values)]
+def drop_small_class(df, columns, thresh=2):
+    df_group = df.groupby(columns).count()
+    df_group = df_group[df_group.values < thresh]
+    condition = [True] * len(df)
+    for targets_ind in df_group.index:
+        for match in zip(columns, targets_ind):
+            condition = condition & (df[match[0]] != match[1])
+    return df[condition]
 
 
 # load config values
@@ -26,7 +31,7 @@ data_dir = Path(config['data_dir'])
 output_dir = Path(config['output_dir'])
 templates_filename = config['templates_filename']
 entities_filename = config['entities_filename']
-languages = config['languages']
+languages = config['lans']
 id_size = config["id_size"]
 extra_num_size = config['extra_num_size']
 random_seed = config['random_seed']
@@ -42,7 +47,7 @@ entities = pd.read_json(data_dir / entities_filename)
 time_start = time.time()
 gen = Generator(templates=templates, entities=entities)
 df_temp = pd.DataFrame(columns=["id", "language", "text"])
-for tem_id in templates.id:
+for tem_id in tqdm(templates.id):
     for lan in languages:
         for text in gen.get_templates(tem_id, lan):
             df_temp = df_temp.append({
@@ -50,12 +55,12 @@ for tem_id in templates.id:
                 "language": lan,
                 "text": text
             }, ignore_index=True)
-df_temp = drop_single_class(df_temp.drop_duplicates(), 'id')
+df_temp = drop_small_class(df_temp.drop_duplicates(), ['id', 'language'])
 df_temp_train, df_temp_test_valid = train_test_split(df_temp,
                                                      train_size=train_ratio,
                                                      stratify=df_temp[['id', 'language']],
                                                      random_state=random_seed)
-df_temp_test_valid = drop_single_class(df_temp_test_valid, 'id')
+df_temp_test_valid = drop_small_class(df_temp_test_valid, ['id', 'language'])
 df_temp_valid, df_temp_test = train_test_split(df_temp_test_valid,
                                                test_size=test_ratio / (valid_ratio + test_ratio),
                                                stratify=df_temp_test_valid[['id', 'language']],
@@ -70,7 +75,7 @@ print("Templates split done:", time_end - time_start, 's')
 time_start = time.time()
 entities = entities[entities.language.isin(languages)]
 df_entities = pd.DataFrame(columns=["value", "type", "language"])
-for _, selected_entity in entities.iterrows():
+for _, selected_entity in tqdm(entities.iterrows()):
     aliases = selected_entity['aliases']
     value = [str(selected_entity['value'])]
     normalized_value = [selected_entity['normalizedValue']]
@@ -83,12 +88,12 @@ for _, selected_entity in entities.iterrows():
             "type": selected_entity.type
         }, ignore_index=True)
 
-df_entities = drop_single_class(df_entities, 'type')
+df_entities = drop_small_class(df_entities, ['type', 'language'])
 df_entities_train, df_entities_test_valid = train_test_split(df_entities,
                                                              train_size=train_ratio,
                                                              stratify=df_entities[['type', 'language']],
                                                              random_state=random_seed)
-df_entities_test_valid = drop_single_class(df_entities_test_valid, 'type')
+df_entities_test_valid = drop_small_class(df_entities_test_valid, ['type', 'language'])
 df_entities_valid, df_entities_test = train_test_split(df_entities_test_valid,
                                                        test_size=test_ratio / (valid_ratio + test_ratio),
                                                        stratify=df_entities_test_valid[['type', 'language']],

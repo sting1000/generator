@@ -1,16 +1,16 @@
-import pandas as pd
+import json
 from generator.tools import filter_aliases, remove_sharp_sign, assign_tag_to_words, make_bio_tag
 from generator.normalizer import Normalizer
 from generator.cleaning import normalizeString
+from generator.LRUCache import LRUCache
 import random
 import re
 import itertools
-import time
 from tqdm import tqdm
 
 
 class Generator:
-    def __init__(self, templates, entities, method='all', name=None, threshold=3000):
+    def __init__(self, templates, entities, method='all', name=None, threshold=3000, LRU_size=50):
         """
         init function
         Args:
@@ -18,6 +18,7 @@ class Generator:
             entities: Dataframe of entities
             method: "one"/ "all", one to random choice one template, all to generate all possible templates
         """
+        self.first_output = True
         self.templates = templates
         self.entities = entities
         self.normalizer = Normalizer().normalize_text
@@ -26,7 +27,7 @@ class Generator:
         self.tag_dic = {}
         self.template_dic = {}
         self.name = name
-        self.tag_tuples_dic = {}
+        self.tag_tuples_dic = LRUCache(size=LRU_size)
         self.threshold = threshold
 
     def get_values_from_tag(self, tag: str, target_lang: str) -> list:
@@ -131,54 +132,63 @@ class Generator:
             selected_values = []
         return selected_values
 
-    def permute(self) -> pd.DataFrame:
+    def permute(self, output_path):
         print("Making permutation for " + self.name)
-        time_start = time.time()
-        df_pool = pd.DataFrame(columns=["id", "language", "spoken", "written", "entities_dic"])
-        for i, row in tqdm(self.templates.iterrows()):
-            tags = re.findall(r'{\S+}', row['text'])
-            if tags:
-                if ''.join(tags) in self.tag_tuples_dic:
-                    tag_tuples = self.tag_tuples_dic[''.join(tags)]
-                else:
-                    meta_tag_list = []
-                    for tag in tags:
-                        type_condition = self.entities['type'] == tag[1: -1]
-                        lan_condition = self.entities['language'] == row['language']
-                        val_list = self.entities[type_condition][lan_condition]['value'].values
-                        meta_tag_list.append(val_list)
-                    tag_tuples = list(itertools.product(*meta_tag_list))
-                    self.tag_tuples_dic[''.join(tags)] = tag_tuples
+        with open(output_path, 'w') as outfile:
+            outfile.write("[")
+            for i, row in tqdm(self.templates.iterrows()):
+                tags = re.findall(r'{\S+}', row['text'])
+                if tags and len(tags) <= 3:
+                    key = row['language'] + ''.join(tags)
+                    tag_tuples = self.tag_tuples_dic.get(key)
+                    if not tag_tuples:
+                        meta_tag_list = []
+                        for tag in tags:
+                            type_condition = self.entities['type'] == tag[1: -1]
+                            lan_condition = self.entities['language'] == row['language']
+                            val_list = self.entities[type_condition][lan_condition]['value'].values
+                            meta_tag_list.append(val_list)
+                        tag_tuples = list(itertools.product(*meta_tag_list))
+                        self.tag_tuples_dic.set(key, tag_tuples)
 
-                if len(tag_tuples) > self.threshold:
-                    random.seed(i)
-                    tag_tuples = random.sample(tag_tuples, self.threshold)
-                for tup in tag_tuples:
-                    text = row['text']
-                    entities_dic = {}
-                    for ind in range(len(tup)):
-                        text = re.sub(tags[ind], tup[ind], text, count=1)
-                        entities_dic[normalizeString(tup[ind])] = tags[ind]
-                    written = text
+                    if len(tag_tuples) > self.threshold:
+                        random.seed(i)
+                        tag_tuples = random.sample(tag_tuples, self.threshold)
+                    for tup in tag_tuples:
+                        written = row['text']
+                        entities_dic = {}
+                        for ind in range(len(tup)):
+                            written = re.sub(tags[ind], tup[ind], written, count=1)
+                            entities_dic[normalizeString(tup[ind])] = tags[ind]
+                        spoken = self.normalizer(written, row['language'])
+                        data = {
+                            "id": row['id'],
+                            "language": row['language'],
+                            "spoken": normalizeString(spoken),
+                            "written": normalizeString(written),
+                            "entities_dic": entities_dic
+                        }
+                        self.first_output = dump_data(outfile, data, self.first_output)
+
+                else:
+                    written = row['text']
                     spoken = self.normalizer(written, row['language'])
-                    df_pool = df_pool.append({
+                    data = {
                         "id": row['id'],
                         "language": row['language'],
                         "spoken": normalizeString(spoken),
                         "written": normalizeString(written),
-                        "entities_dic": entities_dic
-                    }, ignore_index=True)
-            else:
-                written = row['text']
-                spoken = self.normalizer(written, row['language'])
-                df_pool = df_pool.append({
-                         "id": row['id'],
-                         "language": row['language'],
-                         "spoken":  normalizeString(spoken),
-                         "written": normalizeString(written),
-                         "entities_dic": {}
-                          }, ignore_index=True)
+                        "entities_dic": {}
+                    }
+                    self.first_output = dump_data(outfile, data, self.first_output)
+            outfile.write("]")
+        outfile.close()
 
-        time_end = time.time()
-        print('time cost', time_end - time_start, 's')
-        return df_pool
+
+def dump_data(outfile, data, first_output):
+    if first_output:
+        outfile.write(json.dumps(data))
+    else:
+        outfile.write(",")
+        outfile.write(json.dumps(data))
+    return False
