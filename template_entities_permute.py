@@ -30,8 +30,8 @@ def read_train_valid_test(path, prefix, appendix, lans):
 
 
 # read dataframe
-df_temp_train, df_temp_valid, df_temp_test = read_train_valid_test(data_dir, 'templates', '.csv', languages)
-df_entities_train, df_entities_valid, df_entities_test = read_train_valid_test(data_dir, 'entities', '.csv', languages)
+df_temp_train, df_temp_valid, df_temp_test = read_train_valid_test(output_dir, 'templates', '.csv', languages)
+df_entities_train, df_entities_valid, df_entities_test = read_train_valid_test(output_dir, 'entities', '.csv', languages)
 
 train_train = Generator(templates=df_temp_train, entities=df_entities_train, name='train_train', threshold=threshold)
 valid_valid = Generator(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid', threshold=threshold)

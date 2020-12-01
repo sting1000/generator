@@ -91,7 +91,7 @@ for _, selected_entity in tqdm(entities.iterrows()):
 df_entities = drop_small_class(df_entities, ['type', 'language'])
 df_entities_train, df_entities_test_valid = train_test_split(df_entities,
                                                              train_size=train_ratio,
-                                                             stratify=df_entities[['language']],
+                                                             stratify=df_entities[['type', 'language']],
                                                              random_state=random_seed)
 df_entities_test_valid = drop_small_class(df_entities_test_valid, ['language'])
 df_entities_valid, df_entities_test = train_test_split(df_entities_test_valid,
