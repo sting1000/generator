@@ -2,10 +2,10 @@ import pandas as pd
 from pathlib import Path
 import json
 import warnings
-from generator.module import Generator
-from generator.normalizer import Normalizer
+from command_generator.Generator import Generator
+from command_generator.Normalizer import Normalizer
 from sklearn.model_selection import train_test_split
-from generator.tools import filter_aliases
+from command_generator.tools import filter_aliases
 from tqdm import tqdm
 import time
 
@@ -22,6 +22,64 @@ def drop_small_class(df, columns, thresh=2):
     return df[condition]
 
 
+def permute(templates, entities, name):
+    item = Generator(templates=templates,
+                     entities=entities,
+                     name=name,
+                     threshold=threshold,
+                     normalizer=normalizer)
+    item.permute(output_dir / (name + '.json'))
+
+
+def train_valid_test_split(df, stratify_train_remain, stratify_valid_test):
+    df_train, df_test_valid = drop_and_split(df, train_ratio, stratify_train_remain)
+    df_valid, df_test = drop_and_split(df_test_valid, valid_ratio / (valid_ratio + test_ratio), stratify_valid_test)
+    return df_train, df_valid, df_test
+
+
+def drop_and_split(df, train_size, stratify_columns):
+    df = drop_small_class(df, stratify_columns)
+    df_train, df_test = train_test_split(df, train_size=train_size,
+                                         stratify=df[stratify_columns],
+                                         random_state=random_seed)
+    return df_train, df_test
+
+
+def make_flat_entities(path):
+    entities = pd.read_json(path)
+    entities = entities[entities.language.isin(languages)]
+    df_flat_entities = pd.DataFrame(columns=["value", "type", "language"])
+    for _, selected_entity in tqdm(entities.iterrows()):
+        aliases = selected_entity['aliases']
+        value = [str(selected_entity['value'])]
+        normalized_value = [selected_entity['normalizedValue']]
+        lang = selected_entity['language']
+        filtered_values = filter_aliases(aliases + value + normalized_value, lang)
+        for val in filtered_values:
+            df_flat_entities = df_flat_entities.append({
+                "value": val,
+                "language": lang,
+                "type": selected_entity.type
+            }, ignore_index=True)
+    return df_flat_entities
+
+
+def make_flat_templates(path):
+    templates = pd.read_json(path)[['id'] + languages]
+    df_flat_templates = pd.DataFrame(columns=["id", "language", "text"])
+    for tem_id in tqdm(templates.id):
+        for lan in languages:
+            text_list = templates[templates['id'] == tem_id][lan].values[0]['texts']
+            text_list = [p['ttsText'] for p in text_list]
+            for text in text_list:
+                df_flat_templates = df_flat_templates.append({
+                    "id": tem_id,
+                    "language": lan,
+                    "text": text
+                }, ignore_index=True)
+    return df_flat_templates
+
+
 # load config values
 config_file = Path('config') / 'command_generator_config.json'
 with open(config_file, 'r', encoding='utf-8') as fp:
@@ -32,75 +90,45 @@ output_dir = Path(config['output_dir'])
 templates_filename = config['templates_filename']
 entities_filename = config['entities_filename']
 languages = config['languages']
-id_size = config["id_size"]
-extra_num_size = config['extra_num_size']
 random_seed = config['random_seed']
 test_ratio = config['split']['test_ratio']
 valid_ratio = config['split']['valid_ratio']
 train_ratio = config['split']['train_ratio']
-
-# read dataframe
-templates = pd.read_json(data_dir / templates_filename)[['id'] + languages]
-entities = pd.read_json(data_dir / entities_filename)
+threshold = config['permute_thresh']
+normalizer = Normalizer().normalize_text
 
 # make train and test for templates
 time_start = time.time()
-gen = Generator(templates=templates, entities=entities)
-df_temp = pd.DataFrame(columns=["id", "language", "text"])
-for tem_id in tqdm(templates.id):
-    for lan in languages:
-        for text in gen.get_templates(tem_id, lan):
-            df_temp = df_temp.append({
-                "id": tem_id,
-                "language": lan,
-                "text": text
-            }, ignore_index=True)
-df_temp = drop_small_class(df_temp.drop_duplicates(), ['id', 'language'])
-df_temp_train, df_temp_test_valid = train_test_split(df_temp,
-                                                     train_size=train_ratio,
-                                                     stratify=df_temp[['id', 'language']],
-                                                     random_state=random_seed)
-df_temp_test_valid = drop_small_class(df_temp_test_valid, ['language'])
-df_temp_valid, df_temp_test = train_test_split(df_temp_test_valid,
-                                               test_size=test_ratio / (valid_ratio + test_ratio),
-                                               stratify=df_temp_test_valid[['language']],
-                                               random_state=random_seed)
-df_temp_train.to_csv(output_dir / "templates_train.csv", index=False)
-df_temp_valid.to_csv(output_dir / "templates_valid.csv", index=False)
-df_temp_test.to_csv(output_dir / "templates_test.csv", index=False)
+print("Start Templates Split...")
+
+df_temp = make_flat_templates(data_dir / templates_filename)
+df_temp_train, df_temp_valid, df_temp_test = train_valid_test_split(df_temp, ['id', 'language'], ['language'])
+
 time_end = time.time()
-print("Templates split done:", time_end - time_start, 's')
+print("Templates Train: \n{}".format(df_temp_train['language'].value_counts()))
+print("Templates Valid: \n{}".format(df_temp_valid['language'].value_counts()))
+print("Templates Test: \n{}".format(df_temp_test['language'].value_counts()))
+print("Templates Split Done: {} s".format(time_end - time_start))
+print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+
 
 # make train and test for entities
 time_start = time.time()
-entities = entities[entities.language.isin(languages)]
-df_entities = pd.DataFrame(columns=["value", "type", "language"])
-for _, selected_entity in tqdm(entities.iterrows()):
-    aliases = selected_entity['aliases']
-    value = [str(selected_entity['value'])]
-    normalized_value = [selected_entity['normalizedValue']]
-    lang = selected_entity['language']
-    filtered_values = filter_aliases(aliases + value + normalized_value, lang)
-    for v in filtered_values:
-        df_entities = df_entities.append({
-            "value": v,
-            "language": lang,
-            "type": selected_entity.type
-        }, ignore_index=True)
+print("Start Entity Split...")
 
-df_entities = drop_small_class(df_entities, ['type', 'language'])
-df_entities_train, df_entities_test_valid = train_test_split(df_entities,
-                                                             train_size=train_ratio,
-                                                             stratify=df_entities[['type', 'language']],
-                                                             random_state=random_seed)
-df_entities_test_valid = drop_small_class(df_entities_test_valid, ['language'])
-df_entities_valid, df_entities_test = train_test_split(df_entities_test_valid,
-                                                       test_size=test_ratio / (valid_ratio + test_ratio),
-                                                       stratify=df_entities_test_valid[['language']],
-                                                       random_state=random_seed)
-# save files
-df_entities_train.to_csv(output_dir / "entities_train.csv", index=False)
-df_entities_valid.to_csv(output_dir / "entities_valid.csv", index=False)
-df_entities_test.to_csv(output_dir / "entities_test.csv", index=False)
+df_entities = make_flat_entities(data_dir / entities_filename)
+df_entities_train, df_entities_valid, df_entities_test = train_valid_test_split(df_entities, ['type', 'language'],
+                                                                                ['language'])
 time_end = time.time()
-print("Entities split done:", time_end - time_start, 's')
+print("Entity Train: \n{}".format(df_entities_train['language'].value_counts()))
+print("Entity Valid: \n{}".format(df_entities_valid['language'].value_counts()))
+print("Entity Test: \n{}".format(df_entities_test['language'].value_counts()))
+print("Entity Split Done: {} s".format(time_end - time_start))
+print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+# Permutation
+print("Start Permutation...")
+permute(templates=df_temp_train, entities=df_entities_train, name='train_train')
+permute(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid')
+permute(templates=df_temp_test, entities=df_entities_test, name='test_test')
+permute(templates=df_temp_train, entities=df_entities_test, name='train_test')
+permute(templates=df_temp_test, entities=df_entities_train, name='test_train')
