@@ -19,6 +19,7 @@ def clean_string(s):
     s = re.sub(r' [.\-:] ', ' ', s)
     s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
     s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
+    s = re.sub(r'\: ', r' ', s) # 2: -> ' '
     #TODO: 123.abc -> 123 abc
     s = s.strip()
     return s
