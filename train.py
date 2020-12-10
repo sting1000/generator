@@ -15,16 +15,15 @@ from pathlib import Path
 # take specific lan
 chosen_lan = 'it'
 project_path = '/mnt/workspace/project'
-onmt_path = '/mnt/workspace/OpenNMT_py/'
+onmt_path = '/mnt/workspace/OpenNMT-py'
 encoder_level = 'char'
 decoder_level = 'char'
 rnn = 'lstm' #'transformer'
-steps = 100000
 
 train = read_data_json("data/nmt_data_json/train_train.json")
 test = read_data_json("data/nmt_data_json/test_test.json")
 valid = read_data_json("data/nmt_data_json/valid_valid.json")
-exp_path = project_path + 'exp/'
+exp_path = project_path + '/exp'
 data_output_dir = exp_path + 'data/'
 ########
 
