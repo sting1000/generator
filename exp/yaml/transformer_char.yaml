@@ -1,0 +1,69 @@
+## Where the samples will be written
+save_data: /mnt/workspace/project/exp/transformer_char/example
+
+# Prevent overwriting existing files in the folder
+overwrite: True
+
+# Corpus opts:
+data:
+    train:
+        path_src: /mnt/workspace/project/exp/data/src_train_char.txt
+        path_tgt: /mnt/workspace/project/exp/data/tgt_train_char.txt
+        src_seq_length: 100
+        tgt_seq_length: 100
+    valid:
+        path_src: /mnt/workspace/project/exp/data/src_val_char.txt
+        path_tgt: /mnt/workspace/project/exp/data/tgt_val_char.txt
+        src_seq_length: 100
+        tgt_seq_length: 100
+
+# Where the vocab(s) will be written
+src_vocab: /mnt/workspace/project/exp/transformer_char/example.vocab.src
+tgt_vocab: /mnt/workspace/project/exp/transformer_char/example.vocab.tgt
+
+# Train on a single GPU
+world_size: 1
+gpu_ranks: [0]
+
+
+
+
+# Where to save the checkpoints
+
+save_checkpoint_steps: 10000
+valid_steps: 10000
+
+
+layers: 6 
+rnn_size: 512 
+word_vec_size: 512 
+transformer_ff: 2048 
+heads: 8 
+encoder_type: transformer 
+decoder_type: transformer 
+position_encoding: True
+
+train_steps: 100000  
+max_generator_batches: 2 
+dropout: 0.1 
+batch_size: 6144 
+batch_type: tokens 
+normalization: tokens  
+accum_count: 4 
+
+optim: adam 
+adam_beta2: 0.998 
+decay_method: noam 
+warmup_steps: 8000 
+learning_rate: 2 
+max_grad_norm: 0 
+param_init: 0  
+param_init_glorot: True
+label_smoothing: 0.1 
+
+valid_steps: 10000 
+save_checkpoint_steps: 10000 
+save_model: /mnt/workspace/project/exp/transformer_char/model
+
+tensorboard: True
+tensorboard_log_dir: /mnt/workspace/project/exp/transformer_char/board
