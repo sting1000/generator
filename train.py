@@ -1,55 +1,65 @@
 import os
 from helper import *
-from tqdm import tqdm
 from pathlib import Path
 
+# load config values
+config_file = Path('config') / 'train_config.json'
+with open(config_file, 'r', encoding='utf-8') as fp:
+    configs = json.load(fp)
 
-# take specific lan
-chosen_lan = 'it'
-project_path = '/mnt/workspace/project'
-onmt_path = '/mnt/workspace/OpenNMT-py'
-encoder_level = 'char'
-model_type = 'BiLSTM_char_LSTM_char'
+for config in configs:
+    model_name = config['model_name']
+    chosen_lan = config['chosen_lan']
+    onmt_path = config['onmt_path']
+    encoder_level = config['encoder_level']
+    decoder_level = config['decoder_level']
+    model_type = config['model_type']
+    is_split = config['is_split']
+    dataset_path_list = config["dataset_path_list"]
 
-train = read_data_json("data/nmt_data_json/train_train.json")
-test = read_data_json("data/nmt_data_json/test_test.json")
-valid = read_data_json("data/nmt_data_json/valid_valid.json")
-exp_path = project_path + '/exp'
-data_output_dir = exp_path + 'data/'
-yaml_path = '{exp_path}/yaml/{model_type}.yaml'.format(exp_path=exp_path, model_type=model_type)
+    model_path = Path('results') / model_name
+    data_output_dir = model_path / 'data'
+    print("Making data folder: ", data_output_dir)
+    Path(data_output_dir).mkdir(parents=True, exist_ok=True)
+    
+    yaml_path = Path('config/models') / (model_type + '.yaml')
+    new_yaml_path = model_path / (model_type + '.yaml')
+    replace_path_in_yaml(yaml_path, new_yaml_path, model_path)
 
-# read dataset
-train = train[train['language'] == chosen_lan]
-test = test[test['language'] == chosen_lan]
-valid = valid[valid['language'] == chosen_lan]
+    print("Reading data...")
+    train = pd.DataFrame()
+    for p in dataset_path_list:
+        train = pd.concat([train, read_data_json(p)])
+        print("added data from ", p)
+    train = train[train['language'].isin(chosen_lan)]
+    if is_split:
+        test = read_data_json("data/nmt_data_json/test.json")
+        valid = read_data_json("data/nmt_data_json/valid.json")
+    else:
+        valid = train.sample(frac=0.1, replace=True, random_state=1)
+        test = train.sample(frac=0.1, replace=True, random_state=2)
+    test = test[test['language'].isin(chosen_lan)]
+    valid = valid[valid['language'].isin(chosen_lan)]
+    
+    train_sp = read_data_json("data/nmt_data_json/train_special.json")
+    test_sp = read_data_json("data/nmt_data_json/test_special.json")
+    valid_sp = read_data_json("data/nmt_data_json/valid_special.json")
+    num_seq = read_data_json("data/meta_data/num_sequence.json")
+    
+    train_sp = train_sp[train_sp['language'].isin(chosen_lan)]
+    test_sp = test_sp[test_sp['language'].isin(chosen_lan)]
+    valid_sp = valid_sp[valid_sp['language'].isin(chosen_lan)]
+    num_seq = num_seq[num_seq['language'].isin(chosen_lan)]
+    
+    make_src_tgt(train_sp, 'train_special', data_output_dir, encoder_level, decoder_level)
+    make_src_tgt(train, 'train', data_output_dir, encoder_level, decoder_level)
+    make_src_tgt(num_seq, 'num_seq', data_output_dir, encoder_level, decoder_level)
+    
+    make_src_tgt(valid, 'valid', data_output_dir, encoder_level, decoder_level)
 
-# generate pairs for training
-Path(data_output_dir).mkdir(parents=True, exist_ok=True)
-for appendix in ['_char', '_token']:
-    f_src_test = open(data_output_dir + 'src_test' + appendix + '.txt', "w")
-    f_tgt_test = open(data_output_dir + 'tgt_test' + appendix + '.txt', "w")
-    f_src_val = open(data_output_dir + 'src_val' + appendix + '.txt', "w")
-    f_tgt_val = open(data_output_dir + 'tgt_val' + appendix + '.txt', "w")
-    f_src_train = open(data_output_dir + 'src_train' + appendix + '.txt', "w")
-    f_tgt_train = open(data_output_dir + 'tgt_train' + appendix + '.txt', "w")
-
-    # write to files
-    for name, df, f_src, f_tgt in [('train', train, f_src_train, f_tgt_train),
-                     ('test', test, f_src_test, f_tgt_test),
-                     ('valid', valid, f_src_val, f_tgt_val)]:
-        for _, row in tqdm(df.iterrows()):
-            f_src.write("{}\n".format(row['src' + appendix]))
-            f_tgt.write("{}\n".format(row['tgt'+ appendix]))
-
-    f_src_val.close()
-    f_tgt_val.close()
-    f_src_test.close()
-    f_tgt_test.close()
-    f_src_train.close()
-    f_tgt_train.close()
-
-# train
-command_build_vocab = "python {onmt_path}/build_vocab.py -config  {yaml_path} -n_sample -1".format(onmt_path=onmt_path, yaml_path=yaml_path)
-command_train = "python {onmt_path}/train.py -config {yaml_path}".format(onmt_path=onmt_path, yaml_path=yaml_path)
-os.system(command_build_vocab)
-os.system(command_train)
+    # train
+    command_build_vocab = "python {onmt_path}/build_vocab.py -config  {yaml_path} -n_sample -1".format(
+        onmt_path=onmt_path, yaml_path=new_yaml_path)
+    command_train = "python {onmt_path}/train.py -config {yaml_path}".format(onmt_path=onmt_path, yaml_path=new_yaml_path)
+    os.system(command_build_vocab)
+    os.system(command_train)

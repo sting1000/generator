@@ -1,0 +1,123 @@
+[
+    {
+      "input_path": "analysis_de.json",
+      "chosen_lan": ["de"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/analysis_de_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test.json",
+      "chosen_lan": ["de"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/test_de_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test_special.json",
+      "chosen_lan": ["de"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/special_de_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "analysis_fr.json",
+      "chosen_lan": ["fr"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/analysis_fr_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test.json",
+      "chosen_lan": ["fr"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/test_fr_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test_special.json",
+      "chosen_lan": ["fr"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/special_fr_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "analysis_en.json",
+      "chosen_lan": ["en"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/analysis_en_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test.json",
+      "chosen_lan": ["en"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/test_en_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test_special.json",
+      "chosen_lan": ["en"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/special_en_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "analysis_it.json",
+      "chosen_lan": ["it"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/analysis_it_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test.json",
+      "chosen_lan": ["it"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/test_it_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    },{
+      "input_path": "data/nmt_data_json/test_special.json",
+      "chosen_lan": ["it"],
+      "output_path": "results/BiLSTM_char_LSTM_char_4lan/special_it_pred.txt",
+      "model_name": "BiLSTM_char_LSTM_char_4lan",
+      "steps": [70000],
+      "onmt_path": "/home/jovyan/OpenNMT-py",
+      "encoder_level": "char",
+      "decoder_level": "char",
+      "beam_size": 5
+    }
+]

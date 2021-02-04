@@ -2,12 +2,11 @@ import pandas as pd
 from pathlib import Path
 import json
 import warnings
-from command_generator.Generator import Generator
-from command_generator.Normalizer import Normalizer
+from classes.command_generator.Generator import Generator
+from classes.command_generator.Normalizer import Normalizer
 from sklearn.model_selection import train_test_split
-from command_generator.tools import filter_aliases
+from classes.command_generator import filter_aliases
 from tqdm import tqdm
-import time
 
 warnings.filterwarnings('ignore')
 
@@ -81,7 +80,7 @@ def make_flat_templates(path):
 
 
 # load config values
-config_file = Path('config') / 'command_generator_config.json'
+config_file = Path('config') / 'prepare_config.json'
 with open(config_file, 'r', encoding='utf-8') as fp:
     config = json.load(fp)
 
@@ -91,44 +90,41 @@ templates_filename = config['templates_filename']
 entities_filename = config['entities_filename']
 languages = config['languages']
 random_seed = config['random_seed']
+is_split = config['is_split']
 test_ratio = config['split']['test_ratio']
 valid_ratio = config['split']['valid_ratio']
 train_ratio = config['split']['train_ratio']
 threshold = config['permute_thresh']
 normalizer = Normalizer().normalize_text
 
-# make train and test for templates
-time_start = time.time()
-print("Start Templates Split...")
-
+print("Reading Templates and Entities...")
 df_temp = make_flat_templates(data_dir / templates_filename)
-df_temp_train, df_temp_valid, df_temp_test = train_valid_test_split(df_temp, ['id', 'language'], ['language'])
-
-time_end = time.time()
-print("Templates Train: \n{}".format(df_temp_train['language'].value_counts()))
-print("Templates Valid: \n{}".format(df_temp_valid['language'].value_counts()))
-print("Templates Test: \n{}".format(df_temp_test['language'].value_counts()))
-print("Templates Split Done: {} s".format(time_end - time_start))
-print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-
-
-# make train and test for entities
-time_start = time.time()
-print("Start Entity Split...")
-
 df_entities = make_flat_entities(data_dir / entities_filename)
-df_entities_train, df_entities_valid, df_entities_test = train_valid_test_split(df_entities, ['type', 'language'],
-                                                                                ['language'])
-time_end = time.time()
-print("Entity Train: \n{}".format(df_entities_train['language'].value_counts()))
-print("Entity Valid: \n{}".format(df_entities_valid['language'].value_counts()))
-print("Entity Test: \n{}".format(df_entities_test['language'].value_counts()))
-print("Entity Split Done: {} s".format(time_end - time_start))
-print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-# Permutation
-print("Start Permutation...")
-permute(templates=df_temp_train, entities=df_entities_train, name='train_train')
-permute(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid')
-permute(templates=df_temp_test, entities=df_entities_test, name='test_test')
-permute(templates=df_temp_train, entities=df_entities_test, name='train_test')
-permute(templates=df_temp_test, entities=df_entities_train, name='test_train')
+
+if is_split:
+    print("Start Templates Split...")
+    df_temp_train, df_temp_valid, df_temp_test = train_valid_test_split(df_temp, ['id', 'language'], ['language'])
+    print("Templates Train: \n{}".format(df_temp_train['language'].value_counts()))
+    print("Templates Valid: \n{}".format(df_temp_valid['language'].value_counts()))
+    print("Templates Test: \n{}".format(df_temp_test['language'].value_counts()))
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+
+    # make train and test for entities
+    print("Start Entity Split...")
+    df_entities_train, df_entities_valid, df_entities_test = train_valid_test_split(df_entities, ['type', 'language'],
+                                                                                    ['language'])
+    print("Entity Train: \n{}".format(df_entities_train['language'].value_counts()))
+    print("Entity Valid: \n{}".format(df_entities_valid['language'].value_counts()))
+    print("Entity Test: \n{}".format(df_entities_test['language'].value_counts()))
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+
+    # Permutation
+    print("Start Permutation...")
+    permute(templates=df_temp_train, entities=df_entities_train, name='train_train')
+    permute(templates=df_temp_valid, entities=df_entities_valid, name='valid_valid')
+    permute(templates=df_temp_test, entities=df_entities_test, name='test_test')
+    permute(templates=df_temp_train, entities=df_entities_test, name='train_test')
+    permute(templates=df_temp_test, entities=df_entities_train, name='test_train')
+else:
+    print("Permute tran_train...")
+    permute(templates=df_temp, entities=df_entities, name='train_train')

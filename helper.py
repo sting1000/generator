@@ -1,8 +1,13 @@
 from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 from edit_distance import SequenceMatcher
 import pandas as pd
-from command_generator.cleaning import clean_string
-
+from classes.command_generator.cleaning import clean_string
+import json
+from tqdm import tqdm
+from sklearn.model_selection import train_test_split
+import re
+import random
+from classes.command_generator.Normalizer import Normalizer
 
 def replace_space(s: str):
     s = s.replace(' ', '_')
@@ -18,6 +23,8 @@ def recover_space(s: str):
 def read_data(path):
     df = pd.read_csv(path).drop_duplicates()
     df.columns = ['id', 'language', 'src_token', 'tgt_token', 'entities_dic']
+    df['src_token'] = df['src_token'].str.lower()
+    df['tgt_token'] = df['tgt_token'].str.lower()
     df['tgt_char'] = df.tgt_token.apply(replace_space)
     df['src_char'] = df.src_token.apply(replace_space)
     df['entities_dic'] = df.entities_dic.apply(eval)
@@ -52,20 +59,13 @@ def make_command(exp_path, encoder_level, decoder_level, steps, rnn):
     f.close()
 
 
-def add_pred(df, exp_path, encoder_level, decoder_level, steps, rnn):
-    if rnn == 'lstm':
-        model_name = "BiLSTM_{encoder_level}_LSTM_{decoder_level}".format(encoder_level=encoder_level,
-                                                                          decoder_level=decoder_level)
-    elif rnn == 'transformer':
-        model_name = 'transformer_{encoder_level}'.format(encoder_level=encoder_level)
-
-    path = "{exp_path}/{model_name}/pred_{steps}.txt".format(
-        exp_path=exp_path,
-        model_name=model_name,
-        steps=steps)
-
-    data = pd.read_csv(path, sep="\n", header=None, skip_blank_lines=False)
-    data = data.fillna('')
+def add_pred(df, path, decoder_level):
+    if not path:
+        data = df[['src_char']].reset_index(drop=True)
+        data = data.fillna('')
+    else:
+        data = pd.read_csv(path, sep="\n", header=None, skip_blank_lines=False)
+        data = data.fillna('')
     data.columns = ["prediction"]
 
     df = df.reset_index(drop=True)
@@ -99,7 +99,7 @@ def add_pred(df, exp_path, encoder_level, decoder_level, steps, rnn):
         ref_length_char.append(len(ref))
 
         # entity
-        df.loc[index, 'entity_errors'] = sum([not clean_string(s) in hyp_line for s in row['entities_dic'].keys()])
+        df.loc[index, 'entity_errors'] = 0#sum([not clean_string(s) in hyp_line for s in row['entities_dic'].keys()])
 
     df['entity_count'] = df['entities_dic'].apply(len)
 
@@ -117,11 +117,11 @@ def add_pred(df, exp_path, encoder_level, decoder_level, steps, rnn):
     return df
 
 
-def analyze(df, groupby, sort_col):
-    count = df[[groupby, 'token_errors', 'token_length']].groupby(groupby).count()['token_length'].values
+def analyze(df, group_by, sort_col):
+    count = df[[group_by, 'token_errors', 'token_length']].groupby(group_by).count()['token_length'].values
     meta_group = df[
-        [groupby, 'char_errors', 'char_length', 'token_errors', 'token_length', 'sentence_error', 'sentence_count',
-         'entity_errors', 'entity_count']].groupby(groupby).sum()
+        [group_by, 'char_errors', 'char_length', 'token_errors', 'token_length', 'sentence_error', 'sentence_count',
+         'entity_errors', 'entity_count']].groupby(group_by).sum()
     meta_group['wer'] = round(100 * meta_group.token_errors / meta_group.token_length, 2)
     meta_group['ser'] = round(100 * meta_group.sentence_error / meta_group.sentence_count, 2)
     meta_group['eer'] = round(100 * meta_group.entity_errors / meta_group.entity_count, 2)
@@ -147,7 +147,9 @@ def get_cer(df):
 
 
 def print_errors(df, n, random_state=1):
-    df = df[df.token_errors > 0][['src_token', 'tgt_token', 'prediction']].sample(n=n, random_state=random_state)
+    df = df[df.token_errors > 0][['src_token', 'tgt_token', 'prediction']]
+    print(len(df))
+    df = df.sample(frac=n, random_state=random_state)
     for src_line, ref_line, hyp_line in zip(df['src_token'].values, df['tgt_token'].values, df['prediction'].values):
         ref = ref_line.split()
         hyp = hyp_line.split()
@@ -160,7 +162,192 @@ def print_errors(df, n, random_state=1):
 def read_data_json(path):
     df = pd.read_json(path)  # .drop_duplicates()
     df.columns = ['id', 'language', 'src_token', 'tgt_token', 'entities_dic']
+    df['src_token'] = df['src_token'].astype(str).str.lower()
+    df['tgt_token'] = df['tgt_token'].astype(str).str.lower()
     df['tgt_char'] = df.tgt_token.apply(replace_space)
     df['src_char'] = df.src_token.apply(replace_space)
     # df['entities_dic'] = df.entities_dic.apply(eval)
     return df
+
+
+def dump_json(outfile, data, has_no_output):
+    if data:
+        if has_no_output:
+            outfile.write(json.dumps(data))
+        else:
+            outfile.write(",")
+            outfile.write(json.dumps(data))
+        has_no_output = False
+    return has_no_output
+
+
+# generate pairs for training
+def make_src_tgt(df, df_type, data_output_dir, encoder_level, decoder_level):
+    print("Making src tgt for: ", df_type)
+    f_src = open(data_output_dir / ('src_' + df_type + '.txt'), "w")
+    f_tgt = open(data_output_dir / ('tgt_' + df_type + '.txt'), "w")
+    for _, row in tqdm(df.iterrows()):
+        f_src.write("{}\n".format(row['src_' + encoder_level]))
+        f_tgt.write("{}\n".format(row['tgt_' + decoder_level]))
+    f_src.close()
+    f_tgt.close()
+
+
+def replace_path_in_yaml(yaml_path, new_yaml_path, model_path):
+    with open(yaml_path) as f:
+        lines = f.readlines()
+    with open(new_yaml_path, "w+") as f:
+        for ind, l in enumerate(lines):
+            lines[ind] = re.sub("\{\*path\}", str(model_path), l)
+        f.writelines(lines)
+
+def drop_small_class(df, columns, thresh=2):
+    df_group = df.groupby(columns).count()
+    df_group = df_group[df_group.values < thresh]
+    condition = [True] * len(df)
+    for targets_ind in df_group.index:
+        for match in zip(columns, targets_ind):
+            condition = condition & (df[match[0]] != match[1])
+    return df[condition]
+
+def train_valid_test_split(df, train_ratio, valid_ratio, test_ratio, stratify_train_remain, stratify_valid_test):
+    df_train, df_test_valid = drop_and_split(df, train_ratio, stratify_train_remain)
+    df_valid, df_test = drop_and_split(df_test_valid, valid_ratio / (valid_ratio + test_ratio), stratify_valid_test)
+    return df_train, df_valid, df_test
+
+
+def drop_and_split(df, train_size, stratify_columns):
+    df = drop_small_class(df, stratify_columns)
+    df_train, df_test = train_test_split(df, train_size=train_size, stratify=df[stratify_columns])
+    return df_train, df_test
+
+
+def make_flat_entities(path, languages):
+    entities = pd.read_json(path)
+    entities = entities[entities.language.isin(languages)]
+    df_flat_entities = pd.DataFrame(columns=["value", "type", "language"])
+    for _, selected_entity in tqdm(entities.iterrows()):
+        aliases = selected_entity['aliases']
+        value = [str(selected_entity['value'])]
+        normalized_value = [selected_entity['normalizedValue']]
+        lang = selected_entity['language']
+        filtered_values = filter_aliases(aliases + value + normalized_value, lang)
+        for val in filtered_values:
+            df_flat_entities = df_flat_entities.append({
+                "value": val,
+                "language": lang,
+                "type": selected_entity.type
+            }, ignore_index=True)
+    return df_flat_entities
+
+
+def make_flat_templates(path, languages):
+    templates = pd.read_json(path)[['id'] + languages]
+    df_flat_templates = pd.DataFrame(columns=["id", "language", "text"])
+    for tem_id in tqdm(templates.id):
+        for lan in languages:
+            text_list = templates[templates['id'] == tem_id][lan].values[0]['texts']
+            text_list = [p['ttsText'] for p in text_list]
+            for text in text_list:
+                df_flat_templates = df_flat_templates.append({
+                    "id": tem_id,
+                    "language": lan,
+                    "text": text
+                }, ignore_index=True)
+    return df_flat_templates
+
+
+def filter_aliases(aliases: list, language: str) -> list:
+    """
+    Filters list of aliases to keep only the useful ones.
+    It is used to remove all the noisy aliases given by tv that are useful for ASR.
+
+    E.g. ['s r f 1', 'SRF 1', 'srf eins'] becomes ['srf 1']
+    """
+    original_aliases = list(aliases)
+    regex = re.compile(r'\b[a-zA-Z]\b')
+    for alias in original_aliases:
+        alias = str(alias)
+        if regex.findall(alias):  # modified
+            uppercased_alias = restore_abbreviations_in_text(text=alias, uppercase=True).strip()
+            aliases.remove(alias)
+            if uppercased_alias not in aliases:
+                aliases.append(uppercased_alias)
+
+    # remove norm duplication
+    aliases_set = set([clean_string(x) for x in aliases])
+    normalized_aliases_set = set()
+    for alias in aliases_set:
+        norm = Normalizer().normalize_text(alias, language)
+        if norm != alias:
+            normalized_aliases_set.add(norm)
+
+    return list(aliases_set - normalized_aliases_set)
+
+
+def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
+    """
+    Restores malformed abbreviations in text.
+    E.g. 'Go to S R F 1' becomes 'Go to SRF 1'.
+    """
+    abbreviations = find_space_separated_abbreviations(text=text)
+    if abbreviations:
+        for abbreviation in abbreviations:
+            if uppercase:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation.upper())
+            else:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation)
+    return text
+
+
+def find_space_separated_abbreviations(text: str) -> list:
+    """
+    Finds abbreviations in text written with space among their letters.
+    E.g. 'Go to S R F 1' finds 'SRF' as abbreviation.
+    """
+    regex = re.compile(r'\b[a-zA-Z]\b')
+
+    # initialize values
+    abbreviations = []
+    abbreviation = ''
+    last_pos = -1
+
+    for item in regex.finditer(text):
+        if last_pos == -1:
+            abbreviation += item.group()
+            last_pos = item.span()[1]
+        elif item.span()[0] == last_pos + 1:
+            abbreviation += item.group()
+            last_pos = item.span()[1]
+        elif len(abbreviation) > 1:
+            abbreviations.append(abbreviation)
+            abbreviation = item.group()
+            last_pos = -1
+        elif len(abbreviation) == 1:
+            abbreviation = item.group()
+            last_pos = -1
+
+    # append last found abbreviation
+    if len(abbreviation) > 1:
+        abbreviations.append(abbreviation)
+
+    return abbreviations
+
+
+def generate_NumSequence(language, amount=3000,  max_length=12):
+    entity_list = []
+    entity_type = "Unk"
+    for i in tqdm(range(amount)):
+        length = random.randint(3, max_length)
+        low = 10 ** length
+        high = low * 10 - 1
+        value = str(random.randint(low, high))
+        item = {
+            "type": entity_type,
+            "language": language,
+            "spoken": Normalizer().normalize_text(' '.join(list(value)), language),
+            "written": value,
+            "entities_dic": []
+        }
+        entity_list.append(item)
+    return entity_list
