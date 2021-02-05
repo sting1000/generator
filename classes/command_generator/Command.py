@@ -2,8 +2,8 @@ from classes.command_generator.cleaning import clean_string
 
 
 class Command:
-    def __init__(self, id_=None, language=None, spoken=None, written=None, entities_dic=None):
-        self.id_ = id_
+    def __init__(self, intent=None, language=None, spoken=None, written=None, entities_dic=None):
+        self.intent = intent
         self.language = language
         self.spoken = clean_string(spoken) if spoken else None
         self.written = clean_string(written) if written else None
@@ -11,7 +11,7 @@ class Command:
 
     def get_json(self):
         data = {
-            "id": self.id_,
+            "id": self.intent,
             "language": self.language,
             "spoken": self.spoken,
             "written": self.written,
@@ -20,7 +20,7 @@ class Command:
         return data
 
     def set_id_(self, id_):
-        self.id_ = id_
+        self.intent = id_
 
     def set_spoken(self, spoken):
         self.spoken = clean_string(spoken)

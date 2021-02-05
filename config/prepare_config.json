@@ -1,28 +1,17 @@
 {
   "data_dir": "data/meta_data",
-  "output_dir": "data/nmt_data_json",
+  "output_dir": "data/bio",
   "templates_filename": "templates_updated.json",
   "entities_filename": "entities.json",
-  "languages": [ "en", "de", "it", "fr"],
-  
-  "permute_thresh": 3000,
+  "languages": ["en"],
+  "permute_thresh": 1000,
   "random_seed": 42,
-  "num_seq":{
-      "amount": 3000,
-      "length": 12
+  "num_seq": {
+    "amount": 3000,
+    "length": 12
   },
-
-  "is_custom": 1,
-  "custom":{
-      "merge_entity_types": ["VodName", "SeriesName", "BroadcastName"],
-      "channel_max_range": 3000
-  },
-  
-  
-  "is_split": 1,
-  "split": {
-    "train_ratio": 0.8,
-    "valid_ratio": 0.1,
-    "test_ratio": 0.1
+  "custom": {
+    "merge_entity_types": [],
+    "channel_max_range": 1000
   }
 }

@@ -9,6 +9,7 @@ import re
 import random
 from classes.command_generator.Normalizer import Normalizer
 
+
 def replace_space(s: str):
     s = s.replace(' ', '_')
     return ' '.join(list(s))
@@ -99,7 +100,7 @@ def add_pred(df, path, decoder_level):
         ref_length_char.append(len(ref))
 
         # entity
-        df.loc[index, 'entity_errors'] = 0#sum([not clean_string(s) in hyp_line for s in row['entities_dic'].keys()])
+        df.loc[index, 'entity_errors'] = 0  # sum([not clean_string(s) in hyp_line for s in row['entities_dic'].keys()])
 
     df['entity_count'] = df['entities_dic'].apply(len)
 
@@ -201,6 +202,7 @@ def replace_path_in_yaml(yaml_path, new_yaml_path, model_path):
             lines[ind] = re.sub("\{\*path\}", str(model_path), l)
         f.writelines(lines)
 
+
 def drop_small_class(df, columns, thresh=2):
     df_group = df.groupby(columns).count()
     df_group = df_group[df_group.values < thresh]
@@ -210,51 +212,11 @@ def drop_small_class(df, columns, thresh=2):
             condition = condition & (df[match[0]] != match[1])
     return df[condition]
 
-def train_valid_test_split(df, train_ratio, valid_ratio, test_ratio, stratify_train_remain, stratify_valid_test):
-    df_train, df_test_valid = drop_and_split(df, train_ratio, stratify_train_remain)
-    df_valid, df_test = drop_and_split(df_test_valid, valid_ratio / (valid_ratio + test_ratio), stratify_valid_test)
-    return df_train, df_valid, df_test
 
-
-def drop_and_split(df, train_size, stratify_columns):
+def train_test_drop_split(df, test_size, stratify_columns, random_state=42):
     df = drop_small_class(df, stratify_columns)
-    df_train, df_test = train_test_split(df, train_size=train_size, stratify=df[stratify_columns])
+    df_train, df_test = train_test_split(df, test=test_size, stratify=df[stratify_columns], random_state=random_state)
     return df_train, df_test
-
-
-def make_flat_entities(path, languages):
-    entities = pd.read_json(path)
-    entities = entities[entities.language.isin(languages)]
-    df_flat_entities = pd.DataFrame(columns=["value", "type", "language"])
-    for _, selected_entity in tqdm(entities.iterrows()):
-        aliases = selected_entity['aliases']
-        value = [str(selected_entity['value'])]
-        normalized_value = [selected_entity['normalizedValue']]
-        lang = selected_entity['language']
-        filtered_values = filter_aliases(aliases + value + normalized_value, lang)
-        for val in filtered_values:
-            df_flat_entities = df_flat_entities.append({
-                "value": val,
-                "language": lang,
-                "type": selected_entity.type
-            }, ignore_index=True)
-    return df_flat_entities
-
-
-def make_flat_templates(path, languages):
-    templates = pd.read_json(path)[['id'] + languages]
-    df_flat_templates = pd.DataFrame(columns=["id", "language", "text"])
-    for tem_id in tqdm(templates.id):
-        for lan in languages:
-            text_list = templates[templates['id'] == tem_id][lan].values[0]['texts']
-            text_list = [p['ttsText'] for p in text_list]
-            for text in text_list:
-                df_flat_templates = df_flat_templates.append({
-                    "id": tem_id,
-                    "language": lan,
-                    "text": text
-                }, ignore_index=True)
-    return df_flat_templates
 
 
 def filter_aliases(aliases: list, language: str) -> list:
@@ -334,9 +296,9 @@ def find_space_separated_abbreviations(text: str) -> list:
     return abbreviations
 
 
-def generate_NumSequence(language, amount=3000,  max_length=12):
+def generate_NumSequence(language, amount=3000, max_length=12):
     entity_list = []
-    entity_type = "Unk"
+    entity_type = "NumberSequence"
     for i in tqdm(range(amount)):
         length = random.randint(3, max_length)
         low = 10 ** length

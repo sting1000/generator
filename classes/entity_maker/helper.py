@@ -15,9 +15,8 @@ def make_item(value, item_type, lan, aliases=None):
     }
     return item
 
-def make_second(entity_type, language, amount=None):
+def make_second(entity_type, language):
     all_list = []
-
     if language == "en":
         for num in range(2, 60):
             all_list.append(make_item("{} seconds".format(str(num)), entity_type, language))
@@ -38,14 +37,11 @@ def make_second(entity_type, language, amount=None):
             all_list.append(make_item("{} secondi".format(str(num)), entity_type, language))
         all_list.append(make_item("1 secondo", entity_type, language))
         all_list.append(make_item("mezzo secondo", entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_minute(entity_type, language, amount=None):
+def make_minute(entity_type, language):
     all_list = []
-
     if language == "en":
         for num in range(2, 60):
             all_list.append(make_item("{} minutes".format(str(num)), entity_type, language))
@@ -66,12 +62,10 @@ def make_minute(entity_type, language, amount=None):
             all_list.append(make_item("{} minuti".format(str(num)), entity_type, language))
         all_list.append(make_item("1 minuto", entity_type, language))
         all_list.append(make_item("mezzo minuto", entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_hour(entity_type, language, amount=None):
+def make_hour(entity_type, language):
     all_list = []
 
     if language == "en":
@@ -94,12 +88,10 @@ def make_hour(entity_type, language, amount=None):
             all_list.append(make_item("{} ore".format(str(num)), entity_type, language))
         all_list.append(make_item("1 ora", entity_type, language))
         all_list.append(make_item("mezzo ora", entity_type, language, aliases=["mezz ora"]))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_days(entity_type, language, amount=None, max_range=10):
+def make_days(entity_type, language, max_range):
     all_list = []
 
     if language == "en":
@@ -122,22 +114,17 @@ def make_days(entity_type, language, amount=None, max_range=10):
             all_list.append(make_item("{} giorni".format(str(num)), entity_type, language))
         all_list.append(make_item("1 giorno", entity_type, language))
         all_list.append(make_item("mezzo giornata", entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_position(entity_type, language, amount=None, max_range=200):
+def make_position(entity_type, language, max_range=200):
     all_list = []
-
-    for num in range(1, max_range):
+    for num in range(0, max_range):
         all_list.append(make_item(str(num), entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_timestamp_word(entity_type, language, amount=None):
+def make_timestamp_word(entity_type, language):
     all_list = []
 
     if language == "en":
@@ -216,17 +203,13 @@ def make_timestamp_word(entity_type, language, amount=None):
             'in serata',
             'nel pomeriggio'
         ]
-
     for value in value_list:
         all_list.append(make_item(value, entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_timestamp_date(entity_type, language, amount=None):
+def make_timestamp_date(entity_type, language):
     all_list = []
-
     if language == "en":
         prepend = 'on '
     elif language == 'de':
@@ -237,28 +220,30 @@ def make_timestamp_date(entity_type, language, amount=None):
     for month in range(1, 13):
         for day in range(1, 32):
             all_list.append(make_item(prepend + "{}.{}".format(str(day), str(month)), entity_type, language))
-
-    amount = len(all_list) if amount is None else amount
-    return random.sample(all_list, k=amount)
+    return all_list
 
 
-def make_timestamp_clock(entity_type, language, amount=None):
+def make_timestamp_clock(entity_type, language):
     all_list = []
-
     for hour in range(0, 24):
+        aliases = []
         hour_str = str(hour)
         hour_str = hour_str if len(hour_str) > 1 else "0" + hour_str
 
-        aliases = []
+        # when minute == 00
         if hour > 12:
-            aliases.append("{} pm".format(str(hour % 12)))
-            aliases.append("{} p m".format(str(hour % 12)))
+            hour_str_12 = str(hour % 12)
+            aliases.append("{} pm".format(hour_str_12))
+            aliases.append("{} p m".format(hour_str_12))
+            aliases.append("{} o clock".format(hour_str_12))
         else:
-            aliases.append("{} am".format(str(hour)))
-            aliases.append("{} a m".format(str(hour % 12)))
+            aliases.append("{} am".format(hour_str))
+            aliases.append("{} a m".format(hour_str))
+            aliases.append("{} o clock".format(hour_str))
         all_list.append(
             make_item("{}:{}".format(hour_str, '00'), entity_type, language, aliases=aliases))
 
+        # when minute == 30
         if language == 'en':
             aliases = ["half past {}".format(str(hour))]
         elif language == 'de':
@@ -270,15 +255,14 @@ def make_timestamp_clock(entity_type, language, amount=None):
         all_list.append(
             make_item("{}:{}".format(hour_str, '30'), entity_type, language, aliases=aliases))
 
+        # minute is other case
         for minute in range(0, 60):
-            if minute == 0 or minute == 30:
-                continue
-            minute_str = str(minute)
-            minute_str = minute_str if len(minute_str) > 1 else "0" + minute_str
-            all_list.append(
-                make_item("{}:{}".format(hour_str, minute_str), entity_type, language, aliases=[]))
-        amount = len(all_list) if amount is None else amount
-        return random.sample(all_list, amount)
+            if minute != 0 and minute != 30:
+                minute_str = str(minute)
+                minute_str = minute_str if len(minute_str) > 1 else "0" + minute_str
+                all_list.append(
+                    make_item("{}:{}".format(hour_str, minute_str), entity_type, language, aliases=[]))
+        return all_list
 
 
 def merge_entity_types(entity_df, type_list):
