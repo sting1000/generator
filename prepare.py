@@ -67,6 +67,12 @@ def main():
                         help="The configure file path e.g. config/prepare_config.json")
     parser.add_argument("--output_name", default=None, type=str, required=True,
                         help="The output filename e.g. train")
+    parser.add_argument("--tag", default=False, required=False,
+                        help="add tag information to output file")
+    parser.add_argument("--pad", default=False, required=False,
+                        help="add pad to head and tail of each sentence")
+    parser.add_argument("--pad_size", default=1, type=int, required=False,
+                        help="The size of padding")
     # load config values
     args = parser.parse_args()
     with open(args.config, 'r', encoding='utf-8') as fp:
@@ -129,11 +135,12 @@ def main():
     print("Making data folder: ", output_dir)
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     print("Start Permutation...")
+    print(args.tag, args.pad, args.pad_size)
     Generator(templates=df_temp,
               entities=df_entities,
               name=args.output_name,
               threshold=permute_threshold,
-              normalizer=normalizer).permute(output_dir, tag=True, pad=True)
+              normalizer=normalizer).permute(output_dir, tag=args.tag, pad=args.pad, pad_size=args.pad_size)
 
 
 if __name__ == "__main__":
