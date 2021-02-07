@@ -23,64 +23,90 @@ class Generator:
     def permute(self, output_path, tag=False, pad=False, pad_size=1):
         # init
         with open(output_path / (self.name + '.csv'), 'w') as outfile:
-            # columns = ['sentence_id', 'intent', 'language', 'written', 'spoken', 'type']
-            # outfile.write(','.join(columns) + '\n')
-
             print("Making permutation for " + self.name)
             for ind_row, row in tqdm(self.templates.iterrows()):
                 tags = re.findall(r'{\S+}', row['text'])
-                if tags and len(tags) <= self.max_tag_amount:
-                    entities_combo_list = self.get_entities_combo(tags, language=row['language'], random_seed=ind_row)
-                    for entities_combo in entities_combo_list:
-                        ind = 0
-                        if pad:
-                            item = {
-                                'sentence_id': str(self.sentence_num),
-                                'intent': 'Pad',
-                                'language': row['language'],
-                                'written': '<sep>',
-                                'spoken': '<sep>',
-                                'type': 'plain'
-                            }
-                            if tag:
-                                item['token'] = '<sep>'
-                                item['tag'] = 'O'
-                            for i in range(pad_size):
-                                outfile.write(','.join(item.values()) + '\n')
+                if tags:
+                    # if have entity
+                    if len(tags) <= self.max_tag_amount:
+                        entities_combo_list = self.get_entities_combo(tags, language=row['language'], random_seed=ind_row)
+                        for entities_combo in entities_combo_list:
+                            # for each kind of entities combination
+                            if pad:
+                                self.print_pad(outfile, tag, pad_size)
 
-                        for token in row['text'].split():
-                            item = {
-                                'sentence_id': str(self.sentence_num),
-                                'intent': row['intent'],
-                                'language': row['language']
-                            }
-                            if token[0] == '{' and token[-1] == '}':
-                                item['written'] = entities_combo[ind]
-                                item['spoken'] = self.normalizer(item['written'], item['language'])
-                                item['type'] = tags[ind][1:-1]
-                                ind += 1
-                            else:
-                                item['written'] = token
-                                item['spoken'] = token
-                                item['type'] = 'plain'
-
-                            if tag:
-                                if item['type'] != 'PLAIN' and item['written'] != item['spoken']:
-                                    for i, word in enumerate(item['spoken'].split()):
-                                        item['token'] = word
-                                        if i == 0:
-                                            item['tag'] = 'B-TBNorm'
-                                        else:
-                                            item['tag'] = 'I-TBNorm'
-                                        outfile.write(','.join(item.values()) + '\n')
+                            comb_id = 0
+                            token_id = 1
+                            for token in row['text'].split():
+                                item = {
+                                    'sentence_id': str(self.sentence_num),
+                                    'intent': row['intent'],
+                                    'language': row['language']
+                                }
+                                if token[0] == '{' and token[-1] == '}':
+                                    item['written'] = entities_combo[comb_id]
+                                    item['spoken'] = self.normalizer(item['written'], item['language'])
+                                    item['type'] = tags[comb_id][1:-1]
+                                    comb_id += 1
                                 else:
-                                    for _, word in enumerate(item['spoken'].split()):
-                                        item['token'] = word
-                                        item['tag'] = 'O'
-                                        outfile.write(','.join(item.values()) + '\n')
-                            else:
+                                    item['written'] = token
+                                    item['spoken'] = token
+                                    item['type'] = 'plain'
+
+                                if tag:
+                                    if item['type'] != 'plain' and item['written'] != item['spoken']:
+                                        for i, word in enumerate(item['spoken'].split()):
+                                            item['token'] = word
+                                            item['token_id'] = str(token_id)
+                                            if i == 0:
+                                                item['tag'] = 'B-TBNorm'
+                                            else:
+                                                item['tag'] = 'I-TBNorm'
+                                            outfile.write(','.join(item.values()) + '\n')
+                                    else:
+                                        for word in item['spoken'].split():
+                                            item['token'] = word
+                                            item['token_id'] = str(token_id)
+                                            item['tag'] = 'O'
+                                            outfile.write(','.join(item.values()) + '\n')
+
+                                else:
+                                    outfile.write(','.join(item.values()) + '\n')
+                                token_id += 1
+
+                            if pad:
+                                self.print_pad(outfile, tag, pad_size)
+                            self.sentence_num += 1
+
+                else:
+                    # if no entity
+                    if pad:
+                        self.print_pad(outfile, tag, pad_size)
+
+                    token_id = 1
+                    for token in row['text'].split():
+                        item = {
+                            'sentence_id': str(self.sentence_num),
+                            'intent': row['intent'],
+                            'language': row['language'],
+                            'written': token,
+                            'spoken': token,
+                            'type': 'plain',
+                        }
+                        if tag:
+                            for word in item['spoken'].split():
+                                item['token'] = word
+                                item['token_id'] = str(token_id)
+                                item['tag'] = 'O'
                                 outfile.write(','.join(item.values()) + '\n')
-                        self.sentence_num += 1
+                        else:
+                            outfile.write(','.join(item.values()) + '\n')
+                        token_id += 1
+
+                    if pad:
+                        self.print_pad(outfile, tag, pad_size)
+                    self.sentence_num += 1
+
 
     def get_entities_combo(self, tags, language, random_seed):
         key = language + '_'.join(tags)
@@ -99,3 +125,19 @@ class Generator:
             random.seed(random_seed)
             all_entities_combo = random.sample(all_entities_combo, self.threshold)
         return all_entities_combo
+
+    def print_pad(self, outfile, tag, pad_size):
+        item = {
+            'sentence_id': str(self.sentence_num),
+            'intent': 'Pad',
+            'language': '',
+            'written': '',
+            'spoken': '',
+            'type': 'plain'
+        }
+        if tag:
+            item['token_id'] = ''
+            item['token'] = ''
+            item['tag'] = 'O'
+        for i in range(pad_size):
+            outfile.write(','.join(item.values()) + '\n')

@@ -1,16 +1,15 @@
-import re
 import time
-from classes.entity_maker.helper import merge_entity_types
-import pandas as pd
-from pathlib import Path
 import json
+import argparse
+import pandas as pd
+from tqdm import tqdm
+from pathlib import Path
+from classes.entity_maker.helper import merge_entity_types
 from classes.command_generator.Normalizer import Normalizer
 from classes.command_generator.Generator import Generator
-from helper import filter_aliases, train_test_drop_split, generate_NumSequence
-import argparse
 from classes.entity_maker.EntityCreator import EntityCreator
-from tqdm import tqdm
 from classes.command_generator.cleaning import clean_string
+from helper import filter_aliases, generate_NumSequence
 
 
 def get_custom_entity_json(language_list, channel_max_range):
@@ -66,8 +65,11 @@ def main():
 
     parser.add_argument("--config", default=None, type=str, required=True,
                         help="The configure file path e.g. config/prepare_config.json")
+    parser.add_argument("--output_name", default=None, type=str, required=True,
+                        help="The output filename e.g. train")
     # load config values
-    with open(parser.parse_args().config, 'r', encoding='utf-8') as fp:
+    args = parser.parse_args()
+    with open(args.config, 'r', encoding='utf-8') as fp:
         config = json.load(fp)
 
     data_dir = Path(config['data_dir'])  # include entity_file, template
@@ -127,10 +129,9 @@ def main():
     print("Making data folder: ", output_dir)
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     print("Start Permutation...")
-    name = 'all_2'
     Generator(templates=df_temp,
               entities=df_entities,
-              name=name,
+              name=args.output_name,
               threshold=permute_threshold,
               normalizer=normalizer).permute(output_dir, tag=True, pad=True)
 
