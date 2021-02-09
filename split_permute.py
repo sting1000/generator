@@ -2,10 +2,10 @@ import pandas as pd
 from pathlib import Path
 import json
 import warnings
-from classes.command_generator.Generator import Generator
-from classes.command_generator.Normalizer import Normalizer
+from src.command_generator.Generator import Generator
+from src.command_generator.Normalizer import Normalizer
 from sklearn.model_selection import train_test_split
-from classes.command_generator import filter_aliases
+from src.command_generator import filter_aliases
 from tqdm import tqdm
 
 warnings.filterwarnings('ignore')

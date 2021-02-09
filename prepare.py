@@ -1,11 +1,12 @@
 import json
 import argparse
+import time
 import pandas as pd
 from tqdm import tqdm
-from classes.entity_maker.helper import mix_entity_types
-from classes.command_generator.Generator import Generator
-from classes.entity_maker.EntityCreator import EntityCreator
-from classes.command_generator.cleaning import clean_string
+from src.entity_maker.helper import mix_entity_types
+from src.command_generator.Generator import Generator
+from src.entity_maker.EntityCreator import EntityCreator
+from src.command_generator.cleaning import clean_string
 from helper import filter_aliases
 
 
@@ -24,7 +25,7 @@ def get_custom_entity_json(language_list, channel_max_range):
 
 
 def prepare_templates(templates_file, languages):
-    print("Start preparing Templates...")
+    print("Preparing Templates...")
     templates = pd.read_json(templates_file)[['id'] + languages]
     df_flat_templates = pd.DataFrame(columns=["id", "language", "text"])
     for tem_id in tqdm(templates.id):
@@ -41,24 +42,25 @@ def prepare_templates(templates_file, languages):
 
 
 def prepare_entities(entities_file, languages, merge_type_list, channel_max_range):
-    print("Start preparing entities...")
-    # read data
+    # init
+    print("Preparing entities...")
+    time_start = time.time()
     entities = pd.read_json(entities_file)[['value', 'type', 'language', 'normalizedValue', 'aliases']]
     entities = entities[entities['language'].isin(languages)]
     entities['type'] = entities['type'].apply(clean_string)
 
-    # merge type
+    # augment entities
     if merge_type_list:
         entities = mix_entity_types(entities, merge_type_list)
-
-    # add channel number
     entities_custom = pd.DataFrame(get_custom_entity_json(languages, channel_max_range))
     entities = pd.concat([entities, entities_custom]).reset_index(drop=True)
 
     # filter key value
     entities['value'] = entities.apply(filter_aliases, axis=1)
     entities = entities.explode('value', ignore_index=True)
-    print(">>>>>>> Done! <<<<<<<")
+
+    time_end = time.time()
+    print("Entities Prepared: {}\t Time used: {}s".format(len(entities), time_end - time_start))
     return entities[["value", "type", "language"]]
 
 

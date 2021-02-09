@@ -1,4 +1,4 @@
-from classes.command_generator.cleaning import clean_string
+from src.command_generator.cleaning import clean_string
 
 
 class Command:

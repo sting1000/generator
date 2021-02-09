@@ -1,5 +1,5 @@
 import re
-from classes.command_generator.cleaning import clean_string
+from src.command_generator.cleaning import clean_string
 from tqdm import tqdm
 import json
 import os

@@ -1,13 +1,13 @@
 from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 from edit_distance import SequenceMatcher
 import pandas as pd
-from classes.command_generator.cleaning import clean_string
+from src.command_generator.cleaning import clean_string
 import json
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 import re
 import random
-from classes.command_generator.Normalizer import Normalizer
+from src.command_generator.Normalizer import Normalizer
 
 
 def replace_space(s: str):

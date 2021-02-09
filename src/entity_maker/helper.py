@@ -1,4 +1,4 @@
-from classes.command_generator.Normalizer import Normalizer
+from src.command_generator.Normalizer import Normalizer
 import pandas as pd
 import random
 
