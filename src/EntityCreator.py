@@ -1,5 +1,5 @@
-from src.entity_maker.helper import make_hour, make_minute, make_second, make_position
-from src.entity_maker.helper import make_timestamp_date, make_timestamp_clock, make_timestamp_word
+from src.entity_helper import make_hour, make_minute, make_second, make_position
+from src.entity_helper import make_timestamp_date, make_timestamp_clock, make_timestamp_word
 
 
 class EntityCreator:

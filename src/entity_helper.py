@@ -1,6 +1,5 @@
-from src.command_generator.Normalizer import Normalizer
+from utils import Normalizer
 import pandas as pd
-import random
 
 
 def make_item(value, item_type, lan, aliases=None):
@@ -14,6 +13,7 @@ def make_item(value, item_type, lan, aliases=None):
         "aliases": aliases
     }
     return item
+
 
 def make_second(entity_type, language):
     all_list = []

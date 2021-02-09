@@ -1,5 +1,5 @@
 import os
-from helper import *
+from utils import *
 import json
 import argparse
 import pandas as pd
@@ -35,7 +35,7 @@ def main():
         print("Making data folder: ", data_output_dir)
         Path(data_output_dir).mkdir(parents=True, exist_ok=True)
 
-        yaml_path = Path('config/models') / (model_type + '.yaml')
+        yaml_path = Path('models') / (model_type + '.yaml')
         new_yaml_path = model_path / (model_type + '.yaml')
         replace_path_in_yaml(yaml_path, new_yaml_path, model_path)
 

@@ -4,8 +4,8 @@ import errno
 import random
 import itertools
 from tqdm import tqdm
-from src.command_generator.Normalizer import Normalizer
-from src.command_generator.LRUCache import LRUCache
+from utils import Normalizer
+from src.LRUCache import LRUCache
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -20,7 +20,7 @@ def check_filename(filename):
                 raise
 
 
-class Generator:
+class SentenceGenerator:
     def __init__(self, templates, entities, LRU_size=100, max_holder_amount=2, max_combo_amount=3000):
         self.tagging = 0
         self.padding = 0

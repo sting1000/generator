@@ -3,11 +3,10 @@ import argparse
 import time
 import pandas as pd
 from tqdm import tqdm
-from src.entity_maker.helper import mix_entity_types
-from src.command_generator.Generator import Generator
-from src.entity_maker.EntityCreator import EntityCreator
-from src.command_generator.cleaning import clean_string
-from helper import filter_aliases
+from src.entity_helper import mix_entity_types
+from src.SentenceGenerator import SentenceGenerator
+from src.EntityCreator import EntityCreator
+from utils import filter_aliases, clean_string
 
 
 def get_custom_entity_json(language_list, channel_max_range):
@@ -91,7 +90,7 @@ def main():
     df_templates = prepare_templates(templates_file, languages)
     df_entities = prepare_entities(entities_file, languages, merge_type_list, max_channel_range)
 
-    gen = Generator(templates=df_templates, entities=df_entities, max_combo_amount=max_combo_amount)
+    gen = SentenceGenerator(templates=df_templates, entities=df_entities, max_combo_amount=max_combo_amount)
     gen.permute(output_file=args.output_file, tagging=args.tagging, padding=args.padding)
 
 

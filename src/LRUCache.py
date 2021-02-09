@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 
 class LRUCache:
-
     def __init__(self, size):
         self.size = size
         self.linked_map = OrderedDict()
