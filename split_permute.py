@@ -22,11 +22,7 @@ def drop_small_class(df, columns, thresh=2):
 
 
 def permute(templates, entities, name):
-    item = Generator(templates=templates,
-                     entities=entities,
-                     name=name,
-                     threshold=threshold,
-                     normalizer=normalizer)
+    item = Generator(templates=templates, entities=entities, max_combo_amount=threshold)
     item.permute(output_dir / (name + '.json'))
 
 
@@ -80,7 +76,7 @@ def make_flat_templates(path):
 
 
 # load config values
-config_file = Path('config') / 'prepare_config.json'
+config_file = Path('config') / 'config_prepare.json'
 with open(config_file, 'r', encoding='utf-8') as fp:
     config = json.load(fp)
 

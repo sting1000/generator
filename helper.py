@@ -219,32 +219,34 @@ def train_test_drop_split(df, test_size, stratify_columns, random_state=42):
     return df_train, df_test
 
 
-def filter_aliases(aliases: list, language: str) -> list:
+def filter_aliases(row) -> list:
     """
     Filters list of aliases to keep only the useful ones.
     It is used to remove all the noisy aliases given by tv that are useful for ASR.
 
     E.g. ['s r f 1', 'SRF 1', 'srf eins'] becomes ['srf 1']
     """
-    original_aliases = list(aliases)
+    aliases = row['aliases'] + [str(row['value'])]
+    language = row['language']
+
     regex = re.compile(r'\b[a-zA-Z]\b')
-    for alias in original_aliases:
-        alias = str(alias)
-        if regex.findall(alias):  # modified
-            uppercased_alias = restore_abbreviations_in_text(text=alias, uppercase=True).strip()
-            aliases.remove(alias)
-            if uppercased_alias not in aliases:
-                aliases.append(uppercased_alias)
+    for item in aliases:
+        item = str(item)
+        if regex.findall(item):  # modified
+            upper_alias = restore_abbreviations_in_text(text=item, uppercase=True).strip()
+            aliases.remove(item)
+            if upper_alias not in aliases:
+                aliases.append(upper_alias)
 
     # remove norm duplication
     aliases_set = set([clean_string(x) for x in aliases])
     normalized_aliases_set = set()
-    for alias in aliases_set:
-        norm = Normalizer().normalize_text(alias, language)
-        if norm != alias:
+    for item in aliases_set:
+        norm = Normalizer().normalize_text(item, language)
+        if norm != item:
             normalized_aliases_set.add(norm)
-
-    return list(aliases_set - normalized_aliases_set)
+    filtered_values = list(aliases_set - normalized_aliases_set)
+    return filtered_values
 
 
 def restore_abbreviations_in_text(text: str, uppercase=False) -> str:

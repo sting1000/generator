@@ -1,114 +1,59 @@
-import json
-from classes.command_generator.Command import Command
-from classes.command_generator.LRUCache import LRUCache
-import random
 import re
+import os
+import errno
+import random
 import itertools
 from tqdm import tqdm
-import pandas as pd
+from classes.command_generator.Normalizer import Normalizer
+from classes.command_generator.LRUCache import LRUCache
+import warnings
+warnings.filterwarnings("ignore")
+
+
+def check_filename(filename):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
 
 
 class Generator:
-    def __init__(self, templates, entities, normalizer, name=None, threshold=3000, LRU_size=100, max_tag_amount=2):
+    def __init__(self, templates, entities, LRU_size=100, max_holder_amount=2, max_combo_amount=3000):
         self.has_no_output = True
         self.templates = templates
         self.entities = entities
-        self.normalizer = normalizer
-        self.name = name
+        self.normalizer = Normalizer().normalize_text
         self.tags_entities_dic = LRUCache(size=LRU_size)
-        self.threshold = threshold
+        self.max_combo_amount = max_combo_amount
         self.sentence_num = 0
-        self.max_tag_amount = max_tag_amount
+        self.max_holder_amount = max_holder_amount
 
-    def permute(self, output_path, tag=False, pad=False, pad_size=1):
-        # init
-        with open(output_path / (self.name + '.csv'), 'w') as outfile:
-            print("Making permutation for " + self.name)
-            for ind_row, row in tqdm(self.templates.iterrows()):
-                tags = re.findall(r'{\S+}', row['text'])
-                if tags:
-                    # if have entity
-                    if len(tags) <= self.max_tag_amount:
-                        entities_combo_list = self.get_entities_combo(tags, language=row['language'], random_seed=ind_row)
+    def permute(self, output_file, tagging=0, padding=0):
+        print("Start Permutation...")
+        check_filename(output_file)
+        with open(output_file, 'w') as outfile:
+            self.__print_header(outfile, tagging)
+            for row_index, row in tqdm(self.templates.iterrows()):
+                language = row['language']
+                entity_holder = re.findall(r'{\S+}', row['text'])
+                if entity_holder:
+                    if len(entity_holder) <= self.max_holder_amount:
+                        entities_combo_list = self.__combine_entities(entity_holder, language=language,
+                                                                      random_seed=row_index)
                         for entities_combo in entities_combo_list:
-                            # for each kind of entities combination
-                            if pad:
-                                self.print_pad(outfile, tag, pad_size)
-
-                            comb_id = 0
-                            token_id = 1
-                            for token in row['text'].split():
-                                item = {
-                                    'sentence_id': str(self.sentence_num),
-                                    'intent': row['intent'],
-                                    'language': row['language']
-                                }
-                                if token[0] == '{' and token[-1] == '}':
-                                    item['written'] = entities_combo[comb_id]
-                                    item['spoken'] = self.normalizer(item['written'], item['language'])
-                                    item['type'] = tags[comb_id][1:-1]
-                                    comb_id += 1
-                                else:
-                                    item['written'] = token
-                                    item['spoken'] = token
-                                    item['type'] = 'plain'
-
-                                if tag:
-                                    if item['type'] != 'plain' and item['written'] != item['spoken']:
-                                        for i, word in enumerate(item['spoken'].split()):
-                                            item['token'] = word
-                                            item['token_id'] = str(token_id)
-                                            if i == 0:
-                                                item['tag'] = 'B-TBNorm'
-                                            else:
-                                                item['tag'] = 'I-TBNorm'
-                                            outfile.write(','.join(item.values()) + '\n')
-                                    else:
-                                        for word in item['spoken'].split():
-                                            item['token'] = word
-                                            item['token_id'] = str(token_id)
-                                            item['tag'] = 'O'
-                                            outfile.write(','.join(item.values()) + '\n')
-
-                                else:
-                                    outfile.write(','.join(item.values()) + '\n')
-                                token_id += 1
-
-                            if pad:
-                                self.print_pad(outfile, tag, pad_size)
+                            self.__print_pad(outfile, tagging, padding, language=language, value='<sos>')
+                            self.__print_combo(outfile, tagging, row, entity_holder, entities_combo)
+                            self.__print_pad(outfile, tagging, padding, language=language, value='<eos>')
                             self.sentence_num += 1
-
                 else:
-                    # if no entity
-                    if pad:
-                        self.print_pad(outfile, tag, pad_size)
-
-                    token_id = 1
-                    for token in row['text'].split():
-                        item = {
-                            'sentence_id': str(self.sentence_num),
-                            'intent': row['intent'],
-                            'language': row['language'],
-                            'written': token,
-                            'spoken': token,
-                            'type': 'plain',
-                        }
-                        if tag:
-                            for word in item['spoken'].split():
-                                item['token'] = word
-                                item['token_id'] = str(token_id)
-                                item['tag'] = 'O'
-                                outfile.write(','.join(item.values()) + '\n')
-                        else:
-                            outfile.write(','.join(item.values()) + '\n')
-                        token_id += 1
-
-                    if pad:
-                        self.print_pad(outfile, tag, pad_size)
+                    self.__print_pad(outfile, tagging, padding, language=language, value='<sos>')
+                    self.__print_plain(outfile, tagging, row)
+                    self.__print_pad(outfile, tagging, padding, language=language, value='<eos>')
                     self.sentence_num += 1
 
-
-    def get_entities_combo(self, tags, language, random_seed):
+    def __combine_entities(self, tags, language, random_seed):
         key = language + '_'.join(tags)
         all_entities_combo = self.tags_entities_dic.get(key)
         if not all_entities_combo:
@@ -121,23 +66,94 @@ class Generator:
             all_entities_combo = list(itertools.product(*tags_value_list))
             self.tags_entities_dic.set(key, all_entities_combo)
 
-        if len(all_entities_combo) > self.threshold:
+        if len(all_entities_combo) > self.max_combo_amount:
             random.seed(random_seed)
-            all_entities_combo = random.sample(all_entities_combo, self.threshold)
+            all_entities_combo = random.sample(all_entities_combo, self.max_combo_amount)
         return all_entities_combo
 
-    def print_pad(self, outfile, tag, pad_size):
+    def __get_item_pad(self, tagging, language, value):
         item = {
             'sentence_id': str(self.sentence_num),
             'intent': 'Pad',
-            'language': '',
-            'written': '',
-            'spoken': '',
-            'type': 'plain'
+            'language': language,
+            'written': value,
+            'spoken': value,
+            'type': 'Pad'
         }
-        if tag:
-            item['token_id'] = ''
-            item['token'] = ''
+        if tagging:
+            item['token_id'] = '-1'
+            item['token'] = value
             item['tag'] = 'O'
-        for i in range(pad_size):
-            outfile.write(','.join(item.values()) + '\n')
+        return item
+
+    def __print_combo(self, outfile, tagging, row, entity_holder, entities_combo):
+        item = {
+            'sentence_id': str(self.sentence_num),
+            'intent': row['intent'],
+            'language': row['language']
+        }
+
+        holder_index = 0
+        for token_index, token in enumerate(row['text'].split()):
+            if re.findall(r'{\S+}', token):
+                item['written'] = entities_combo[holder_index]
+                item['spoken'] = self.normalizer(item['written'], item['language'])
+                item['type'] = entity_holder[holder_index][1:-1]
+                holder_index += 1
+            else:
+                item['written'] = token
+                item['spoken'] = token
+                item['type'] = 'plain'
+
+            if item['type'] != 'plain' and item['written'] != item['spoken']:
+                for i, word in enumerate(item['spoken'].split()):
+                    item['token'] = word
+                    item['token_id'] = str(token_index)
+                    if i == 0:
+                        item['tag'] = 'B-TBNorm'
+                    else:
+                        item['tag'] = 'I-TBNorm'
+                    self.__print_item(outfile, item, tagging)
+            else:
+                for word in item['spoken'].split():
+                    item['token'] = word
+                    item['token_id'] = str(token_index)
+                    item['tag'] = 'O'
+                    self.__print_item(outfile, item, tagging)
+
+    def __print_plain(self, outfile, tagging, row):
+        item = {
+            'sentence_id': str(self.sentence_num),
+            'intent': row['intent'],
+            'language': row['language'],
+            'type': 'plain',
+            'tag': 'O'
+        }
+        for token_index, token in enumerate(row['text'].split()):
+            item['written'] = token
+            item['spoken'] = token
+            item['token'] = token
+            item['token_id'] = str(token_index)
+            self.__print_item(outfile, item, tagging)
+
+    def __print_pad(self, outfile, tagging, padding, language, value):
+        for _ in range(padding):
+            pad = self.__get_item_pad(tagging, language, value)
+            self.__print_item(outfile, pad, tagging)
+
+    def __print_item(self, outfile, item, tagging):
+        # print dict item to outfile with certain order
+        columns = ['sentence_id', 'language', 'intent', 'written', 'spoken', 'type']
+        if tagging:
+            columns += ['token_id', 'token', 'tag']
+        value_list = []
+        for col in columns:
+            value_list.append(item[col])
+        outfile.write(','.join(value_list) + '\n')
+
+    def __print_header(self, outfile, tagging):
+        # print dict item to outfile with certain order
+        columns = ['sentence_id', 'language', 'intent', 'written', 'spoken', 'type']
+        if tagging:
+            columns += ['token_id', 'token', 'tag']
+        outfile.write(','.join(columns) + '\n')

@@ -265,7 +265,7 @@ def make_timestamp_clock(entity_type, language):
         return all_list
 
 
-def merge_entity_types(entity_df, type_list):
+def mix_entity_types(entity_df, type_list):
     if not type_list:
         return entity_df
     df_list = []

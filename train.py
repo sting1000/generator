@@ -1,19 +1,9 @@
 import os
 from helper import *
-import time
-import torch
 import json
 import argparse
 import pandas as pd
-from tqdm import tqdm
 from pathlib import Path
-
-import onmt
-from onmt.inputters.inputter import _load_vocab, _build_fields_vocab, get_fields, IterOnDevice
-from onmt.inputters.corpus import ParallelCorpus
-from onmt.inputters.dynamic_iterator import DynamicDatasetIter
-from onmt.translate import GNMTGlobalScorer, Translator, TranslationBuilder
-from onmt.utils.misc import set_random_seed
 
 
 # load config values
@@ -21,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--config", default=None, type=str, required=True,
-                        help="The configure file path e.g. config/prepare_config.json")
+                        help="The configure file path e.g. config/config_prepare.json")
     parser.add_argument("--output_name", default=None, type=str, required=True,
                         help="The output filename e.g. train")
 

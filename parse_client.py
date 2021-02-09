@@ -6,7 +6,6 @@ import os
 import certifi_swisscom
 from plato_client import CliTokenManager
 from muesli_client import MuesliClient
-from helper import read_data_json, add_pred
 import pandas as pd
 
 def dump_json(outfile, data, has_no_output):
