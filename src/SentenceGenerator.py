@@ -3,9 +3,9 @@ import os
 import errno
 import random
 import itertools
+from collections import OrderedDict
 from tqdm import tqdm
 from utils import Normalizer
-from src.LRUCache import LRUCache
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -164,3 +164,26 @@ class SentenceGenerator:
             item['token'] = token
             item['token_id'] = str(token_index)
             self.__print_item(outfile, item)
+
+
+class LRUCache:
+    def __init__(self, size):
+        self.size = size
+        self.linked_map = OrderedDict()
+
+    def set(self, key, value):
+        if key in self.linked_map:
+            self.linked_map.pop(key)
+
+        if self.size == len(self.linked_map):
+            self.linked_map.popitem(last=False)
+        self.linked_map.update({key: value})
+
+    def get(self, key):
+        if key in self.linked_map:
+            value = self.linked_map.get(key)
+            self.linked_map.pop(key)
+            self.linked_map.update({key: value})
+            return value
+        else:
+            return None

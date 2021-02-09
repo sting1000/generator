@@ -12,9 +12,14 @@ def main():
 
     parser.add_argument("--config", default=None, type=str, required=True,
                         help="The configure file path e.g. config/config_prepare.json")
+    parser.add_argument("--prepared_file", default=None, type=str, required=True,
+                        help="The output csv from prepare.py")
     parser.add_argument("--output_name", default=None, type=str, required=True,
                         help="The output filename e.g. train")
-
+    parser.add_argument("--classifier", default=None, type=str, required=True,
+                        help="GroundTruth, XGBoost, BERT-base")
+    parser.add_argument("--normalizer", default=None, type=str, required=True,
+                        help="RuleBased, BiLSTM, Transformer, DNC")
 
     config_file = Path('config') / 'train_config.json'
     with open(config_file, 'r', encoding='utf-8') as fp:

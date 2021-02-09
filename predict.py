@@ -55,8 +55,8 @@ for config in configs:
 
     # predict given list of steps
     for st in tqdm(steps):
-        model = Path('results') / model_name / '_step_{steps}.pt'.format( steps=st)
-        command_pred = "python {onmt_path}/translate.py -model {model} -src src_test.txt -output {output_path} -gpu 0 " \
+        model = Path('results') / model_name / '_step_{steps}.pt'.format(steps=st)
+        command_pred = "python {onmt_path}/translate.py -model_name {model} -src src_test.txt -output {output_path} -gpu 0 " \
                        "-beam_size {beam_size} -report_time".format(onmt_path=onmt_path, model=model,
                                                                     output_path=output_path, beam_size=beam_size)
         os.system(command_pred)

@@ -3,7 +3,6 @@ import argparse
 import time
 import pandas as pd
 from tqdm import tqdm
-from src.entity_helper import mix_entity_types
 from src.SentenceGenerator import SentenceGenerator
 from src.EntityCreator import EntityCreator
 from utils import filter_aliases, clean_string
@@ -21,6 +20,21 @@ def get_custom_entity_json(language_list, channel_max_range):
         entity_list += EC.generate_TvChannelPosition()
         entity_list += EC.generate_RadioChannelPosition()
     return entity_list
+
+
+def mix_entity_types(entity_df, type_list):
+    if not type_list:
+        return entity_df
+    df_list = []
+    for type_ in type_list:
+        df_list.append(entity_df[entity_df.type == type_])
+    collection_df = pd.concat(df_list)
+
+    for type_ in type_list:
+        collection_df['type'] = type_
+        entity_df = pd.concat([entity_df, collection_df])
+    entity_df = entity_df.drop_duplicates(subset=['value', 'type', 'language']).reset_index(drop=True)
+    return entity_df
 
 
 def prepare_templates(templates_file, languages):
