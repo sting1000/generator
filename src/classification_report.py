@@ -17,14 +17,18 @@ def preprocessing(results, truth):
     return results, truth
 
 
+def flatten(li):
+    return [item for sublist in li for item in sublist]
+
+
 def f1_scores(results, truth):
-    print(report(truth['class'].tolist(), results['class'].tolist()))
+    print(report(flatten(truth), flatten(results)))
 
 
-def confusion_matrix(results, truth, lang):
-    matrix = cm(truth['class'].tolist(), results['class'].tolist())
-    plot_confusion_matrix(matrix, classes=['ToBeNormalized', 'RemainSelf'],
-                          title='XGBoost Confusion Matrix [{}]'.format(lang))
+def confusion_matrix(results, truth, classes):
+    matrix = cm(flatten(truth), flatten(results))
+    plot_confusion_matrix(matrix, classes=classes,
+                          title='Confusion Matrix')
 
 
 def pr_curve(results, truth, lang):

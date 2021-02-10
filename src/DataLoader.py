@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 
 class DataLoader:
-    def __init__(self, df, test_ratio, num_features, space_letter=0, boundary_letter='-1', window_size=1,
+    def __init__(self, df, test_ratio, num_features=1, space_letter=0, boundary_letter='-1', window_size=1,
                  random_state=2021):
         self.df = df
         self.space_letter = space_letter
