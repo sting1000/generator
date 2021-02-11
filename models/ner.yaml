@@ -1,4 +1,4 @@
-save_data: ./ner/example
+save_data: {*path}/example/
 
 # Prevent overwriting existing files in the folder
 overwrite: True
@@ -17,8 +17,8 @@ data:
         tgt_seq_length: 100
 
 # Where the vocab(s) will be written
-src_vocab: ./ner/example.vocab.src
-tgt_vocab: ./ner/example.vocab.tgt
+src_vocab: {*path}/example.vocab.src
+tgt_vocab: {*path}/example.vocab.tgt
 
 # Train on a single GPU
 world_size: 1
@@ -28,19 +28,19 @@ gpu_ranks: [0]
 word_vec_size: 100
 
 # Where to save the checkpoints
-save_model: {*path}/
+save_model: {*path}/models/
 save_checkpoint_steps: 10000
-train_steps: 100000
+train_steps: 200000
 valid_steps: 10000
 
 encoder_type: brnn
 decoder_type: rnn
 rnn_type: LSTM
-enc_layers: 2
+enc_layers: 4
 dec_layers: 2
 rnn_size: 512
 learning_rate: 0.5
-early_stopping: 4
+early_stopping: 3
 
 tensorboard: True
 tensorboard_log_dir: {*path}/board

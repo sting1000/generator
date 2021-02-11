@@ -126,6 +126,7 @@ class SentenceGenerator:
                 item['type'] = entity_holder[holder_index][1:-1]
                 holder_index += 1
             else:
+                token = str(token)
                 item['written'] = token
                 item['spoken'] = token
                 item['type'] = 'plain'
@@ -143,7 +144,7 @@ class SentenceGenerator:
             else:
                 if self.tagging:
                     for word in item['spoken'].split():
-                        item['token'] = word
+                        item['token'] = str(word)
                         item['token_id'] = str(token_index)
                         item['tag'] = 'O'
                         self.__print_item(outfile, item)
@@ -159,6 +160,7 @@ class SentenceGenerator:
             'tag': 'O'
         }
         for token_index, token in enumerate(row['text'].split()):
+            token = str(token)
             item['written'] = token
             item['spoken'] = token
             item['token'] = token
