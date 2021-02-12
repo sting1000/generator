@@ -40,7 +40,7 @@ enc_layers: 2
 dec_layers: 2
 rnn_size: 512
 learning_rate: 0.2
-early_stopping: 3
+early_stopping: 4
 
 tensorboard: True
 tensorboard_log_dir: {*path}/board
