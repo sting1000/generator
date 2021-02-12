@@ -11,14 +11,14 @@ data:
         src_seq_length: 100
         tgt_seq_length: 100
     valid:
-        path_src: { *path }/data/src_validation.txt
-        path_tgt: { *path }/data/tgt_validation.txt
+        path_src: {*path}/data/src_validation.txt
+        path_tgt: {*path}/data/tgt_validation.txt
         src_seq_length: 100
         tgt_seq_length: 100
 
 # Where the vocab(s) will be written
 src_vocab: {*path}/example.vocab.src
-tgt_vocab: { *path }/example.vocab.tgt
+tgt_vocab: {*path}/example.vocab.tgt
 
 # Train on a single GPU
 world_size: 1
@@ -28,7 +28,7 @@ gpu_ranks: [ 0 ]
 word_vec_size: 100
 
 # Where to save the checkpoints
-save_model: { *path }/checkpoints/
+save_model: {*path}/checkpoints/
 save_checkpoint_steps: 5000
 train_steps: 100000
 valid_steps: 5000
