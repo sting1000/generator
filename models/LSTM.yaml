@@ -11,35 +11,35 @@ data:
         src_seq_length: 100
         tgt_seq_length: 100
     valid:
-        path_src: {*path}/data/src_valid.txt
-        path_tgt: {*path}/data/tgt_valid.txt
+        path_src: { *path }/data/src_validation.txt
+        path_tgt: { *path }/data/tgt_validation.txt
         src_seq_length: 100
         tgt_seq_length: 100
 
 # Where the vocab(s) will be written
 src_vocab: {*path}/example.vocab.src
-tgt_vocab: {*path}/example.vocab.tgt
+tgt_vocab: { *path }/example.vocab.tgt
 
 # Train on a single GPU
 world_size: 1
-gpu_ranks: [0]
+gpu_ranks: [ 0 ]
 
 # supported types: GloVe, word2vec
 word_vec_size: 100
 
 # Where to save the checkpoints
-save_model: {*path}/models/
-save_checkpoint_steps: 10000
-train_steps: 200000
-valid_steps: 10000
+save_model: { *path }/checkpoints/
+save_checkpoint_steps: 5000
+train_steps: 100000
+valid_steps: 5000
 
 encoder_type: brnn
 decoder_type: rnn
 rnn_type: LSTM
-enc_layers: 4
+enc_layers: 2
 dec_layers: 2
 rnn_size: 512
-learning_rate: 0.5
+learning_rate: 0.2
 early_stopping: 3
 
 tensorboard: True

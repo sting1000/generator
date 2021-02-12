@@ -1,23 +1,12 @@
 import re
-import os
-import errno
 import random
 import itertools
 from collections import OrderedDict
 from tqdm import tqdm
-from utils import Normalizer
+from utils import Normalizer, check_folder
 import warnings
 
 warnings.filterwarnings("ignore")
-
-
-def check_filename(filename):
-    if not os.path.exists(os.path.dirname(filename)):
-        try:
-            os.makedirs(os.path.dirname(filename))
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
 
 
 class SentenceGenerator:
@@ -32,13 +21,13 @@ class SentenceGenerator:
         self.sentence_num = 0
         self.max_holder_amount = max_holder_amount
 
-    def permute(self, output_file, tagging=0, padding=0):
+    def permute(self, folder_path, tagging=0, padding=0, csv_name='meta.csv'):
         print("Start Permutation...")
-        check_filename(output_file)
         self.tagging = tagging
         self.padding = padding
-
-        with open(output_file, 'w') as outfile:
+        check_folder(folder_path)
+        meta_path = folder_path + '/' + csv_name
+        with open(meta_path, 'w') as outfile:
             self.__print_header(outfile)
             for row_index, row in tqdm(self.templates.iterrows()):
                 language = row['language']
@@ -56,6 +45,7 @@ class SentenceGenerator:
                     self.__print_plain(outfile, row)
                     self.__print_pad(outfile, language=language, value='<eos>')
                     self.sentence_num += 1
+        return meta_path
 
     def __combine_entities(self, tags, language):
         key = language + '_'.join(tags)

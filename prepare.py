@@ -5,7 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 from src.SentenceGenerator import SentenceGenerator
 from src.EntityCreator import EntityCreator
-from utils import filter_aliases, clean_string
+from utils import filter_aliases, clean_string, check_folder
+import random
 
 
 def get_custom_entity_json(language_list, channel_max_range):
@@ -82,12 +83,18 @@ def main():
 
     parser.add_argument("--config", default=None, type=str, required=True,
                         help="The configure file path, e.g. config_prepare.json")
-    parser.add_argument("--output_file", default=None, type=str, required=True,
-                        help="The output filename e.g. data/train.csv")
-    parser.add_argument("--tagging", default=0, type=int, required=False,
+    parser.add_argument("--output_folder", default=None, type=str, required=True,
+                        help="The output_folder e.g. ./output")
+    parser.add_argument("--no_tagging", default=0, type=int, required=False,
                         help="add tag information to output file, 1 for valid, 0 for invalid")
     parser.add_argument("--padding", default=0, type=int, required=False,
                         help="padding size (int) to head and tail of each sentence")
+    parser.add_argument("--valid_ratio", default=0.1, type=float, required=False,
+                        help="valid_ratio")
+    parser.add_argument("--test_ratio", default=0.1, type=float, required=False,
+                        help="test_ratio")
+    parser.add_argument("--seed", default=42, type=int, required=False,
+                        help="random seed")
 
     # load config values
     args = parser.parse_args()
@@ -100,12 +107,32 @@ def main():
     merge_type_list = config['mix_entity_types']
     max_channel_range = config['max_channel_range']
 
+    random.seed(args.seed)
+
     # prepare Templates and Entities
     df_templates = prepare_templates(templates_file, languages)
     df_entities = prepare_entities(entities_file, languages, merge_type_list, max_channel_range)
-
     gen = SentenceGenerator(templates=df_templates, entities=df_entities, max_combo_amount=max_combo_amount)
-    gen.permute(output_file=args.output_file, tagging=args.tagging, padding=args.padding)
+    meta_path = gen.permute(folder_path=args.output_folder, tagging=(1 - args.no_tagging), padding=args.padding)
+    meta = pd.read_csv(meta_path, converters={'token': str, 'written': str, 'spoken': str})
+
+    valid_ratio = args.valid_ratio
+    test_ratio = args.test_ratio
+    sentence_id_list = list(range(max(meta['sentence_id'])))
+    random.shuffle(sentence_id_list)
+    train_sep_position = int((test_ratio + valid_ratio) * len(sentence_id_list))
+    test_sep_position = int(test_ratio * len(sentence_id_list))
+    test_id = sentence_id_list[:test_sep_position]
+    valid_id = sentence_id_list[test_sep_position:train_sep_position]
+    train_id = sentence_id_list[train_sep_position:]
+
+    test = meta[meta['sentence_id'].isin(test_id)]
+    valid = meta[meta['sentence_id'].isin(valid_id)]
+    train = meta[meta['sentence_id'].isin(train_id)]
+
+    train.to_csv(args.output_folder + "/train.csv", index=False)
+    valid.to_csv(args.output_folder + "/validation.csv", index=False)
+    test.to_csv(args.output_folder + "/test.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+import errno
+import os
+from pathlib import Path
 import unicodedata
 from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 from edit_distance import SequenceMatcher
@@ -186,6 +189,7 @@ def dump_json(outfile, data, has_no_output):
 # generate pairs for training
 def make_src_tgt(df, df_type, data_output_dir, encoder_level, decoder_level):
     print("Making src tgt for: ", df_type)
+    data_output_dir = Path(data_output_dir)
     f_src = open(data_output_dir / ('src_' + df_type + '.txt'), "w")
     f_tgt = open(data_output_dir / ('tgt_' + df_type + '.txt'), "w")
     for _, row in tqdm(df.iterrows()):
@@ -357,3 +361,15 @@ class Normalizer:
     def normalize_text(self, text: str, language: str) -> str:
         normalized_text, _ = self.preprocessor.process(text=text, language=language)
         return normalized_text
+
+
+def check_folder(folder_path):
+    if folder_path[-1] != '/':
+        folder_path += '/'
+    if not os.path.exists(os.path.dirname(folder_path)):
+        try:
+            os.makedirs(os.path.dirname(folder_path))
+            print("Crete folder: ", folder_path)
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
