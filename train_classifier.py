@@ -59,16 +59,6 @@ def read_dataset_from_csv(csv_path):
     return dataset
 
 
-datasets = DatasetDict({
-    'train': read_dataset_from_csv(folder_path + '/train.csv'),
-    'test': read_dataset_from_csv(folder_path + '/test.csv'),
-    'validation': read_dataset_from_csv(folder_path + '/validation.csv')
-})
-model = AutoModelForTokenClassification.from_pretrained(pretrained_path, num_labels=3)
-tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
-label_list = datasets["train"].features[f"tag"].feature.names
-
-
 def tokenize_and_align_labels(examples):
     tokenized_inputs = tokenizer(examples["token"], truncation=True, is_split_into_words=True)
 
@@ -95,24 +85,6 @@ def tokenize_and_align_labels(examples):
 
     tokenized_inputs["labels"] = labels
     return tokenized_inputs
-
-
-tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
-label_list = datasets["train"].features[f"tag"].feature.names
-data_collator = DataCollatorForTokenClassification(tokenizer)
-trainer = Trainer(
-    model,
-    args,
-    train_dataset=tokenized_datasets["train"],
-    eval_dataset=tokenized_datasets["validation"],
-    data_collator=data_collator,
-    tokenizer=tokenizer,
-    compute_metrics=compute_metrics
-)
-
-trainer.train()
-trainer.save_model(save_model_path)
-print("Trainer is saved to ", save_model_path)
 
 
 def predict_dataset(trainer, data):
@@ -146,12 +118,12 @@ def dataset_to_df(dataset):
 def merge_col_from_tag(row, col, tag):
     l = row[col].copy()
     if col in ['tag', 'tag_pred']:
-        for tup in get_entities(row[tag]):
+        for tup in get_entities(row[tag])[::-1]:
             for i in range(tup[1], tup[2] + 1):
                 l.pop(tup[1])
             l.insert(tup[1], 'B')
     else:
-        for tup in get_entities(row[tag]):
+        for tup in get_entities(row[tag])[::-1]:
             text = row[col][tup[1]: tup[2] + 1]
             for i in range(tup[1], tup[2] + 1):
                 l.pop(tup[1])
@@ -168,15 +140,51 @@ def save_result(df, output_file):
     return df
 
 
-for key in ['train', 'test', 'validation']:
+datasets = DatasetDict({
+    'train': read_dataset_from_csv(folder_path + '/train.csv'),
+    'test': read_dataset_from_csv(folder_path + '/test.csv'),
+    'validation': read_dataset_from_csv(folder_path + '/validation.csv')
+})
+model = AutoModelForTokenClassification.from_pretrained(pretrained_path, num_labels=3)
+tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
+label_list = datasets["train"].features[f"tag"].feature.names
+
+tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
+label_list = datasets["train"].features[f"tag"].feature.names
+data_collator = DataCollatorForTokenClassification(tokenizer)
+trainer = Trainer(
+    model,
+    args,
+    train_dataset=tokenized_datasets["train"],
+    eval_dataset=tokenized_datasets["validation"],
+    data_collator=data_collator,
+    tokenizer=tokenizer,
+    compute_metrics=compute_metrics
+)
+
+trainer.train()
+trainer.save_model(save_model_path)
+print("Trainer is saved to ", save_model_path)
+
+results_list = []
+results_index = ['train', 'test', 'validation']
+for key in results_index:
     print("Predicting and Saving {} dataset...".format(key))
     label, pred, results = predict_dataset(trainer, tokenized_datasets[key])
     df = dataset_to_df(datasets[key])
-    save_result(df, '{}/{}_classified_label.csv'.format(folder_path, key))
-
     df_classified = df.copy()
     df_classified['tag'] = pred
+    save_result(df, '{}/{}_classified_label.csv'.format(folder_path, key))
     save_result(df_classified, '{}/{}_classified_pred.csv'.format(folder_path, key))
 
-    print("{} results:", key)
-    print(results)
+    results_formatted = {
+        "precision": results["overall_precision"],
+        "recall": results["overall_recall"],
+        "f1": results["overall_f1"],
+        "bsize": results['TBNorm']['number'],
+        "overall_acc": results["overall_accuracy"]
+    }
+    results_list.append(results_formatted)
+resutls_classifier = pd.DataFrame(results_list, results_index)
+resutls_classifier.to_csv(folder_path + '/resutls_classifier.csv', index=False)
+print(resutls_classifier)
