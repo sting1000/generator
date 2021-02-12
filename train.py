@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--config", default=None, type=str, required=True,
-                        help="The configure file path e.g. config/config_prepare.json")
+                        help="The configure file path e.g. config/prepare.json")
     parser.add_argument("--prepared_file", default=None, type=str, required=True,
                         help="The output csv from prepare.py")
     parser.add_argument("--output_name", default=None, type=str, required=True,

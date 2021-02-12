@@ -341,6 +341,8 @@ def clean_string(s):
     s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
     s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
     s = re.sub(r'\: ', r' ', s)  # 2: -> ' '
+    s = re.sub(r"(\w+)(\d+)", r"\1 \2", s)
+    s = re.sub(r"(\d+)(\w+)", r"\1 \2", s)
     s = s.strip()
     return s
 

@@ -47,6 +47,6 @@ data['src'] = pd.read_csv(src, sep="\n", header=None, skip_blank_lines=False)[0]
 data['tgt'] = pd.read_csv(tgt, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
 data.to_csv(onmt_output_dir + '/result_test.csv', index=False)
 correct_num = sum(data['prediction_token'] == data['tgt'])
-print("Normalizer Correct: ", correct_num)
+print("Normalizer Error: ", len(data) - correct_num)
 print("Normalizer Total: ", len(data))
 print("Normalizer Accuracy: ", correct_num/len(data))

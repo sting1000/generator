@@ -53,8 +53,8 @@ result['label'] = test['label']
 result['src'] = test['src']
 
 # print result
-correct_num = sum(result['pred'] != result['label'])
-print("Pipeline Correct: ", correct_num)
+correct_num = sum(result['pred'] == result['label'])
+print("Pipeline Error: ", len(result) - correct_num)
 print("Pipeline Total: ", len(result))
 print("Pipeline Accuracy: ", correct_num/len(result))
 result.to_csv(pipeline_output_dir + '/pipeline_result.csv')

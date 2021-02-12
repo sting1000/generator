@@ -81,14 +81,14 @@ def prepare_entities(entities_file, languages, merge_type_list, channel_max_rang
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--config", default=None, type=str, required=True,
-                        help="The configure file path, e.g. config_prepare.json")
-    parser.add_argument("--output_folder", default=None, type=str, required=True,
-                        help="The output_folder e.g. ./output")
+    parser.add_argument("--config", default='./config/prepare.json', type=str, required=True,
+                        help="The configure json file path, e.g. prepare.json")
+    parser.add_argument("--prepared_dir", default='./output', type=str, required=True,
+                        help="The output will be saved to this directory default as ./output")
     parser.add_argument("--no_tagging", default=0, type=int, required=False,
-                        help="add tag information to output file, 1 for valid, 0 for invalid")
+                        help="add tag information to datasets")
     parser.add_argument("--padding", default=0, type=int, required=False,
-                        help="padding size (int) to head and tail of each sentence")
+                        help="padding size (int) to both head and tail of each sentence")
     parser.add_argument("--valid_ratio", default=0.1, type=float, required=False,
                         help="valid_ratio")
     parser.add_argument("--test_ratio", default=0.1, type=float, required=False,
@@ -113,7 +113,7 @@ def main():
     df_templates = prepare_templates(templates_file, languages)
     df_entities = prepare_entities(entities_file, languages, merge_type_list, max_channel_range)
     gen = SentenceGenerator(templates=df_templates, entities=df_entities, max_combo_amount=max_combo_amount)
-    meta_path = gen.permute(folder_path=args.output_folder, tagging=(1 - args.no_tagging), padding=args.padding)
+    meta_path = gen.permute(folder_path=args.prepared_dir, tagging=(1 - args.no_tagging), padding=args.padding)
     meta = pd.read_csv(meta_path, converters={'token': str, 'written': str, 'spoken': str})
 
     valid_ratio = args.valid_ratio
@@ -130,9 +130,9 @@ def main():
     valid = meta[meta['sentence_id'].isin(valid_id)]
     train = meta[meta['sentence_id'].isin(train_id)]
 
-    train.to_csv(args.output_folder + "/train.csv", index=False)
-    valid.to_csv(args.output_folder + "/validation.csv", index=False)
-    test.to_csv(args.output_folder + "/test.csv", index=False)
+    train.to_csv(args.prepared_dir + "/train.csv", index=False)
+    valid.to_csv(args.prepared_dir + "/validation.csv", index=False)
+    test.to_csv(args.prepared_dir + "/test.csv", index=False)
 
 
 if __name__ == "__main__":
