@@ -189,6 +189,7 @@ def dump_json(outfile, data, has_no_output):
 # generate pairs for training
 def make_src_tgt(df, df_type, data_output_dir, encoder_level, decoder_level):
     print("Making src tgt for: ", df_type)
+    check_folder(data_output_dir)
     data_output_dir = Path(data_output_dir)
     f_src = open(data_output_dir / ('src_' + df_type + '.txt'), "w")
     f_tgt = open(data_output_dir / ('tgt_' + df_type + '.txt'), "w")
@@ -373,3 +374,13 @@ def check_folder(folder_path):
         except OSError as exc:  # Guard against race condition
             if exc.errno != errno.EEXIST:
                 raise
+
+
+def prepare_onmt(name, onmt_input_dir, onmt_output_dir):
+    df = pd.read_csv('{}/{}.csv'.format(onmt_input_dir, name))
+    data = df[df.tag != 'O'] # filter TBN part
+    data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']]
+    data = data.drop_duplicates().astype(str)
+    data['tgt_char'] = data.written.apply(replace_space)
+    data['src_char'] = data.spoken.apply(replace_space)
+    make_src_tgt(data, name, data_output_dir=(onmt_output_dir + '/data'), encoder_level='char', decoder_level='char')
