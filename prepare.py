@@ -81,9 +81,9 @@ def prepare_entities(entities_file, languages, merge_type_list, channel_max_rang
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--config", default='./config/prepare.json', type=str, required=True,
+    parser.add_argument("--config", default='./config/prepare.json', type=str, required=False,
                         help="The configure json file path, e.g. prepare.json")
-    parser.add_argument("--prepared_dir", default='./output', type=str, required=True,
+    parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The output will be saved to this directory default as ./output")
     parser.add_argument("--no_tagging", default=0, type=int, required=False,
                         help="add tag information to datasets")

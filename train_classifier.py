@@ -150,6 +150,7 @@ def main():
         return true_labels, true_predictions, results
 
     if args.pretrained == 'plain':
+        print("Using Plain mode...")
         for key in ['train', 'test', 'validation']:
             df = pd.read_csv('{}/{}.csv'.format(prepared_dir, key))
             df = df[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
@@ -160,6 +161,7 @@ def main():
             df.to_csv('{}/{}_classified_label.csv'.format(prepared_dir, key), index=False)
         return
 
+    print("Using Pretrained mode...")
     # tokenize and make datasets dict
     datasets = DatasetDict({
         'train': read_dataset_from_csv(prepared_dir + '/train.csv'),
@@ -188,7 +190,7 @@ def main():
     trainer.save_model(save_model_path)
     print("Trainer is saved to ", save_model_path)
 
-    #save results
+    # save results
     results_list = []
     results_index = ['train', 'test', 'validation']
     for key in results_index:
@@ -211,3 +213,7 @@ def main():
     resutls_classifier = pd.DataFrame(results_list, results_index)
     resutls_classifier.to_csv(args.output_dir + '/resutls_test.csv', index=False)
     print(resutls_classifier)
+
+
+if __name__ == "__main__":
+    main()
