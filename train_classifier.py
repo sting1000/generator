@@ -10,7 +10,7 @@ from transformers import DataCollatorForTokenClassification
 
 
 def read_dataset_from_csv(csv_path):
-    df = pd.read_csv(csv_path).astype(str)
+    df = pd.read_csv(csv_path, converters={'token': str, 'written': str, 'spoken': str})
     feature_tag = Sequence(ClassLabel(num_classes=3, names=list(pd.factorize(df['tag'])[1])))
     df['tag'] = df['tag'].apply(feature_tag.feature.str2int)
     df_text = df.groupby(['sentence_id']).agg({'token': list, 'tag': list})
@@ -55,12 +55,11 @@ def dataset_to_df(dataset):
 
 def main():
     parser = argparse.ArgumentParser()
-
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The output dir from prepare.py default as ./output")
     parser.add_argument("--pretrained", default='distilbert-base-german-cased', type=str, required=False,
                         help="Load model from huggingface pretrained, default as None")
-    parser.add_argument("--output_dir", default='./output/classifier', type=str, required=False,
+    parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str, required=False,
                         help="Directory to save model and data")
     parser.add_argument("--num_train_epochs", default=10, type=int, required=False,
                         help="TrainingArguments")
@@ -77,8 +76,7 @@ def main():
     args = parser.parse_args()
     prepared_dir = args.prepared_dir
     pretrained_path = args.pretrained
-    save_model_path = args.output_dir
-    save_model_path += ('/' + pretrained_path)
+    save_model_path = args.classifier_dir
     train_args = TrainingArguments(
         "exp-{}".format(args.pretrained),
         evaluation_strategy="epoch",
@@ -174,8 +172,8 @@ def main():
     )
     # fine tuning model
     trainer.train()
-    trainer.save_model(save_model_path)
-    print("Trainer is saved to ", save_model_path)
+    trainer.save_model(args.classifier_dir)
+    print("Trainer is saved to ", args.classifier_dir)
 
     # save results
     results_list = []
@@ -186,8 +184,8 @@ def main():
         df = dataset_to_df(datasets[key])
         df_classified = df.copy()
         df_classified['tag'] = pred
-        save_result(df, '{}/{}_classified_label.csv'.format(prepared_dir, key))
-        save_result(df_classified, '{}/{}_classified_pred.csv'.format(prepared_dir, key))
+        save_result(df, '{}/{}_classified_label.csv'.format(args.classifier_dir, key))
+        save_result(df_classified, '{}/{}_classified_pred.csv'.format(args.classifier_dir, key))
 
         results_formatted = {
             "precision": results["overall_precision"],
@@ -198,7 +196,7 @@ def main():
         }
         results_list.append(results_formatted)
     resutls_classifier = pd.DataFrame(results_list, results_index)
-    resutls_classifier.to_csv(args.output_dir + '/resutls_test.csv', index=False)
+    resutls_classifier.to_csv(args.classifier_dir + '/results_classifier_test.csv', index=False)
     print(resutls_classifier)
 
 

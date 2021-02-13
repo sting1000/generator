@@ -124,7 +124,7 @@ class SentenceGenerator:
             # For changed case
             if item['type'] != 'plain' and item['written'] != item['spoken']:
                 for i, word in enumerate(item['spoken'].split()):
-                    item['token'] = word
+                    item['token'] = str(word)
                     item['token_id'] = str(token_index)
                     if i == 0:
                         item['tag'] = 'B-TBNorm'
