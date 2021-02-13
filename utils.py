@@ -341,8 +341,8 @@ def clean_string(s):
     s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
     s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
     s = re.sub(r'\: ', r' ', s)  # 2: -> ' '
-    s = re.sub(r"(\w+)(\d+)", r"\1 \2", s)
-    s = re.sub(r"(\d+)(\w+)", r"\1 \2", s)
+    s = re.sub(r"([a-zA-Z]+)(\d+)", r"\1 \2", s)
+    s = re.sub(r"(\d+)([a-zA-Z]+)", r"\1 \2", s)
     s = s.strip()
     return s
 
@@ -378,11 +378,18 @@ def check_folder(folder_path):
                 raise
 
 
-def prepare_onmt(name, onmt_input_dir, onmt_output_dir):
+def prepare_onmt(name, onmt_input_dir, onmt_output_dir, no_classifier):
     df = pd.read_csv('{}/{}.csv'.format(onmt_input_dir, name))
-    data = df[df.tag != 'O'] # filter TBN part
-    data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']]
-    data = data.drop_duplicates().astype(str)
-    data['tgt_char'] = data.written.apply(replace_space)
-    data['src_char'] = data.spoken.apply(replace_space)
+    if no_classifier:
+        data = df[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
+        data['tgt_char'] = data['written'].astype(str)
+        data['src_char'] = data['spoken'].astype(str)
+        data = data.groupby(['sentence_id']).agg({'src_char': ' '.join, 'tgt_char': ' '.join})
+        data['src_char'] = data['src_char'].apply(replace_space)
+        data['tgt_char'] = data['tgt_char'].apply(replace_space)
+    else:
+        data = df[df.tag != 'O']  # filter TBN part
+        data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates().astype(str)
+        data['tgt_char'] = data.written.apply(replace_space)
+        data['src_char'] = data.spoken.apply(replace_space)
     make_src_tgt(data, name, data_output_dir=(onmt_output_dir + '/data'), encoder_level='char', decoder_level='char')

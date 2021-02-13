@@ -58,7 +58,7 @@ def main():
 
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The output dir from prepare.py default as ./output")
-    parser.add_argument("--pretrained", default='plain', type=str, required=False,
+    parser.add_argument("--pretrained", default='distilbert-base-german-cased', type=str, required=False,
                         help="Load model from huggingface pretrained, default as None")
     parser.add_argument("--output_dir", default='./output/classifier', type=str, required=False,
                         help="Directory to save model and data")
@@ -76,7 +76,7 @@ def main():
     # init
     args = parser.parse_args()
     prepared_dir = args.prepared_dir
-    pretrained_path = args.pretrained  # 'distilbert-base-german-cased'
+    pretrained_path = args.pretrained
     save_model_path = args.output_dir
     save_model_path += ('/' + pretrained_path)
     train_args = TrainingArguments(
@@ -149,19 +149,6 @@ def main():
         results = metric.compute(predictions=true_predictions, references=true_labels)
         return true_labels, true_predictions, results
 
-    if args.pretrained == 'plain':
-        print("Using Plain mode...")
-        for key in ['train', 'test', 'validation']:
-            df = pd.read_csv('{}/{}.csv'.format(prepared_dir, key))
-            df = df[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-            df['token'] = df['spoken'].astype(str)
-            df = df.groupby(['sentence_id']).agg({'token': ' '.join}).reset_index()
-            df['tag'] = 'B'
-            df.to_csv('{}/{}_classified_pred.csv'.format(prepared_dir, key), index=False)
-            df.to_csv('{}/{}_classified_label.csv'.format(prepared_dir, key), index=False)
-        return
-
-    print("Using Pretrained mode...")
     # tokenize and make datasets dict
     datasets = DatasetDict({
         'train': read_dataset_from_csv(prepared_dir + '/train.csv'),
