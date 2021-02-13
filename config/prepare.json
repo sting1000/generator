@@ -4,8 +4,8 @@
   "languages": [
     "de"
   ],
-  "max_combo_amount": 30,
-  "max_channel_range": 30,
+  "max_combo_amount": 3000,
+  "max_channel_range": 3000,
   "mix_entity_types": [
     "VodName",
     "SeriesName",
