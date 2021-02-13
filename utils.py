@@ -246,13 +246,15 @@ def filter_aliases(row) -> list:
 
     # remove norm duplication
     aliases_set = set([clean_string(x) for x in aliases])
-    normalized_aliases_set = set()
-    for item in aliases_set:
-        norm = Normalizer().normalize_text(item, language)
-        if norm != item:
-            normalized_aliases_set.add(norm)
-    filtered_values = list(aliases_set - normalized_aliases_set)
-    return filtered_values
+    norm2alas = {}
+    for alas in aliases_set:
+        norm = Normalizer().normalize_text(alas, language)
+        if norm in norm2alas:
+            if len(norm2alas[norm]) > len(alas):
+                norm2alas[norm] = alas
+        else:
+            norm2alas[norm] = alas
+    return list(norm2alas.values())
 
 
 def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
@@ -341,8 +343,8 @@ def clean_string(s):
     s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
     s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
     s = re.sub(r'\: ', r' ', s)  # 2: -> ' '
-    s = re.sub(r"([a-zA-Z]+)(\d+)", r"\1 \2", s)
-    s = re.sub(r"(\d+)([a-zA-Z]+)", r"\1 \2", s)
+    s = re.sub(r"([^\d\W]+)(\d+)", r"\1 \2", s)
+    s = re.sub(r"(\d+)([^\d\W]+)", r"\1 \2", s)
     s = s.strip()
     return s
 
