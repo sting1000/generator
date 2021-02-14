@@ -395,3 +395,13 @@ def prepare_onmt(name, onmt_input_dir, onmt_output_dir, no_classifier):
         data['tgt_char'] = data.written.apply(replace_space)
         data['src_char'] = data.spoken.apply(replace_space)
     make_src_tgt(data, name, data_output_dir=(onmt_output_dir + '/data'), encoder_level='char', decoder_level='char')
+
+
+def get_normalizer_ckpt(normalizer_dir, step):
+    if step == -1:
+        _, _, filenames = next(os.walk(normalizer_dir + '/checkpoints'))
+        f_name = filenames[-1]
+        model_path = normalizer_dir + '/checkpoints/{}'.format(f_name)
+    else:
+        model_path = normalizer_dir + '/checkpoints/_step_{}.pt'.format(step)
+    return model_path

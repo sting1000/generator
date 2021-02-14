@@ -35,7 +35,7 @@ def merge_col_from_tag(row, col, tag):
     return l
 
 
-def save_result(df, output_file):
+def save_classifier_result(df, output_file):
     df['token'] = df.apply(merge_col_from_tag, args=('token', 'tag'), axis=1)
     df['tag'] = df.apply(merge_col_from_tag, args=('tag', 'tag'), axis=1)
     df = df.set_index(['sentence_id']).apply(pd.Series.explode).reset_index()
@@ -76,7 +76,7 @@ def main():
     args = parser.parse_args()
     prepared_dir = args.prepared_dir
     pretrained_path = args.pretrained
-    save_model_path = args.classifier_dir
+    classifier_dir = args.classifier_dir
     train_args = TrainingArguments(
         "exp-{}".format(args.pretrained),
         evaluation_strategy="epoch",
@@ -156,7 +156,7 @@ def main():
     metric = load_metric("seqeval")
     model = AutoModelForTokenClassification.from_pretrained(pretrained_path, num_labels=3)
     tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
-    label_list = datasets["train"].features[f"tag"].feature.names
+    label_list = datasets["train"].features["tag"].feature.names
 
     tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
     label_list = datasets["train"].features[f"tag"].feature.names
@@ -172,8 +172,8 @@ def main():
     )
     # fine tuning model
     trainer.train()
-    trainer.save_model(args.classifier_dir)
-    print("Trainer is saved to ", args.classifier_dir)
+    trainer.save_model(classifier_dir)
+    print("Trainer is saved to ", classifier_dir)
 
     # save results
     results_list = []
@@ -184,8 +184,8 @@ def main():
         df = dataset_to_df(datasets[key])
         df_classified = df.copy()
         df_classified['tag'] = pred
-        save_result(df, '{}/{}_classified_label.csv'.format(args.classifier_dir, key))
-        save_result(df_classified, '{}/{}_classified_pred.csv'.format(args.classifier_dir, key))
+        save_classifier_result(df, '{}/{}_classified_label.csv'.format(classifier_dir, key))
+        save_classifier_result(df_classified, '{}/{}_classified_pred.csv'.format(classifier_dir, key))
 
         results_formatted = {
             "precision": results["overall_precision"],
@@ -196,7 +196,7 @@ def main():
         }
         results_list.append(results_formatted)
     resutls_classifier = pd.DataFrame(results_list, results_index)
-    resutls_classifier.to_csv(args.classifier_dir + '/classifier_results_test.csv', index=False)
+    resutls_classifier.to_csv(classifier_dir + '/classifier_results_test.csv', index=False)
     print(resutls_classifier)
 
 
