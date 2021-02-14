@@ -1,6 +1,8 @@
 import argparse
 import pandas as pd
 import requests
+from tqdm import tqdm
+from utils import check_folder
 
 
 def rb_predict(text, language):
@@ -25,13 +27,16 @@ def main():
     language = args.language
     normalizer_dir = args.normalizer_dir
 
+    check_folder(normalizer_dir)
     test = pd.read_csv('{}/test.csv'.format(args.prepared_dir),
                        converters={'token': str, 'written': str, 'spoken': str})
     data = test[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
     data['tgt'] = data['written']
     data['src'] = data['spoken']
     data = data.groupby(['sentence_id']).agg({'src': ' '.join, 'tgt': ' '.join})
-    data['pred'] = data['src'].apply(rb_predict, args=language)
+    print("Start predicting...")
+    tqdm.pandas()
+    data['pred'] = data['src'].progress_apply(rb_predict, args=(language,))
     data.to_csv(normalizer_dir + '/normalizer_result_test.csv', index=False)
 
     correct_num = sum(data['pred'] == data['tgt'])

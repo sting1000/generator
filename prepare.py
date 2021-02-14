@@ -58,10 +58,10 @@ def prepare_templates(templates_file, languages):
 def prepare_entities(entities_file, languages, merge_type_list, channel_max_range):
     # init
     print("Preparing entities...")
-    time_start = time.time()
+    tqdm.pandas()
     entities = pd.read_json(entities_file)[['value', 'type', 'language', 'normalizedValue', 'aliases']]
     entities = entities[entities['language'].isin(languages)]
-    entities['type'] = entities['type'].apply(clean_string)
+    entities['type'] = entities['type'].progress_apply(clean_string)
 
     # augment entities
     if merge_type_list:
@@ -72,9 +72,6 @@ def prepare_entities(entities_file, languages, merge_type_list, channel_max_rang
     # filter key value
     entities['value'] = entities.apply(filter_aliases, axis=1)
     entities = entities.explode('value', ignore_index=True)
-
-    time_end = time.time()
-    print("Entities Prepared: {}\t Time used: {}s".format(len(entities), time_end - time_start))
     return entities[["value", "type", "language"]]
 
 

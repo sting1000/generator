@@ -29,7 +29,7 @@ class SentenceGenerator:
         meta_path = folder_path + '/' + csv_name
         with open(meta_path, 'w') as outfile:
             self.__print_header(outfile)
-            for row_index, row in tqdm(self.templates.iterrows()):
+            for row_index, row in tqdm(self.templates.iterrows(), total=self.templates.shape[0]):
                 language = row['language']
                 entity_holder = re.findall(r'{\S+}', row['text'])
                 if entity_holder:
