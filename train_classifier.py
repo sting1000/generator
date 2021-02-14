@@ -196,7 +196,7 @@ def main():
         }
         results_list.append(results_formatted)
     resutls_classifier = pd.DataFrame(results_list, results_index)
-    resutls_classifier.to_csv(args.classifier_dir + '/results_classifier_test.csv', index=False)
+    resutls_classifier.to_csv(args.classifier_dir + '/classifier_results_test.csv', index=False)
     print(resutls_classifier)
 
 

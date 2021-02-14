@@ -24,7 +24,7 @@ def main():
     prepared_dir = args.prepared_dir
     normalizer_dir = args.normalizer_dir
     onmt_package_path = args.onmt_dir
-    new_yaml_path = '{}/{}.yaml'.format(normalizer_dir, args.model_name)
+    new_yaml_path = '{}/{}.yaml'.format(normalizer_dir, args.model_yaml.split('/')[-1])
 
     check_folder(normalizer_dir + '/checkpoints')
     check_folder(normalizer_dir + '/data')
@@ -43,30 +43,30 @@ def main():
     os.system(command_build_vocab)
     os.system(command_train)
 
-    _, _, filenames = next(os.walk(normalizer_dir + '/checkpoints'))
-    last_model = filenames[-1]
-    print("Test on last model: ", last_model)
-
-    model = normalizer_dir + '/checkpoints/{}'.format(last_model)
-    src = normalizer_dir + '/data/src_test.txt'
-    tgt = normalizer_dir + '/data/tgt_test.txt'
-    pred_path = src[:-4] + '_pred.txt'
-    command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
-                   "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=model, src=src,
-                                                                output=pred_path, beam_size=5)
-    print("Predicting test dataset...")
-    os.system(command_pred)
-
-    data = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False).astype(str)
-    data.columns = ["prediction_char"]
-    data['prediction_token'] = data["prediction_char"].apply(recover_space)
-    data['src'] = pd.read_csv(src, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
-    data['tgt'] = pd.read_csv(tgt, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
-    data.to_csv(normalizer_dir + '/result_test.csv', index=False)
-    correct_num = sum(data['prediction_token'] == data['tgt'])
-    print("Normalizer Error: ", len(data) - correct_num)
-    print("Normalizer Total: ", len(data))
-    print("Normalizer Accuracy: ", correct_num / len(data))
+    # _, _, filenames = next(os.walk(normalizer_dir + '/checkpoints'))
+    # last_model = filenames[-1]
+    # print("Test on last model: ", last_model)
+    #
+    # model_path = normalizer_dir + '/checkpoints/{}'.format(last_model)
+    # src = normalizer_dir + '/data/src_test.txt'
+    # tgt = normalizer_dir + '/data/tgt_test.txt'
+    # pred_path = src[:-4] + '_pred.txt'
+    # command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
+    #                "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=model_path, src=src,
+    #                                                             output=pred_path, beam_size=5)
+    # print("Predicting test dataset...")
+    # os.system(command_pred)
+    #
+    # data = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False).astype(str)
+    # data.columns = ["prediction_char"]
+    # data['prediction_token'] = data["prediction_char"].apply(recover_space)
+    # data['src'] = pd.read_csv(src, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
+    # data['tgt'] = pd.read_csv(tgt, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
+    # data.to_csv(normalizer_dir + '/result_test.csv', index=False)
+    # correct_num = sum(data['prediction_token'] == data['tgt'])
+    # print("Normalizer Error: ", len(data) - correct_num)
+    # print("Normalizer Total: ", len(data))
+    # print("Normalizer Accuracy: ", correct_num / len(data))
 
 
 if __name__ == "__main__":

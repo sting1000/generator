@@ -29,9 +29,9 @@ word_vec_size: 100
 
 # Where to save the checkpoints
 save_model: {*path}/checkpoints/
-save_checkpoint_steps: 5000
-train_steps: 100000
-valid_steps: 5000
+save_checkpoint_steps: 10000
+train_steps: 200000
+valid_steps: 10000
 
 encoder_type: brnn
 decoder_type: rnn
@@ -39,8 +39,10 @@ rnn_type: LSTM
 enc_layers: 2
 dec_layers: 2
 rnn_size: 512
-learning_rate: 0.1
+learning_rate: 0.001
 early_stopping: 4
+optim: adam
+learning_rate_decay: 0.01
 
 tensorboard: True
 tensorboard_log_dir: {*path}/board
