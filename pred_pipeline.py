@@ -90,9 +90,11 @@ def main():
 
     print("Predicting test dataset...")
     command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
-                   "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=ckpt_path,
-                                                                src=src_path,
-                                                                output=pred_path, beam_size=5)
+                   "-beam_size {beam_size} -report_time -gpu 0".format(onmt_path=onmt_package_path,
+                                                                       model=ckpt_path,
+                                                                       src=src_path,
+                                                                       output=pred_path,
+                                                                       beam_size=5)
     os.system(command_pred)
 
     # read prediction and eval normalizer

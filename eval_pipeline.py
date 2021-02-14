@@ -2,6 +2,7 @@ import argparse
 import os
 import pandas as pd
 from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
+from eval_rb import rb_predict
 
 
 def main():
@@ -21,6 +22,10 @@ def main():
                         help="OpenNMT package location")
     parser.add_argument("--no_classifier", default=0, type=int, required=False,
                         help="train normalizer without classifier")
+    parser.add_argument("--no_normalizer", default=0, type=int, required=False,
+                        help="use rule-based normalizer")
+    parser.add_argument("--language", default='de', type=str, required=False,
+                        help="language")
 
     args = parser.parse_args()
     prepared_dir = args.prepared_dir
@@ -30,9 +35,6 @@ def main():
     pipeline_dir = args.pipeline_dir
 
     # Init
-    ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
-    print("Load Normalizer model at: ", ckpt_path)
-
     if args.no_classifier:
         src_path = normalizer_dir + '/data/src_test.txt'
         tgt_path = normalizer_dir + '/data/tgt_test.txt'
@@ -51,18 +53,25 @@ def main():
     src_path = pipeline_dir + '/data/src_test.txt'
     tgt_path = pipeline_dir + '/data/tgt_test.txt'
     pred_path = src_path[:-4] + '_pred.txt'
-
-    print("Predicting test dataset...")
-    command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
-                   "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=ckpt_path, src=src_path,
-                                                                output=pred_path, beam_size=5)
-    os.system(command_pred)
-
-    # read prediction and eval normalizer
     pred_df = pd.DataFrame()
-    pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
     pred_df['src'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
     pred_df['tgt'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
+
+    if args.no_normalizer:
+        print("Load Normalizer model as: Rule based...")
+        pred_df['pred'] = pred_df['src'].apply(rb_predict, args=args.language)
+    else:
+        ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
+        print("Load Normalizer model at: ", ckpt_path)
+        print("Predicting test dataset...")
+        command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0" \
+                       "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path,
+                                                                    model=ckpt_path,
+                                                                    src=src_path,
+                                                                    output=pred_path,
+                                                                    beam_size=5)
+        os.system(command_pred)
+        pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
 
     if args.no_classifier:
         result = pred_df
