@@ -26,7 +26,8 @@ def main():
 
     print("Predicting test dataset...")
     command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
-                   "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=ckpt_path, src=src_path,
+                   "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path, model=ckpt_path,
+                                                                src=src_path,
                                                                 output=pred_path, beam_size=5)
     os.system(command_pred)
 
@@ -40,3 +41,7 @@ def main():
     print("Normalizer Error: ", len(pred_df) - correct_num)
     print("Normalizer Total: ", len(pred_df))
     print("Normalizer Accuracy: ", correct_num / len(pred_df))
+
+
+if __name__ == "__main__":
+    main()

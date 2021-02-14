@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from transformers import AutoModelForTokenClassification, AutoTokenizer, Trainer
 from datasets import Dataset
-from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
+from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt, clean_string
 from train_classifier import merge_col_from_tag
 
 
@@ -32,6 +32,7 @@ def main():
     # Init
     input_df = pd.read_csv(input_file, sep="\n", header=None, skip_blank_lines=False, names=['src'])
     input_df['sentence_id'] = input_df.index
+    input_df['src'] = input_df['src'].apply(clean_string)
     input_df['token'] = input_df['src'].str.split()
     input_df['tag'] = input_df['token'].apply(lambda x: ['O'] * len(x))
     ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
