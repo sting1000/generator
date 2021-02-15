@@ -15,7 +15,7 @@ def read_dataset_from_csv(csv_path):
     df['tag'] = df['tag'].apply(feature_tag.feature.str2int)
     df_text = df.groupby(['sentence_id']).agg({'token': list, 'tag': list})
     dataset = Dataset.from_pandas(df_text)
-    dataset.features[f"tag"] = feature_tag
+    dataset.features["tag"] = feature_tag
     return dataset
 
 
@@ -159,7 +159,6 @@ def main():
     label_list = datasets["train"].features["tag"].feature.names
 
     tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
-    label_list = datasets["train"].features[f"tag"].feature.names
     data_collator = DataCollatorForTokenClassification(tokenizer)
     trainer = Trainer(
         model,

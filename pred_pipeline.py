@@ -3,9 +3,10 @@ import os
 import pandas as pd
 import numpy as np
 from transformers import AutoModelForTokenClassification, AutoTokenizer, Trainer
-from datasets import Dataset
+from datasets import Dataset, Sequence, ClassLabel, DatasetDict
 from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt, clean_string
 from train_classifier import merge_col_from_tag
+from transformers import DataCollatorForTokenClassification
 
 
 def main():
@@ -16,6 +17,8 @@ def main():
                         help="output_file")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
                         required=False, help="classifier_dir")
+    parser.add_argument("--tokenizer_dir", default='distilbert-base-german-cased', type=str,
+                        required=False, help="tokenizer_dir")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/LSTM', type=str, required=False,
                         help="normalizer_dir")
     parser.add_argument("--normalizer_step", default=-1, type=int, required=False,
@@ -38,8 +41,6 @@ def main():
     input_df['src'] = input_df['src'].apply(clean_string)
     input_df['token'] = input_df['src'].str.split()
     input_df['tag'] = input_df['token'].apply(lambda x: ['O'] * len(x))
-    ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
-    print("Load Normalizer model at: ", ckpt_path)
 
     if args.no_classifier:
         data = pd.DataFrame()
@@ -47,26 +48,59 @@ def main():
         data['tgt_char'] = input_df['src_char']
     else:
         model = AutoModelForTokenClassification.from_pretrained(classifier_dir, num_labels=3)
-        tokenizer = AutoTokenizer.from_pretrained(classifier_dir)
-        trainer = Trainer(model=model, tokenizer=tokenizer)
+        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_dir)
+        data_collator = DataCollatorForTokenClassification(tokenizer)
+        trainer = Trainer(model=model, tokenizer=tokenizer, data_collator=data_collator)
         label_list = ['O', 'B-TBNorm', 'I-TBNorm']
+        feature_tag = Sequence(ClassLabel(num_classes=3, names=label_list))
+        input_df['tag'] = input_df['tag'].apply(feature_tag.feature.str2int)
         eval_dataset = Dataset.from_pandas(input_df)
+        eval_dataset.features["tag"] = feature_tag
+        datasets = DatasetDict({
+            'eval': eval_dataset
+        })
 
-        # tokenize
-        labels = []
-        tokenized_eval = tokenizer(eval_dataset["token"], truncation=True, is_split_into_words=True)
-        for i, label in enumerate(eval_dataset["tag"]):
-            word_ids = tokenized_eval.word_ids(batch_index=i)
-            previous_word_idx = None
-            label_ids = []
-            for word_idx in word_ids:
-                label_ids.append(label[word_idx] if word_idx != previous_word_idx else -100)
-                previous_word_idx = word_idx
-            labels.append(label_ids)
-        tokenized_eval["labels"] = labels
+        # # tokenize
+        # labels = []
+        # tokenized_eval = tokenizer(eval_dataset["token"], truncation=True, is_split_into_words=True)
+        # for i, label in enumerate(eval_dataset["tag"]):
+        #     word_ids = tokenized_eval.word_ids(batch_index=i)
+        #     previous_word_idx = None
+        #     label_ids = []
+        #     for word_idx in word_ids:
+        #         if word_idx and word_idx != previous_word_idx:
+        #             label_ids.append(label[word_idx])
+        #         else:
+        #             label_ids.append(-100)
+        #         previous_word_idx = word_idx
+        #     labels.append(label_ids)
+        # tokenized_eval["labels"] = labels
+
+        def tokenize_and_align_labels(examples):
+            labels = []
+            label_all_tokens = False
+            tokenized_inputs = tokenizer(examples["token"], truncation=True, is_split_into_words=True)
+
+            for i, label in enumerate(examples[f"tag"]):
+                word_ids = tokenized_inputs.word_ids(batch_index=i)
+                previous_word_idx = None
+                label_ids = []
+                for word_idx in word_ids:
+                    if word_idx is None:
+                        label_ids.append(-100)
+                    elif word_idx != previous_word_idx:
+                        label_ids.append(label[word_idx])
+                    else:
+                        label_ids.append(label[word_idx] if label_all_tokens else -100)
+                    previous_word_idx = word_idx
+                labels.append(label_ids)
+            tokenized_inputs["labels"] = labels
+            return tokenized_inputs
+
+        tokenized_datasets = datasets.map(tokenize_and_align_labels, batched=True)
 
         # predict
-        predictions, labels, _ = trainer.predict(tokenized_eval)
+        predictions, labels, _ = trainer.predict(tokenized_datasets['eval'])
         predictions = np.argmax(predictions, axis=2)
         true_predictions = [
             [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
@@ -92,6 +126,8 @@ def main():
     pred_path = src_path[:-4] + '_pred.txt'
 
     print("Predicting test dataset...")
+    ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
+    print("Load Normalizer model at: ", ckpt_path)
     command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
                    "-beam_size {beam_size} -report_time -gpu 0".format(onmt_path=onmt_package_path,
                                                                        model=ckpt_path,
