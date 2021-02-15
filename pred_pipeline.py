@@ -11,9 +11,9 @@ from transformers import DataCollatorForTokenClassification
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_file", default='example_input.txt', type=str, required=False,
+    parser.add_argument("--input_file", default='./example/example_input.txt', type=str, required=False,
                         help="input_file")
-    parser.add_argument("--output_file", default='example_output.txt', type=str, required=False,
+    parser.add_argument("--output_file", default='./example/example_output.txt', type=str, required=False,
                         help="output_file")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
                         required=False, help="classifier_dir")

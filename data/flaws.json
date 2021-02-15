@@ -2,519 +2,519 @@
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "quatre vingts dix neuf",
-    "tgt_token": "99",
+    "src": "quatre vingts dix neuf",
+    "tgt": "99",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "soixante treize",
-    "tgt_token": "73",
+    "src": "soixante treize",
+    "tgt": "73",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "soixante dix",
-    "tgt_token": "70",
+    "src": "soixante dix",
+    "tgt": "70",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "nonante neuf",
-    "tgt_token": "99",
+    "src": "nonante neuf",
+    "tgt": "99",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "huitante quatre",
-    "tgt_token": "84",
+    "src": "huitante quatre",
+    "tgt": "84",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "quatre vingts quatre",
-    "tgt_token": "84",
+    "src": "quatre vingts quatre",
+    "tgt": "84",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "die ersten hundert tage",
-    "tgt_token": "die ersten 100 tage",
+    "src": "die ersten hundert tage",
+    "tgt": "die ersten 100 tage",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "auskunft über datenpaket eins und zwo",
-    "tgt_token": "auskunft über datenpaket 1 und 2",
+    "src": "auskunft über datenpaket eins und zwo",
+    "tgt": "auskunft über datenpaket 1 und 2",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "geh sechs zehn sekunden vor",
-    "tgt_token": "geh 6 10 sekunden vor",
+    "src": "geh sechs zehn sekunden vor",
+    "tgt": "geh 6 10 sekunden vor",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "zeig mir das programm von gestern zwanzig uhr null null",
-    "tgt_token": "zeig mir das programm von gestern 20:00",
+    "src": "zeig mir das programm von gestern zwanzig uhr null null",
+    "tgt": "zeig mir das programm von gestern 20:00",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "mets la chaine quatre vingt douze",
-    "tgt_token": "mets la chaine 92",
+    "src": "mets la chaine quatre vingt douze",
+    "tgt": "mets la chaine 92",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "mets un peu plus fort",
-    "tgt_token": "mets un peu plus fort",
+    "src": "mets un peu plus fort",
+    "tgt": "mets un peu plus fort",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "un film d horreur",
-    "tgt_token": "un film d horreur",
+    "src": "un film d horreur",
+    "tgt": "un film d horreur",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "en",
-    "src_token": "eight mile",
-    "tgt_token": "8 mile",
+    "src": "eight mile",
+    "tgt": "8 mile",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "je voudrais regarder une serie",
-    "tgt_token": "je voudrais regarder une serie",
+    "src": "je voudrais regarder une serie",
+    "tgt": "je voudrais regarder une serie",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "rts la premiere",
-    "tgt_token": "rts la premiere",
+    "src": "rts la premiere",
+    "tgt": "rts la premiere",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "eine minute weiter",
-    "tgt_token": "1 minute weiter",
+    "src": "eine minute weiter",
+    "tgt": "1 minute weiter",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "it",
-    "src_token": "come ti sei svegilato",
-    "tgt_token": "come ti sei svegilato",
+    "src": "come ti sei svegilato",
+    "tgt": "come ti sei svegilato",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "m six soixante six minutes",
-    "tgt_token": "m6 66 minutes",
+    "src": "m six soixante six minutes",
+    "tgt": "m6 66 minutes",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "hey swisscom hawaii cinq zero",
-    "tgt_token": "hey swisscom hawaii 5 0",
+    "src": "hey swisscom hawaii cinq zero",
+    "tgt": "hey swisscom hawaii 5 0",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "suche serie neun eins eins",
-    "tgt_token": "suche serie 9 1 1",
+    "src": "suche serie neun eins eins",
+    "tgt": "suche serie 9 1 1",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "rtl hundertzwei komma fünf",
-    "tgt_token": "rtl 102.5",
+    "src": "rtl hundertzwei komma fünf",
+    "tgt": "rtl 102.5",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "eine minute vor",
-    "tgt_token": "1 minute vor",
+    "src": "eine minute vor",
+    "tgt": "1 minute vor",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "cine plus premier",
-    "tgt_token": "cine + premier",
+    "src": "cine plus premier",
+    "tgt": "cine + premier",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "treizieme rue",
-    "tgt_token": "treizieme rue",
+    "src": "treizieme rue",
+    "tgt": "treizieme rue",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "chaine quatre vingt dix huit",
-    "tgt_token": "chaine 98",
+    "src": "chaine quatre vingt dix huit",
+    "tgt": "chaine 98",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "met le volume a quarante pour cent",
-    "tgt_token": "met le volume a quarante pour cent",
+    "src": "met le volume a quarante pour cent",
+    "tgt": "met le volume a quarante pour cent",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "met le volume a quarante pour cent",
-    "tgt_token": "met le volume a quarante pour cent",
+    "src": "met le volume a quarante pour cent",
+    "tgt": "met le volume a quarante pour cent",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich will meine rechnung januar zwei zwanzig beantworten",
-    "tgt_token": "ich will meine rechnung januar 2020 beantworten",
+    "src": "ich will meine rechnung januar zwei zwanzig beantworten",
+    "tgt": "ich will meine rechnung januar 2020 beantworten",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "es geht um die rechnung vom januar zweitausendundzwanzig",
-    "tgt_token": "es geht um die rechnung vom januar 2020",
+    "src": "es geht um die rechnung vom januar zweitausendundzwanzig",
+    "tgt": "es geht um die rechnung vom januar 2020",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "seit gut zwei drei monaten wurde die schriftliche rechnungsstellung durch swisscom abbestellt",
-    "tgt_token": "seit gut 2 3 monaten wurde die schriftliche rechnungsstellung durch swisscom abbestellt",
+    "src": "seit gut zwei drei monaten wurde die schriftliche rechnungsstellung durch swisscom abbestellt",
+    "tgt": "seit gut 2 3 monaten wurde die schriftliche rechnungsstellung durch swisscom abbestellt",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich habe eine frage zur rechnung von dreissigsten dritten zwanzig",
-    "tgt_token": "ich habe eine frage zur rechnung von 30.3.20",
+    "src": "ich habe eine frage zur rechnung von dreissigsten dritten zwanzig",
+    "tgt": "ich habe eine frage zur rechnung von 30.3.20",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich habe am achtzehnten dezember vierzehn uhr fünfundzwanzig fünfzig franken auf mein handy geladen",
-    "tgt_token": "ich habe am 18.12 14:25 50 franken auf mein handy geladen",
+    "src": "ich habe am achtzehnten dezember vierzehn uhr fünfundzwanzig fünfzig franken auf mein handy geladen",
+    "tgt": "ich habe am 18.12 14:25 50 franken auf mein handy geladen",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "eins für zweiundsiebzig und eins für sechsunddreissig Franken",
-    "tgt_token": "eins für 72 und eins für 36 Franken",
+    "src": "eins für zweiundsiebzig und eins für sechsunddreissig Franken",
+    "tgt": "eins für 72 und eins für 36 Franken",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "geh eins rechts",
-    "tgt_token": "geh eins rechts",
+    "src": "geh eins rechts",
+    "tgt": "geh eins rechts",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "first dates ein tisch fur zwei",
-    "tgt_token": "first dates ein tisch fur zwei",
+    "src": "first dates ein tisch fur zwei",
+    "tgt": "first dates ein tisch fur zwei",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "spiele die vier jahreszeiten",
-    "tgt_token": "spiele die vier jahreszeiten",
+    "src": "spiele die vier jahreszeiten",
+    "tgt": "spiele die vier jahreszeiten",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "zwanzig neunzehn",
-    "tgt_token": "2019",
+    "src": "zwanzig neunzehn",
+    "tgt": "2019",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "oktober zwanzig neunzehn rechnung seit achtundzwanzigsten zwanzig neunzehn ausstehend betrag hundert einundneunzig neunzig bei uns nicht gefunden",
-    "tgt_token": "10.2019 rechnung seit 28.2019 ausstehend betrag 191.90 bei uns nicht gefunden",
+    "src": "oktober zwanzig neunzehn rechnung seit achtundzwanzigsten zwanzig neunzehn ausstehend betrag hundert einundneunzig neunzig bei uns nicht gefunden",
+    "tgt": "10.2019 rechnung seit 28.2019 ausstehend betrag 191.90 bei uns nicht gefunden",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich habe ein problem mit der rechnung vom zwanzig neunzehn",
-    "tgt_token": "ich habe ein problem mit der rechnung vom 2019",
+    "src": "ich habe ein problem mit der rechnung vom zwanzig neunzehn",
+    "tgt": "ich habe ein problem mit der rechnung vom 2019",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "Fünf Freunde",
-    "tgt_token": "Fünf Freunde",
+    "src": "Fünf Freunde",
+    "tgt": "Fünf Freunde",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "Vier Räume ein Deal",
-    "tgt_token": "4 Räume 1 Deal",
+    "src": "Vier Räume ein Deal",
+    "tgt": "4 Räume 1 Deal",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "Ciné Plus Premier",
-    "tgt_token": "Ciné Plus Premier",
+    "src": "Ciné Plus Premier",
+    "tgt": "Ciné Plus Premier",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "une nounou d enfer",
-    "tgt_token": "une nounou d enfer",
+    "src": "une nounou d enfer",
+    "tgt": "une nounou d enfer",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "zeig mir die Tagesschau von neunzehn dreissig",
-    "tgt_token": "zeig mir die Tagesschau von 19:30",
+    "src": "zeig mir die Tagesschau von neunzehn dreissig",
+    "tgt": "zeig mir die Tagesschau von 19:30",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "it",
-    "src_token": "cerca la vita secondo jim",
-    "tgt_token": "cerca la vita secondo jim",
+    "src": "cerca la vita secondo jim",
+    "tgt": "cerca la vita secondo jim",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "mets le volume en cinquante pour cent",
-    "tgt_token": "mets le volume en 50 pour cent",
+    "src": "mets le volume en cinquante pour cent",
+    "tgt": "mets le volume en 50 pour cent",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "zeige mir den film ich bin nummer vier",
-    "tgt_token": "zeige mir den film ich bin nummer vier",
+    "src": "zeige mir den film ich bin nummer vier",
+    "tgt": "zeige mir den film ich bin nummer vier",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "y a t il un flic pour sauver l humanité",
-    "tgt_token": "y a t il un flic pour sauver l humanité",
+    "src": "y a t il un flic pour sauver l humanité",
+    "tgt": "y a t il un flic pour sauver l humanité",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "die drei von der mullabfuhr",
-    "tgt_token": "die drei von der mullabfuhr",
+    "src": "die drei von der mullabfuhr",
+    "tgt": "die drei von der mullabfuhr",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich habe eine mahnung bekommen für eine rechnung von hundertachtundsiebzig fünfundvierzig",
-    "tgt_token": "ich habe eine mahnung bekommen für eine rechnung von 178.45",
+    "src": "ich habe eine mahnung bekommen für eine rechnung von hundertachtundsiebzig fünfundvierzig",
+    "tgt": "ich habe eine mahnung bekommen für eine rechnung von 178.45",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "en",
-    "src_token": "one tv",
-    "tgt_token": "one tv",
+    "src": "one tv",
+    "tgt": "one tv",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "rts un dimanche vingt et trente",
-    "tgt_token": "rts 1 dimanche 20:30",
+    "src": "rts un dimanche vingt et trente",
+    "tgt": "rts 1 dimanche 20:30",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "fünf hundert sechs und sechs sieben",
-    "tgt_token": "500667",
+    "src": "fünf hundert sechs und sechs sieben",
+    "tgt": "500667",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "Vier Fäuste für ein Halleluja",
-    "tgt_token": "Vier Fäuste für ein Halleluja",
+    "src": "Vier Fäuste für ein Halleluja",
+    "tgt": "Vier Fäuste für ein Halleluja",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "schalt mer SRF ais i",
-    "tgt_token": "schalt mir SRF 1 ein",
+    "src": "schalt mer SRF ais i",
+    "tgt": "schalt mir SRF 1 ein",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ein herz und eine seele",
-    "tgt_token": "ein herz und eine seele",
+    "src": "ein herz und eine seele",
+    "tgt": "ein herz und eine seele",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "Fünfzig erste dates",
-    "tgt_token": "50 erste dates",
+    "src": "Fünfzig erste dates",
+    "tgt": "50 erste dates",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "zwei am morgen",
-    "tgt_token": "zwei am morgen",
+    "src": "zwei am morgen",
+    "tgt": "zwei am morgen",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "drei ausrufezeichen",
-    "tgt_token": "drei ausrufezeichen",
+    "src": "drei ausrufezeichen",
+    "tgt": "drei ausrufezeichen",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "swisscom tu peux augmenter un peu le volume",
-    "tgt_token": "swisscom tu peux augmenter un peu le volume",
+    "src": "swisscom tu peux augmenter un peu le volume",
+    "tgt": "swisscom tu peux augmenter un peu le volume",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ein amerikanischer held",
-    "tgt_token": "ein amerikanischer held",
+    "src": "ein amerikanischer held",
+    "tgt": "ein amerikanischer held",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ein bulle in japan",
-    "tgt_token": "ein bulle in japan",
+    "src": "ein bulle in japan",
+    "tgt": "ein bulle in japan",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ein einziger kuss",
-    "tgt_token": "ein einziger kuss",
+    "src": "ein einziger kuss",
+    "tgt": "ein einziger kuss",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "renn zur million wenn du kannst",
-    "tgt_token": "renn zur million wenn du kannst",
+    "src": "renn zur million wenn du kannst",
+    "tgt": "renn zur million wenn du kannst",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "okawando vingt huit un",
-    "tgt_token": "okawando 28 1",
+    "src": "okawando vingt huit un",
+    "tgt": "okawando 28 1",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "fr",
-    "src_token": "un indien dans la ville",
-    "tgt_token": "un indien dans la ville",
+    "src": "un indien dans la ville",
+    "tgt": "un indien dans la ville",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "en",
-    "src_token": "are you the one",
-    "tgt_token": "are you the one",
+    "src": "are you the one",
+    "tgt": "are you the one",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "die drei vom pfandhaus",
-    "tgt_token": "die drei vom pfandhaus",
+    "src": "die drei vom pfandhaus",
+    "tgt": "die drei vom pfandhaus",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "it",
-    "src_token": "rtl centodue cinque",
-    "tgt_token": "rtl 102 5",
+    "src": "rtl centodue cinque",
+    "tgt": "rtl 102 5",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "sie haben gesagt sie rufen nach siebzehn dreissig uhr an",
-    "tgt_token": "sie haben gesagt sie rufen nach 17:30 uhr an",
+    "src": "sie haben gesagt sie rufen nach siebzehn dreissig uhr an",
+    "tgt": "sie haben gesagt sie rufen nach 17:30 uhr an",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "ich habe alle zwei drei tage verrechnet ihr mir tausend megabytes ich hatte gern auskunft wie es dazu kommt",
-    "tgt_token": "ich habe alle 2 3 tage verrechnet ihr mir 1000 megabytes ich hatte gern auskunft wie es dazu kommt",
+    "src": "ich habe alle zwei drei tage verrechnet ihr mir tausend megabytes ich hatte gern auskunft wie es dazu kommt",
+    "tgt": "ich habe alle 2 3 tage verrechnet ihr mir 1000 megabytes ich hatte gern auskunft wie es dazu kommt",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "mochte private ein angebot von euch",
-    "tgt_token": "mochte private ein angebot von euch",
+    "src": "mochte private ein angebot von euch",
+    "tgt": "mochte private ein angebot von euch",
     "entities_dic": {}
   },
   {
     "id": "flaw",
     "language": "de",
-    "src_token": "tausend und ein dalmatiner",
-    "tgt_token": "1001 dalmatiner",
+    "src": "tausend und ein dalmatiner",
+    "tgt": "1001 dalmatiner",
     "entities_dic": {}
   }
 ]

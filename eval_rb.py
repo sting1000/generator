@@ -1,23 +1,15 @@
 import argparse
 import pandas as pd
-import requests
 from tqdm import tqdm
+from eval_pipeline import call_rb_API
 from utils import check_folder
-
-
-def rb_predict(text, language):
-    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    data = {"text": text, "language": language}
-    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
-                             headers=headers, json=data)
-    return eval(response.text)['text']
 
 
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from prepare.py default as ./output")
+                        help="The output dir from dataset_prepare.py default as ./output")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/RB', type=str, required=False,
                         help="Directory to save model and data")
     parser.add_argument("--language", default='de', type=str, required=False,
@@ -36,7 +28,7 @@ def main():
     data = data.groupby(['sentence_id']).agg({'src': ' '.join, 'tgt': ' '.join})
     print("Start predicting...")
     tqdm.pandas()
-    data['pred'] = data['src'].progress_apply(rb_predict, args=(language,))
+    data['pred'] = data['src'].progress_apply(call_rb_API, args=(language,))
     data.to_csv(normalizer_dir + '/normalizer_result_test.csv', index=False)
 
     correct_num = sum(data['pred'] == data['tgt'])

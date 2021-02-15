@@ -53,10 +53,10 @@ def dataset_to_df(dataset):
     return df
 
 
-def main():
+def main(raw_args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from prepare.py default as ./output")
+                        help="The output dir from dataset_prepare.py default as ./output")
     parser.add_argument("--pretrained", default='distilbert-base-german-cased', type=str, required=False,
                         help="Load model from huggingface pretrained, default as None")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str, required=False,
@@ -73,7 +73,7 @@ def main():
                         help="TrainingArguments")
 
     # init
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     prepared_dir = args.prepared_dir
     pretrained_path = args.pretrained
     classifier_dir = args.classifier_dir
@@ -176,7 +176,7 @@ def main():
 
     # save results
     results_list = []
-    results_index = ['train', 'test', 'validation']
+    results_index = ['test']
     for key in results_index:
         print("Predicting and Saving {} dataset...".format(key))
         label, pred, results = predict_dataset(trainer, tokenized_datasets[key])

@@ -1,16 +1,25 @@
 import argparse
 import os
 import pandas as pd
+from  tqdm import tqdm
+import requests
 from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
-from eval_rb import rb_predict
+
+
+def call_rb_API(text, language):
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    data = {"text": text, "language": language}
+    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
+                             headers=headers, json=data)
+    return eval(response.text)['text']
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pipeline_dir", default='./output/pipeline_dir/distilbert_LSTM', type=str, required=False,
+    parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert_LSTM', type=str, required=False,
                         help="normalizer_dir")
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from prepare.py default as ./output")
+                        help="The output dir from dataset_prepare.py default as ./output")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
                         required=False,
                         help="classifier_dir")
@@ -28,6 +37,7 @@ def main():
                         help="language")
 
     args = parser.parse_args()
+    tqdm.pandas()
     prepared_dir = args.prepared_dir
     classifier_dir = args.classifier_dir
     normalizer_dir = args.normalizer_dir
@@ -59,7 +69,7 @@ def main():
 
     if args.no_normalizer:
         print("Load Normalizer model as: Rule based...")
-        pred_df['pred'] = pred_df['src'].apply(rb_predict, args=args.language)
+        pred_df['pred'] = pred_df['src'].progress_apply(call_rb_API, args=(args.language,))
     else:
         ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
         print("Load Normalizer model at: ", ckpt_path)

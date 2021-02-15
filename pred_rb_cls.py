@@ -1,10 +1,11 @@
 import argparse
 import pandas as pd
 from tqdm import tqdm
-from eval_rb import rb_predict
+from eval_pipeline import call_rb_API
 from utils import check_folder, clean_string
 
 
+# TODO: test on eval_pipeline.py, and remove this file
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--appendix", default=None, type=str, required=True,
@@ -21,7 +22,7 @@ def main():
 
     tqdm.pandas()
     data['src'] = data['token']
-    data['pred'] = data['token'].progress_apply(rb_predict, args=(language, ))
+    data['pred'] = data['token'].progress_apply(call_rb_API, args=(language,))
     data[['pred']].to_csv(classified_path[:-4] + '.txt', index=False, header=False)
 
     classified_df['pred'] = classified_df['token'].astype(str)
