@@ -60,22 +60,6 @@ def main():
             'eval': eval_dataset
         })
 
-        # # tokenize
-        # labels = []
-        # tokenized_eval = tokenizer(eval_dataset["token"], truncation=True, is_split_into_words=True)
-        # for i, label in enumerate(eval_dataset["tag"]):
-        #     word_ids = tokenized_eval.word_ids(batch_index=i)
-        #     previous_word_idx = None
-        #     label_ids = []
-        #     for word_idx in word_ids:
-        #         if word_idx and word_idx != previous_word_idx:
-        #             label_ids.append(label[word_idx])
-        #         else:
-        #             label_ids.append(-100)
-        #         previous_word_idx = word_idx
-        #     labels.append(label_ids)
-        # tokenized_eval["labels"] = labels
-
         def tokenize_and_align_labels(examples):
             labels = []
             label_all_tokens = False
@@ -149,7 +133,6 @@ def main():
         id_TBNorm = df_classified.index[df_classified['tag'] == 'B'].tolist()
         df_classified.loc[id_TBNorm, 'pred'] = pred_df['pred'].tolist()
         result = df_classified.groupby(['sentence_id']).agg({'pred': ' '.join})
-        result['src'] = input_df['src']
 
     # print result
     result.to_csv(output_file, index=False, header=False)
