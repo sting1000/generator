@@ -12,6 +12,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default='example_input.txt', type=str, required=False,
                         help="input_file")
+    parser.add_argument("--output_file", default='example_output.txt', type=str, required=False,
+                        help="output_file")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
                         required=False, help="classifier_dir")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/LSTM', type=str, required=False,
@@ -28,6 +30,7 @@ def main():
     normalizer_dir = args.normalizer_dir
     onmt_package_path = args.onmt_dir
     input_file = args.input_file
+    output_file = args.output_file
 
     # Init
     input_df = pd.read_csv(input_file, sep="\n", header=None, skip_blank_lines=False, names=['src'])
@@ -83,9 +86,9 @@ def main():
         data['src_char'] = data['token'].apply(replace_space)
         data['tgt_char'] = data['src_char']
 
-    make_src_tgt(data, 'example', data_output_dir='./tmp/data', encoder_level='char',
+    make_src_tgt(data, 'example', data_output_dir='./tmp', encoder_level='char',
                  decoder_level='char')
-    src_path = './tmp/data/src_example.txt'
+    src_path = './tmp/src_example.txt'
     pred_path = src_path[:-4] + '_pred.txt'
 
     print("Predicting test dataset...")
@@ -113,7 +116,7 @@ def main():
         result['src'] = input_df['src']
 
     # print result
-    result.to_csv(input_file[:-4] + '_pred.txt', index=False, header=False)
+    result.to_csv(output_file, index=False, header=False)
 
 
 if __name__ == "__main__":
