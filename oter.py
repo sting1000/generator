@@ -11,7 +11,13 @@ from tqdm import tqdm
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--pred_file", default='./example_output.txt', type=str,
+    parser.add_argument("--input_file", default='./data/museli_analysis_rb.json', type=str, required=False,
+                        help="input_path")
+    parser.add_argument("--output_file", default='./example_result.csv', type=str, required=False,
+                        help="input_path")
+    parser.add_argument("--mode", default='make', type=str, required=False,
+                        help="make/ pred")
+    parser.add_argument("--pred_file", default='./example_intput.txt', type=str,
                         required=False,
                         help="The output dir from dataset_prepare.py default as ./output")
     parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert_LSTM', type=str, required=False,
@@ -20,11 +26,14 @@ def main():
                         help="language")
 
     args = parser.parse_args()
-    tqdm.pandas()
     pred_file = args.pred_file
+    output_file = args.output_file
     language = args.language
     pipeline_dir = args.pipeline_dir
-    museli_json = './data/museli_analysis_rb.json'
+    input_file = args.input_file
+    mode = args.mode
+
+    tqdm.pandas()
     oter_replacement = {'SeriesName': 'Video',
                         'VodName': 'Video',
                         'BroadcastName': 'Video',
@@ -68,33 +77,36 @@ def main():
             entities_type = 'NoResponse'
         return [intent, entities_type]
 
-    museli = pd.read_json(museli_json)
-    museli = museli[museli['language'] == language]
-    # museli[['src']].to_csv('example_input.txt', header=False, index=False)
+    input_df = pd.read_json(input_file)
+    input_df = input_df[input_df['language'] == language]
 
-    # read pred
-    pred = pd.read_csv(pred_file, names=['ai'], sep="\n", header=None, skip_blank_lines=False)
-    museli['ai'] = pred['ai']
+    if mode == 'make':
+        input_df[['src']].to_csv(pred_file, header=False, index=False)
 
-    for mode in ['rb', 'ai']:
-        intent_col = 'intent_' + mode
-        entity_col = 'entities_type_' + mode
-        nlu_res = pd.DataFrame(museli[mode].progress_apply(predict_nlu, args=(language,)).to_list(),
-                               columns=[intent_col, entity_col])
-        museli = pd.concat([museli, nlu_res], axis=1)
-        museli[intent_col].replace(to_replace=oter_replacement, inplace=True)
-        museli[entity_col].replace(to_replace=oter_replacement, inplace=True)
+    elif mode == 'pred':
+        # read pred
+        pred = pd.read_csv(pred_file, names=['ai'], sep="\n", header=None, skip_blank_lines=False)
+        input_df['ai'] = pred['ai']
 
-        condition_intent = museli['intent'] == museli[intent_col]
-        condition_entity = museli['entities_type'] == museli[entity_col]
-        ote = len(museli) - len(museli[condition_entity][condition_intent])
-        oter = ote / len(museli)
+        for model in ['rb', 'ai']:
+            intent_col = 'intent_' + model
+            entity_col = 'entities_type_' + model
+            nlu_res = pd.DataFrame(input_df[model].progress_apply(predict_nlu, args=(language,)).to_list(),
+                                   columns=[intent_col, entity_col])
+            input_df = pd.concat([input_df, nlu_res], axis=1)
+            input_df[intent_col].replace(to_replace=oter_replacement, inplace=True)
+            input_df[entity_col].replace(to_replace=oter_replacement, inplace=True)
 
-        print(mode + " Model:")
-        print("Size: ", len(museli))
-        print("OTE: ", ote)
-        print("OTER: ", oter)
-    museli.to_csv(pipeline_dir + '/result_museli_oter_test.csv', index=False)
+            condition_intent = input_df['intent'] == input_df[intent_col]
+            condition_entity = input_df['entities_type'] == input_df[entity_col]
+            ote = len(input_df) - len(input_df[condition_entity][condition_intent])
+            oter = ote / len(input_df)
+
+            print(model + " Model:")
+            print("Size: ", len(input_df))
+            print("OTE: ", ote)
+            print("OTER: ", oter)
+        input_df.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":
