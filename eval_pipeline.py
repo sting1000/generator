@@ -1,9 +1,9 @@
 import argparse
 import os
 import pandas as pd
-from  tqdm import tqdm
+from tqdm import tqdm
 import requests
-from src.utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
+from src.utils import replace_space, make_onmt_txt, recover_space, get_normalizer_ckpt
 
 
 def call_rb_API(text, language):
@@ -21,10 +21,13 @@ def main():
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The output dir from dataset_prepare_generated.py default as ./output")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
-                        required=False,
-                        help="classifier_dir")
+                        required=False, help="classifier_dir")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/LSTM', type=str, required=False,
                         help="normalizer_dir")
+    parser.add_argument("--encoder_level", default='char', type=str, required=False,
+                        help="char or token")
+    parser.add_argument("--decoder_level", default='char', type=str, required=False,
+                        help="char or token")
     parser.add_argument("--normalizer_step", default=-1, type=int, required=False,
                         help="The steps of normalizer, default as the last one")
     parser.add_argument("--onmt_dir", default='./OpenNMT-py', type=str, required=False,
@@ -43,6 +46,8 @@ def main():
     normalizer_dir = args.normalizer_dir
     onmt_package_path = args.onmt_dir
     pipeline_dir = args.pipeline_dir
+    encoder_level = args.encoder_level
+    decoder_level = args.decoder_level
 
     # Init
     if args.no_classifier:
@@ -58,8 +63,9 @@ def main():
         data['src_char'] = data['token'].apply(replace_space)
         data['tgt_char'] = data['src_char']
 
-    make_src_tgt(data, 'test', data_output_dir=(pipeline_dir + '/data'), encoder_level='char',
-                 decoder_level='char')
+    # TODO: change encoder decoder level
+    make_onmt_txt(data, 'test', data_output_dir=(pipeline_dir + '/data'), encoder_level='char',
+                  decoder_level='char')
     src_path = pipeline_dir + '/data/src_test.txt'
     tgt_path = pipeline_dir + '/data/tgt_test.txt'
     pred_path = src_path[:-4] + '_pred.txt'

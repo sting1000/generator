@@ -2,6 +2,8 @@ import errno
 import os
 from pathlib import Path
 import unicodedata
+
+import pandas
 from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 from edit_distance import SequenceMatcher
 import pandas as pd
@@ -187,25 +189,28 @@ def dump_json(outfile, data, has_no_output):
 
 
 # generate pairs for training
-def make_src_tgt(df, df_type, data_output_dir, encoder_level, decoder_level):
+def make_onmt_txt(df, df_type, data_output_dir, encoder_level, decoder_level):
+    """
+    df should have columns src_{encoder_level}, tgt_{decoder_level}
+    """
     print("Making src tgt for: ", df_type)
     check_folder(data_output_dir)
     data_output_dir = Path(data_output_dir)
     f_src = open(data_output_dir / ('src_' + df_type + '.txt'), "w")
     f_tgt = open(data_output_dir / ('tgt_' + df_type + '.txt'), "w")
-    for _, row in tqdm(df.iterrows()):
+    for _, row in tqdm(df.iterrows(), total=len(df)):
         f_src.write("{}\n".format(row['src_' + encoder_level]))
         f_tgt.write("{}\n".format(row['tgt_' + decoder_level]))
     f_src.close()
     f_tgt.close()
 
 
-def replace_path_in_yaml(yaml_path, new_yaml_path, model_path):
+def make_onmt_yaml(yaml_path, new_yaml_path, model_path):
     with open(yaml_path) as f:
         lines = f.readlines()
     with open(new_yaml_path, "w+") as f:
         for ind, l in enumerate(lines):
-            lines[ind] = re.sub("\{\*path\}", str(model_path), l)
+            lines[ind] = re.sub("\{\*PATH\}", str(model_path), l)
         f.writelines(lines)
 
 
@@ -380,21 +385,21 @@ def check_folder(folder_path):
                 raise
 
 
-def prepare_onmt(name, onmt_input_dir, onmt_output_dir, no_classifier):
+def prepare_onmt(name, onmt_input_dir, onmt_output_dir, no_classifier, encoder_level, decoder_level):
     df = pd.read_csv('{}/{}.csv'.format(onmt_input_dir, name), converters={'token': str, 'written': str, 'spoken': str})
+    data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
+    data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
+    data['tgt_token'] = data['written']
+    data['src_token'] = data['spoken']
     if no_classifier:
-        data = df[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-        data['tgt_char'] = data['written']
-        data['src_char'] = data['spoken']
-        data = data.groupby(['sentence_id']).agg({'src_char': ' '.join, 'tgt_char': ' '.join})
-        data['src_char'] = data['src_char'].apply(replace_space)
-        data['tgt_char'] = data['tgt_char'].apply(replace_space)
-    else:
-        data = df[df.tag != 'O']  # filter TBN part
-        data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-        data['tgt_char'] = data.written.apply(replace_space)
-        data['src_char'] = data.spoken.apply(replace_space)
-    make_src_tgt(data, name, data_output_dir=(onmt_output_dir + '/data'), encoder_level='char', decoder_level='char')
+        data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
+    data['tgt_char'] = data['tgt_token'].apply(replace_space)
+    data['src_char'] = data['src_token'].apply(replace_space)
+    make_onmt_txt(data,
+                  name,
+                  data_output_dir=(onmt_output_dir + '/data'),
+                  encoder_level=encoder_level,
+                  decoder_level=decoder_level)
 
 
 def get_normalizer_ckpt(normalizer_dir, step):
@@ -405,3 +410,28 @@ def get_normalizer_ckpt(normalizer_dir, step):
     else:
         model_path = normalizer_dir + '/checkpoints/_step_{}.pt'.format(step)
     return model_path
+
+
+def read_onmt_text(normalizer_dir, encoder_level, decoder_level):
+    """
+    read src, tgt, pred file in normalizer_dir
+    return a dataframe with 3 columns
+    """
+    # define path
+    src_path = normalizer_dir + '/data/src_test.txt'
+    tgt_path = normalizer_dir + '/data/tgt_test.txt'
+    pred_path = normalizer_dir + '/data/pred_test.txt'
+
+    # read files
+    pred_df = pd.DataFrame()
+    pred_df['src'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0]
+    pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0]
+    pred_df['tgt'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0]
+
+    # process format
+    if encoder_level == 'char':
+        pred_df['src'] = pred_df['src'].astype(str).apply(recover_space)
+    if decoder_level == 'char':
+        pred_df['pred'] = pred_df['pred'].astype(str).apply(recover_space)
+        pred_df['tgt'] = pred_df['tgt'].astype(str).apply(recover_space)
+    return pred_df

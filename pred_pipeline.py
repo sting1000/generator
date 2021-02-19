@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from transformers import AutoModelForTokenClassification, AutoTokenizer, Trainer
 from datasets import Dataset, Sequence, ClassLabel, DatasetDict
-from src.utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt, clean_string
+from src.utils import replace_space, make_onmt_txt, recover_space, get_normalizer_ckpt, clean_string
 from train_classifier import merge_col_from_tag
 from transformers import DataCollatorForTokenClassification
 
@@ -104,8 +104,9 @@ def main():
         data['src_char'] = data['token'].apply(replace_space)
         data['tgt_char'] = data['src_char']
 
-    make_src_tgt(data, 'example', data_output_dir='./tmp', encoder_level='char',
-                 decoder_level='char')
+    # TODO: change encoder decoder level
+    make_onmt_txt(data, 'example', data_output_dir='./tmp', encoder_level='char',
+                  decoder_level='char')
     src_path = './tmp/src_example.txt'
     pred_path = src_path[:-4] + '_pred.txt'
 

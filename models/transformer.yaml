@@ -1,5 +1,5 @@
 ## Where the samples will be written
-save_data: {*path}/example
+save_data: {*PATH}/example
 
 # Prevent overwriting existing files in the folder
 overwrite: True
@@ -7,29 +7,29 @@ overwrite: True
 # Corpus opts:
 data:
     train:
-        path_src: {*path}/data/src_train.txt
-        path_tgt: {*path}/data/tgt_train.txt
+        path_src: {*PATH}/data/src_train.txt
+        path_tgt: {*PATH}/data/tgt_train.txt
         src_seq_length: 100
         tgt_seq_length: 100
     valid:
-        path_src: {*path}/data/src_validation.txt
-        path_tgt: {*path}/data/tgt_validation.txt
+        path_src: {*PATH}/data/src_validation.txt
+        path_tgt: {*PATH}/data/tgt_validation.txt
         src_seq_length: 100
         tgt_seq_length: 100
 
 # Where the vocab(s) will be written
-src_vocab: {*path}/example.vocab.src
-tgt_vocab: {*path}/example.vocab.tgt
+src_vocab: {*PATH}/example.vocab.src
+tgt_vocab: {*PATH}/example.vocab.tgt
 
 # Train on a single GPU
 world_size: 1
 gpu_ranks: [0]
 
-
-
-
 # Where to save the checkpoints
-
+save_model: {*PATH}/checkpoints/
+valid_steps: 10000
+save_checkpoint_steps: 10000
+train_steps: 200000
 
 layers: 6 
 rnn_size: 512 
@@ -40,7 +40,6 @@ encoder_type: transformer
 decoder_type: transformer 
 position_encoding: True
 
-train_steps: 200000  
 max_generator_batches: 2 
 dropout: 0.1 
 batch_size: 6144 
@@ -58,9 +57,6 @@ param_init: 0
 param_init_glorot: True
 label_smoothing: 0.1 
 
-valid_steps: 10000 
-save_checkpoint_steps: 10000 
-save_model: {*path}/checkpoints/
-
+# tensorboard option
 tensorboard: True
-tensorboard_log_dir: {*path}/board
+tensorboard_log_dir: {*PATH}/board
