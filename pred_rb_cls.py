@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 from tqdm import tqdm
 from eval_pipeline import call_rb_API
-from utils import check_folder, clean_string
+from src.utils import check_folder, clean_string
 
 
 # TODO: test on eval_pipeline.py, and remove this file

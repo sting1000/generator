@@ -1,11 +1,10 @@
 import json
 import argparse
-import time
 import pandas as pd
 from tqdm import tqdm
 from src.SentenceGenerator import SentenceGenerator
 from src.EntityCreator import EntityCreator
-from utils import filter_aliases, clean_string
+from src.utils import filter_aliases, clean_string
 import random
 
 

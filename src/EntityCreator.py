@@ -1,4 +1,4 @@
-from utils import Normalizer
+from src.utils import Normalizer
 
 
 class EntityCreator:

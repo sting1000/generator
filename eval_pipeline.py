@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from  tqdm import tqdm
 import requests
-from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
+from src.utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt
 
 
 def call_rb_API(text, language):
@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert_LSTM', type=str, required=False,
                         help="normalizer_dir")
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from dataset_prepare.py default as ./output")
+                        help="The output dir from dataset_prepare_generated.py default as ./output")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str,
                         required=False,
                         help="classifier_dir")
@@ -74,7 +74,7 @@ def main():
         ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
         print("Load Normalizer model at: ", ckpt_path)
         print("Predicting test dataset...")
-        command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0" \
+        command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0 " \
                        "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path,
                                                                     model=ckpt_path,
                                                                     src=src_path,

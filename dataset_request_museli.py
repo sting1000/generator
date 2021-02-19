@@ -1,5 +1,5 @@
 import re
-from utils import clean_string
+from src.utils import clean_string
 from tqdm import tqdm
 import os
 import certifi_swisscom

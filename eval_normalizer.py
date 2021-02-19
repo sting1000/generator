@@ -1,7 +1,7 @@
 import argparse
 import os
 import pandas as pd
-from utils import recover_space, get_normalizer_ckpt
+from src.utils import recover_space, get_normalizer_ckpt
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     pred_path = src_path[:-4] + '_pred.txt'
 
     print("Predicting test dataset...")
-    command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0" \
+    command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0 " \
                    "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path,
                                                                 model=ckpt_path,
                                                                 src=src_path,

@@ -1,13 +1,13 @@
 import argparse
 import os
-from utils import replace_path_in_yaml, check_folder, prepare_onmt
+from src.utils import replace_path_in_yaml, check_folder, prepare_onmt
 
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from dataset_prepare.py default as ./output")
+                        help="The output dir from dataset_prepare_generated.py default as ./output")
     parser.add_argument("--model_yaml", default='./models/LSTM.yaml', type=str, required=False,
                         help="Load model from OpenNMT yaml file")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/LSTM', type=str, required=False,

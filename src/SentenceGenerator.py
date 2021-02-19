@@ -3,7 +3,7 @@ import random
 import itertools
 from collections import OrderedDict
 from tqdm import tqdm
-from utils import Normalizer, check_folder
+from src.utils import Normalizer, check_folder
 import warnings
 
 warnings.filterwarnings("ignore")

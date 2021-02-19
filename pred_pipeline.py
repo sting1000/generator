@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from transformers import AutoModelForTokenClassification, AutoTokenizer, Trainer
 from datasets import Dataset, Sequence, ClassLabel, DatasetDict
-from utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt, clean_string
+from src.utils import replace_space, make_src_tgt, recover_space, get_normalizer_ckpt, clean_string
 from train_classifier import merge_col_from_tag
 from transformers import DataCollatorForTokenClassification
 

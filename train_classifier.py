@@ -56,7 +56,7 @@ def dataset_to_df(dataset):
 def main(raw_args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from dataset_prepare.py default as ./output")
+                        help="The output dir from dataset_prepare_generated.py default as ./output")
     parser.add_argument("--pretrained", default='distilbert-base-german-cased', type=str, required=False,
                         help="Load model from huggingface pretrained, default as None")
     parser.add_argument("--classifier_dir", default='./output/classifier/distilbert-base-german-cased', type=str, required=False,

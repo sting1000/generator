@@ -2,14 +2,14 @@ import argparse
 import pandas as pd
 from tqdm import tqdm
 from eval_pipeline import call_rb_API
-from utils import check_folder
+from src.utils import check_folder
 
 
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
-                        help="The output dir from dataset_prepare.py default as ./output")
+                        help="The output dir from dataset_prepare_generated.py default as ./output")
     parser.add_argument("--normalizer_dir", default='./output/normalizer/RB', type=str, required=False,
                         help="Directory to save model and data")
     parser.add_argument("--language", default='de', type=str, required=False,
