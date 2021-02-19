@@ -24,13 +24,11 @@ def main():
     print("Loaded Normalizer model at: ", ckpt_path)
 
     print("Predicting test dataset...")
-    src_path = normalizer_dir + '/data/src_test.txt'
-    pred_path = normalizer_dir + '/data/pred_test.txt'
     command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0 " \
                    "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path,
                                                                 model=ckpt_path,
-                                                                src=src_path,
-                                                                output=pred_path,
+                                                                src=normalizer_dir + '/data/src_test.txt',
+                                                                output=normalizer_dir + '/data/pred_test.txt',
                                                                 beam_size=5)
     os.system(command_pred)
 

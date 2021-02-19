@@ -17,6 +17,7 @@ import random
 
 
 def replace_space(s: str):
+    s = str(s)
     s = s.replace(' ', '_')
     return ' '.join(list(s))
 
@@ -24,7 +25,7 @@ def replace_space(s: str):
 def recover_space(s: str):
     s = s.replace(' ', '')
     s = s.replace('_', ' ')
-    return s
+    return str(s)
 
 
 def read_data(path):
@@ -189,15 +190,16 @@ def dump_json(outfile, data, has_no_output):
 
 
 # generate pairs for training
-def make_onmt_txt(df, df_type, data_output_dir, encoder_level, decoder_level):
+def make_onmt_txt(df, df_name, data_output_dir, encoder_level, decoder_level):
     """
     df should have columns src_{encoder_level}, tgt_{decoder_level}
+    type in ['test', 'validation', 'train']
     """
-    print("Making src tgt for: ", df_type)
+    print("Making src tgt for: ", df_name)
     check_folder(data_output_dir)
     data_output_dir = Path(data_output_dir)
-    f_src = open(data_output_dir / ('src_' + df_type + '.txt'), "w")
-    f_tgt = open(data_output_dir / ('tgt_' + df_type + '.txt'), "w")
+    f_src = open(data_output_dir / ('src_' + df_name + '.txt'), "w")
+    f_tgt = open(data_output_dir / ('tgt_' + df_name + '.txt'), "w")
     for _, row in tqdm(df.iterrows(), total=len(df)):
         f_src.write("{}\n".format(row['src_' + encoder_level]))
         f_tgt.write("{}\n".format(row['tgt_' + decoder_level]))
@@ -412,12 +414,14 @@ def get_normalizer_ckpt(normalizer_dir, step):
     return model_path
 
 
-def read_onmt_text(normalizer_dir, encoder_level, decoder_level):
+def read_onmt_text(normalizer_dir, encoder_level, decoder_level, have_pred=True):
     """
     read src, tgt, pred file in normalizer_dir
     return a dataframe with 3 columns
+    if pred does not exist, use tgt as default
     """
     # define path
+    # TODO: replace test as name parameter
     src_path = normalizer_dir + '/data/src_test.txt'
     tgt_path = normalizer_dir + '/data/tgt_test.txt'
     pred_path = normalizer_dir + '/data/pred_test.txt'
@@ -425,13 +429,39 @@ def read_onmt_text(normalizer_dir, encoder_level, decoder_level):
     # read files
     pred_df = pd.DataFrame()
     pred_df['src'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0]
-    pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0]
     pred_df['tgt'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0]
+    # TODO: auto check pred existence
+    if have_pred:
+        pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0]
+    else:
+        pred_df['pred'] = pred_df['tgt']
 
     # process format
     if encoder_level == 'char':
-        pred_df['src'] = pred_df['src'].astype(str).apply(recover_space)
+        pred_df['src'] = pred_df['src'].apply(recover_space)
     if decoder_level == 'char':
-        pred_df['pred'] = pred_df['pred'].astype(str).apply(recover_space)
-        pred_df['tgt'] = pred_df['tgt'].astype(str).apply(recover_space)
+        pred_df['tgt'] = pred_df['tgt'].apply(recover_space)
+        pred_df['pred'] = pred_df['pred'].apply(recover_space)
     return pred_df
+
+
+def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, decoder_level):
+    """
+    create txt data in normalizer_dir/data using prepared_dir files
+    """
+    for name in ['train', 'validation', 'test']:
+        df = pd.read_csv('{}/{}.csv'.format(prepared_dir, name),
+                         converters={'token': str, 'written': str, 'spoken': str})
+        data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
+        data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
+        data['tgt_token'], data['src_token'] = data['written'], data['spoken']
+
+        if no_classifier:
+            data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
+        data['tgt_char'] = data['tgt_token'].apply(replace_space)
+        data['src_char'] = data['src_token'].apply(replace_space)
+        make_onmt_txt(data,
+                      name,
+                      data_output_dir=(normalizer_dir + '/data'),
+                      encoder_level=encoder_level,
+                      decoder_level=decoder_level)

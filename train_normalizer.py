@@ -1,7 +1,6 @@
 import argparse
 import os
-import pandas as pd
-from src.utils import make_onmt_yaml, check_folder, prepare_onmt
+from src.utils import make_onmt_yaml, check_folder, make_onmt_data
 
 
 def main(raw_args=None):
@@ -35,26 +34,10 @@ def main(raw_args=None):
 
     print("Preparing....")
 
-    # make yaml file in normalizer_dir
+    # make yaml and data files in normalizer_dir
     make_onmt_yaml(yaml_path=args.model_yaml, new_yaml_path=new_yaml_path, model_path=normalizer_dir)
+    make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, decoder_level)
 
-    # make train, validation, test file according to prepared_dir files
-    for name in ['tran', 'validation', 'test']:
-        prepare_onmt(name, prepared_dir, normalizer_dir, no_classifier, encoder_level, decoder_level)
-        # df = pd.read_csv('{}/{}.csv'.format(prepared_dir, name),
-        #                  converters={'token': str, 'written': str, 'spoken': str})
-        # data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
-        # data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-        # data['tgt_token'], data['src_token'] = data['written'], data['spoken']
-        # if no_classifier:
-        #     data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
-        # data['tgt_char'] = data['tgt_token'].apply(replace_space)
-        # data['src_char'] = data['src_token'].apply(replace_space)
-        # make_onmt_txt(data,
-        #               name,
-        #               data_output_dir=(onmt_output_dir + '/data'),
-        #               encoder_level=encoder_level,
-        #               decoder_level=decoder_level)
     # build covab command to use opennmt
     command_build_vocab = "python {onmt_path}/build_vocab.py " \
                           "-config  {yaml_path} " \

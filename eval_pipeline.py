@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 import requests
-from src.utils import replace_space, make_onmt_txt, recover_space, get_normalizer_ckpt
+from src.utils import replace_space, make_onmt_txt, get_normalizer_ckpt, read_onmt_text
 
 
 def call_rb_API(text, language):
@@ -48,34 +48,30 @@ def main():
     pipeline_dir = args.pipeline_dir
     encoder_level = args.encoder_level
     decoder_level = args.decoder_level
+    no_classifier = args.no_classifier
 
-    # Init
-    if args.no_classifier:
-        src_path = normalizer_dir + '/data/src_test.txt'
-        tgt_path = normalizer_dir + '/data/tgt_test.txt'
-        data = pd.DataFrame()
-        data['src_char'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0]
-        data['tgt_char'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0]
+    # Init data df
+    if no_classifier:
+        # read data[['src', 'tgt']]
+        data = read_onmt_text(normalizer_dir, encoder_level, decoder_level, have_pred=False)
     else:
         classified_path = '{}/test_classified_pred.csv'.format(classifier_dir)
         classified_df = pd.read_csv(classified_path)
-        data = classified_df[classified_df.tag != 'O'].astype(str)
-        data['src_char'] = data['token'].apply(replace_space)
-        data['tgt_char'] = data['src_char']
+        data = classified_df[classified_df['tag'] != 'O']
+        data['src'], data['tgt'] = data['token'], data['src']
+    data['tgt_token'], data['src_token'] = data['tgt'], data['src']
+    data['tgt_char'] = data['tgt_token'].apply(replace_space)
+    data['src_char'] = data['src_token'].apply(replace_space)
 
-    # TODO: change encoder decoder level
-    make_onmt_txt(data, 'test', data_output_dir=(pipeline_dir + '/data'), encoder_level='char',
-                  decoder_level='char')
-    src_path = pipeline_dir + '/data/src_test.txt'
-    tgt_path = pipeline_dir + '/data/tgt_test.txt'
-    pred_path = src_path[:-4] + '_pred.txt'
-    pred_df = pd.DataFrame()
-    pred_df['src'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
-    pred_df['tgt'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
+    # choose level data as src_test file in output dir
+    make_onmt_txt(data, 'test', data_output_dir=(pipeline_dir + '/data'), encoder_level=encoder_level,
+                  decoder_level=decoder_level)
 
     if args.no_normalizer:
         print("Load Normalizer model as: Rule based...")
-        pred_df['pred'] = pred_df['src'].progress_apply(call_rb_API, args=(args.language,))
+        data['pred'] = data['src'].progress_apply(call_rb_API, args=(args.language,))
+        data['pred'] = data['pred'] if decoder_level=='token' else data['pred'].apply(replace_space)
+        data[['pred']].to_csv(pipeline_dir + '/data/pred_test.txt', header=False, index=False)
     else:
         ckpt_path = get_normalizer_ckpt(normalizer_dir, step=args.normalizer_step)
         print("Load Normalizer model at: ", ckpt_path)
@@ -83,13 +79,13 @@ def main():
         command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0 " \
                        "-beam_size {beam_size} -report_time".format(onmt_path=onmt_package_path,
                                                                     model=ckpt_path,
-                                                                    src=src_path,
-                                                                    output=pred_path,
+                                                                    src=pipeline_dir + '/data/src_test.txt',
+                                                                    output=pipeline_dir + '/data/pred_test.txt',
                                                                     beam_size=5)
         os.system(command_pred)
-        pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0].apply(recover_space)
 
-    if args.no_classifier:
+    pred_df = read_onmt_text(pipeline_dir, encoder_level, decoder_level)
+    if no_classifier:
         result = pred_df
     else:
         # add pred to result
