@@ -23,6 +23,7 @@ def replace_space(s: str):
 
 
 def recover_space(s: str):
+    s = str(s)
     s = s.replace(' ', '')
     s = s.replace('_', ' ')
     return str(s)

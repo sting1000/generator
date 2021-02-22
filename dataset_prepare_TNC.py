@@ -3,8 +3,9 @@ from tqdm import tqdm
 from src.utils import check_folder
 import random
 
-valid_ratio = 0.1
-test_ratio = 0.1
+valid_ratio = 0.15
+test_ratio = 0.15
+len_thresh = 100
 prepared_dir = './TNChallenge'
 
 def tag2bio(row):
@@ -18,10 +19,12 @@ def tag2bio(row):
 
 tqdm.pandas()
 df = pd.read_csv('../TNChallenge.csv', converters={'before': str, 'after': str})
+df = df[~df.after.str.contains('^\W*$')]
+df = df[df['class']!='PUNCT']
+filter_id =  df[df.after.apply(len) > len_thresh]['sentence_id'].unique()
+df = df[~df['sentence_id'].isin(filter_id)]
 df.columns = ['sentence_id', 'token_id', 'tag', 'written', 'spoken']
 df["tag"].replace({"PLAIN": "O", "PUNCT": "O"}, inplace=True)
-df["spoken"].replace({'"': "'"}, inplace=True)
-df["written"].replace({'"': "'"}, inplace=True)
 df['token'] = df['spoken'].str.split()
 df['tag'] = df.apply(tag2bio, axis=1)
 df = df[(df['written'] != '') & (df['spoken'] != '')]
@@ -52,7 +55,7 @@ meta = pd.read_csv(meta_path, sep='\t')
 meta['language'] = 'en'
 
 
-
+random.seed(42)
 sentence_id_list = list(range(max(meta['sentence_id'])))
 random.shuffle(sentence_id_list)
 train_sep_position = int((test_ratio + valid_ratio) * len(sentence_id_list))
