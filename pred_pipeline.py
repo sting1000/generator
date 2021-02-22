@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from transformers import AutoModelForTokenClassification, AutoTokenizer, Trainer
 from datasets import Dataset, Sequence, ClassLabel, DatasetDict
-from src.utils import replace_space, make_onmt_txt, recover_space, get_normalizer_ckpt, clean_string
+from src.utils import replace_space, make_src_tgt_txt, recover_space, get_normalizer_ckpt, clean_string, read_txt
 from train_classifier import merge_col_from_tag
 from transformers import DataCollatorForTokenClassification
 
@@ -36,7 +36,8 @@ def main():
     output_file = args.output_file
 
     # Init
-    input_df = pd.read_csv(input_file, sep="\n", header=None, skip_blank_lines=False, names=['src'])
+    input_df = pd.DataFrame()
+    input_df['src'] = read_txt(input_file)
     input_df['sentence_id'] = input_df.index
     input_df['src'] = input_df['src'].apply(clean_string)
     input_df['token'] = input_df['src'].str.split()
@@ -105,8 +106,8 @@ def main():
         data['tgt_char'] = data['src_char']
 
     # TODO: change encoder decoder level
-    make_onmt_txt(data, 'example', data_output_dir='./tmp', encoder_level='char',
-                  decoder_level='char')
+    make_src_tgt_txt(data, 'example', normalizer_dir='./tmp', encoder_level='char',
+                     decoder_level='char')
     src_path = './tmp/src_example.txt'
     pred_path = src_path[:-4] + '_pred.txt'
 

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 import requests
-from src.utils import replace_space, make_onmt_txt, get_normalizer_ckpt, read_onmt_text
+from src.utils import replace_space, make_src_tgt_txt, get_normalizer_ckpt, onmt_txt_to_df
 
 
 def call_rb_API(text, language):
@@ -53,7 +53,7 @@ def main():
     # Init data df
     if no_classifier:
         # read data[['src', 'tgt']]
-        data = read_onmt_text(normalizer_dir, encoder_level, decoder_level, have_pred=False)
+        data = onmt_txt_to_df(normalizer_dir, encoder_level, decoder_level, have_pred=False)
     else:
         classified_path = '{}/test_classified_pred.csv'.format(classifier_dir)
         classified_df = pd.read_csv(classified_path)
@@ -64,8 +64,8 @@ def main():
     data['src_char'] = data['src_token'].apply(replace_space)
 
     # choose level data as src_test file in output dir
-    make_onmt_txt(data, 'test', data_output_dir=(pipeline_dir + '/data'), encoder_level=encoder_level,
-                  decoder_level=decoder_level)
+    make_src_tgt_txt(data, 'test', normalizer_dir=(pipeline_dir + '/data'), encoder_level=encoder_level,
+                     decoder_level=decoder_level)
 
     if args.no_normalizer:
         print("Load Normalizer model as: Rule based...")
@@ -84,7 +84,7 @@ def main():
                                                                     beam_size=5)
         os.system(command_pred)
 
-    pred_df = read_onmt_text(pipeline_dir, encoder_level, decoder_level)
+    pred_df = onmt_txt_to_df(pipeline_dir, encoder_level, decoder_level)
     if no_classifier:
         result = pred_df
     else:

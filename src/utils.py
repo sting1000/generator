@@ -191,21 +191,17 @@ def dump_json(outfile, data, has_no_output):
 
 
 # generate pairs for training
-def make_onmt_txt(df, df_name, data_output_dir, encoder_level, decoder_level):
+def make_src_tgt_txt(df, key, normalizer_dir, encoder_level, decoder_level):
     """
     df should have columns src_{encoder_level}, tgt_{decoder_level}
     type in ['test', 'validation', 'train']
     """
-    print("Making src tgt for: ", df_name)
-    check_folder(data_output_dir)
-    data_output_dir = Path(data_output_dir)
-    f_src = open(data_output_dir / ('src_' + df_name + '.txt'), "w")
-    f_tgt = open(data_output_dir / ('tgt_' + df_name + '.txt'), "w")
-    for _, row in tqdm(df.iterrows(), total=len(df)):
-        f_src.write("{}\n".format(row['src_' + encoder_level]))
-        f_tgt.write("{}\n".format(row['tgt_' + decoder_level]))
-    f_src.close()
-    f_tgt.close()
+    print("Making src tgt for: ", key)
+    check_folder(normalizer_dir)
+    src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
+    tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
+    df[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
+    df[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)
 
 
 def make_onmt_yaml(yaml_path, new_yaml_path, model_path):
@@ -215,22 +211,6 @@ def make_onmt_yaml(yaml_path, new_yaml_path, model_path):
         for ind, l in enumerate(lines):
             lines[ind] = re.sub("\{\*PATH\}", str(model_path), l)
         f.writelines(lines)
-
-
-def drop_small_class(df, columns, thresh=2):
-    df_group = df.groupby(columns).count()
-    df_group = df_group[df_group.values < thresh]
-    condition = [True] * len(df)
-    for targets_ind in df_group.index:
-        for match in zip(columns, targets_ind):
-            condition = condition & (df[match[0]] != match[1])
-    return df[condition]
-
-
-def train_test_drop_split(df, test_size, stratify_columns, random_state=42):
-    df = drop_small_class(df, stratify_columns)
-    df_train, df_test = train_test_split(df, test=test_size, stratify=df[stratify_columns], random_state=random_state)
-    return df_train, df_test
 
 
 def filter_aliases(row) -> list:
@@ -388,23 +368,6 @@ def check_folder(folder_path):
                 raise
 
 
-def prepare_onmt(name, onmt_input_dir, onmt_output_dir, no_classifier, encoder_level, decoder_level):
-    df = pd.read_csv('{}/{}.csv'.format(onmt_input_dir, name), converters={'token': str, 'written': str, 'spoken': str})
-    data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
-    data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-    data['tgt_token'] = data['written']
-    data['src_token'] = data['spoken']
-    if no_classifier:
-        data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
-    data['tgt_char'] = data['tgt_token'].apply(replace_space)
-    data['src_char'] = data['src_token'].apply(replace_space)
-    make_onmt_txt(data,
-                  name,
-                  data_output_dir=(onmt_output_dir + '/data'),
-                  encoder_level=encoder_level,
-                  decoder_level=decoder_level)
-
-
 def get_normalizer_ckpt(normalizer_dir, step):
     if step == -1:
         _, _, filenames = next(os.walk(normalizer_dir + '/checkpoints'))
@@ -415,43 +378,46 @@ def get_normalizer_ckpt(normalizer_dir, step):
     return model_path
 
 
-def read_onmt_text(normalizer_dir, encoder_level, decoder_level, have_pred=True):
+def read_txt(path):
+    with open(path) as f:
+        content = f.readlines()
+        content = [x.strip() for x in content]
+    return content
+
+
+def onmt_txt_to_df(normalizer_dir, key, encoder_level, decoder_level, have_pred=True):
     """
     read src, tgt, pred file in normalizer_dir
     return a dataframe with 3 columns
     if pred does not exist, use tgt as default
     """
     # define path
-    # TODO: replace test as name parameter
-    src_path = normalizer_dir + '/data/src_test.txt'
-    tgt_path = normalizer_dir + '/data/tgt_test.txt'
-    pred_path = normalizer_dir + '/data/pred_test.txt'
+    src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
+    tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
+    pred_path = '{}/data/pred_{}.txt'.format(normalizer_dir, key)
 
     # read files
-    pred_df = pd.DataFrame()
-    pred_df['src'] = pd.read_csv(src_path, sep="\n", header=None, skip_blank_lines=False)[0]
-    pred_df['tgt'] = pd.read_csv(tgt_path, sep="\n", header=None, skip_blank_lines=False)[0]
-    # TODO: auto check pred existence
-    if have_pred:
-        pred_df['pred'] = pd.read_csv(pred_path, sep="\n", header=None, skip_blank_lines=False)[0]
-    else:
-        pred_df['pred'] = pred_df['tgt']
+    # TODO: auto check have_pred existence
+    result = pd.DataFrame()
+    result['src'] = read_txt(src_path)
+    result['tgt'] = read_txt(tgt_path)
+    result['pred'] = read_txt(pred_path) if have_pred else result['tgt']
 
     # process format
     if encoder_level == 'char':
-        pred_df['src'] = pred_df['src'].apply(recover_space)
+        result['src'] = result['src'].apply(recover_space)
     if decoder_level == 'char':
-        pred_df['tgt'] = pred_df['tgt'].apply(recover_space)
-        pred_df['pred'] = pred_df['pred'].apply(recover_space)
-    return pred_df
+        result['tgt'] = result['tgt'].apply(recover_space)
+        result['pred'] = result['pred'].apply(recover_space)
+    return result
 
 
 def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, decoder_level):
     """
     create txt data in normalizer_dir/data using prepared_dir files
     """
-    for name in ['train', 'validation', 'test']:
-        df = pd.read_csv('{}/{}.csv'.format(prepared_dir, name),
+    for key in ['train', 'validation', 'test']:
+        df = pd.read_csv('{}/{}.csv'.format(prepared_dir, key),
                          converters={'token': str, 'written': str, 'spoken': str})
         data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
         data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
@@ -461,8 +427,9 @@ def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, d
             data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
         data['tgt_char'] = data['tgt_token'].apply(replace_space)
         data['src_char'] = data['src_token'].apply(replace_space)
-        make_onmt_txt(data,
-                      name,
-                      data_output_dir=(normalizer_dir + '/data'),
-                      encoder_level=encoder_level,
-                      decoder_level=decoder_level)
+
+        print("Making src tgt for: ", key)
+        src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
+        tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
+        df[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
+        df[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)

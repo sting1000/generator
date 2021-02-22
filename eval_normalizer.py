@@ -1,5 +1,5 @@
 import argparse, os
-from src.utils import get_normalizer_ckpt, read_onmt_text
+from src.utils import get_normalizer_ckpt, onmt_txt_to_df
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
     os.system(command_pred)
 
     # read prediction and eval normalizer
-    pred_df = read_onmt_text(normalizer_dir, encoder_level, decoder_level)
+    pred_df = onmt_txt_to_df(normalizer_dir, encoder_level, decoder_level)
     result_path = normalizer_dir + '/normalizer_result_test.csv'
     print("Results save to: ", result_path)
     pred_df.to_csv(result_path, index=False)

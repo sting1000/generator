@@ -25,7 +25,7 @@ def f1_scores(results, truth):
     print(report(flatten(truth), flatten(results)))
 
 
-def confusion_matrix(results, truth, classes):
+def confusion_matrix(results, truth, classes=['B', 'I', 'O']):
     matrix = cm(flatten(truth), flatten(results))
     plot_confusion_matrix(matrix, classes=classes,
                           title='Confusion Matrix')
