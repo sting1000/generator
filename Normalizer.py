@@ -13,7 +13,7 @@ class Normalizer:
         self.encoder_level = encoder_level
         self.decoder_level = decoder_level
         self.prepared_dir = prepared_dir
-        self.model_yaml_path = model_yaml_path
+        self.yaml_path = model_yaml_path
         self.new_yaml_path = '{}/{}'.format(normalizer_dir, model_yaml_path.split('/')[-1])
         check_folder(normalizer_dir + '/checkpoints')
         check_folder(normalizer_dir + '/data')
@@ -70,7 +70,7 @@ class Normalizer:
     def predict(self, input_path, output_path, tgt_path=None, normalizer_step=-1):
         input_df = pd.DataFrame()
         input_df['src_token'] = read_txt(input_path)
-        input_df['src_token'] = input_df['src_token'].astype(str).lower()
+        input_df['src_token'] = input_df['src_token'].str.lower()
         input_df['src_char'] = input_df['src_token'].astype(str).apply(replace_space)
 
         if not tgt_path:
@@ -78,7 +78,7 @@ class Normalizer:
             input_df['tgt_char'] = input_df['src_char']
         else:
             input_df['tgt_token'] = read_txt(input_path)
-            input_df['tgt_token'] = input_df['tgt_token'].astype(str).lower()
+            input_df['tgt_token'] = input_df['tgt_token'].str.lower()
             input_df['tgt_char'] = input_df['tgt_char'].astype(str).apply(replace_space)
         input_df['sentence_id'] = input_df.index
 

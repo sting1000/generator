@@ -43,6 +43,7 @@ def save_classifier_result( dataset, tag, output_file):
     token can be a phrase
     tag contains B and O only, B means the token need to be normalized
     """
+    tqdm.pandas()
     result = pd.DataFrame(dataset)[['sentence_id', 'token']]
     result['tag'] = tag
 
@@ -81,7 +82,7 @@ class Classifier:
             'validation': read_dataset_from_csv(prepared_dir + '/validation.csv')
         })
         self.label_list = self.datasets["train"].features["tag"].feature.names
-        self.tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
+
         self.data_collator = DataCollatorForTokenClassification(self.tokenizer)
 
     def train(self, num_train_epochs=10, learning_rate=1e-5, weight_decay=1e-2,
@@ -108,6 +109,7 @@ class Classifier:
                 "accuracy": results["overall_accuracy"],
             }
 
+        tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
         train_args = TrainingArguments(
             "{}/exp".format(self.classifier_dir),
             evaluation_strategy="epoch",
@@ -122,8 +124,8 @@ class Classifier:
         trainer = Trainer(
             self.model,
             train_args,
-            train_dataset=self.tokenized_datasets["train"],
-            eval_dataset=self.tokenized_datasets["validation"],
+            train_dataset=tokenized_datasets["train"],
+            eval_dataset=tokenized_datasets["validation"],
             data_collator=self.data_collator,
             tokenizer=self.tokenizer,
             compute_metrics=compute_metrics
@@ -136,8 +138,9 @@ class Classifier:
     def eval(self, key='test'):
         tqdm.pandas()
         print("Predicting {}...".format(key))
+        tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
         trainer = Trainer(model=self.model, tokenizer=self.tokenizer, data_collator=self.data_collator)
-        true_labels, true_predictions = self.predict_dataset(trainer, self.tokenized_datasets[key])
+        true_labels, true_predictions = self.predict_dataset(trainer, tokenized_datasets[key])
 
         pred_out_path = '{}/{}_classified_pred.csv'.format(self.classifier_dir, key)
         label_out_path = '{}/{}_classified_label.csv'.format(self.classifier_dir, key)
@@ -151,7 +154,7 @@ class Classifier:
         key = 'tmp'
         input_df = pd.DataFrame()
         input_df['src_token'] = read_txt(input_path)
-        input_df['src_token'] = input_df['src_token'].astype(str).lower()
+        input_df['src_token'] = input_df['src_token'].str.lower()
         input_df['token'] = input_df['src_token'].str.split()
         input_df['tag'] = input_df['token'].apply(lambda x: ['O'] * len(x))
         input_df['sentence_id'] = input_df.index
