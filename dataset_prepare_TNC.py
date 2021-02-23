@@ -5,8 +5,9 @@ import random
 
 valid_ratio = 0.15
 test_ratio = 0.15
-len_thresh = 100
+len_thresh = 50
 prepared_dir = './TNChallenge'
+
 
 def tag2bio(row):
     if row['tag'] == 'O':
@@ -20,9 +21,11 @@ def tag2bio(row):
 tqdm.pandas()
 df = pd.read_csv('../TNChallenge.csv', converters={'before': str, 'after': str})
 df = df.dropna()
+df['after'] =df['after'].str.lower()
+df['before'] =df['before'].str.lower()
 df = df[~df.after.str.contains('^\W*$')]
-df = df[df['class']!='PUNCT']
-filter_id =  df[df.after.apply(len) > len_thresh]['sentence_id'].unique()
+df = df[df['class'] != 'PUNCT']
+filter_id = df[df.after.apply(len) > len_thresh]['sentence_id'].unique()
 df = df[~df['sentence_id'].isin(filter_id)]
 df.columns = ['sentence_id', 'token_id', 'tag', 'written', 'spoken']
 df["tag"].replace({"PLAIN": "O", "PUNCT": "O"}, inplace=True)
@@ -54,7 +57,6 @@ with open(meta_path, 'w+') as outfile:
 
 meta = pd.read_csv(meta_path, sep='\t', converters={'token': str, 'written': str, 'spoken': str})
 meta['language'] = 'en'
-
 
 random.seed(42)
 sentence_id_list = list(range(max(meta['sentence_id'])))

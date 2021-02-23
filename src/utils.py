@@ -40,34 +40,6 @@ def read_data(path):
     return df
 
 
-def make_command(exp_path, encoder_level, decoder_level, steps, rnn):
-    if rnn == 'lstm':
-        model_name = "BiLSTM_{encoder_level}_LSTM_{decoder_level}".format(encoder_level=encoder_level,
-                                                                          decoder_level=decoder_level)
-    elif rnn == 'transformer':
-        model_name = 'transformer_{encoder_level}'.format(encoder_level=encoder_level)
-
-    with open("translate.sh", 'w') as f:
-        command = "onmt_build_vocab --config {exp_path}/yaml/{model_name}_prep.yaml -n_sample -1".format(
-            exp_path=exp_path, model_name=model_name)
-        print(command)
-        f.write(command)
-        print()
-
-        command = "onmt_train --config {exp_path}/yaml/{model_name}_train.yaml".format(exp_path=exp_path,
-                                                                                       model_name=model_name)
-        print(command)
-        f.write(command)
-        print()
-
-        command = "onmt_translate -model_name {exp_path}/{model_name}/model_step_{steps}.pt -src {exp_path}/data/src_test_{encoder_level}.txt -output {exp_path}/{model_name}/pred_{steps}.txt -gpu 0 -beam_size 5 -report_time".format(
-            exp_path=exp_path, encoder_level=encoder_level, model_name=model_name, steps=steps)
-        print(command)
-        f.write(command)
-        print()
-    f.close()
-
-
 def add_pred(df, path, decoder_level):
     if not path:
         data = df[['src_char']].reset_index(drop=True)
