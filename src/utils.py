@@ -431,5 +431,5 @@ def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, d
         print("Making src tgt for: ", key)
         src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
         tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
-        df[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
-        df[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)
+        data[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
+        data[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)

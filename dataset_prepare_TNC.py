@@ -19,6 +19,7 @@ def tag2bio(row):
 
 tqdm.pandas()
 df = pd.read_csv('../TNChallenge.csv', converters={'before': str, 'after': str})
+df = df.dropna()
 df = df[~df.after.str.contains('^\W*$')]
 df = df[df['class']!='PUNCT']
 filter_id =  df[df.after.apply(len) > len_thresh]['sentence_id'].unique()
@@ -49,9 +50,9 @@ with open(meta_path, 'w+') as outfile:
             outfile.write('\t'.join(r_values) + '\n')
 
 
-    df.apply(write_meta, axis=1)
+    df.progress_apply(write_meta, axis=1)
 
-meta = pd.read_csv(meta_path, sep='\t')
+meta = pd.read_csv(meta_path, sep='\t', converters={'token': str, 'written': str, 'spoken': str})
 meta['language'] = 'en'
 
 
