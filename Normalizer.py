@@ -105,6 +105,7 @@ class Normalizer:
         result = onmt_txt_to_df(self.normalizer_dir, key, self.encoder_level, self.decoder_level)
         result[['pred']].to_csv(output_path, index=False, header=False)
         print("Prediction saved to: ", output_path)
+        return result
 
     def process_data(self):
         """
