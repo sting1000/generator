@@ -1,4 +1,5 @@
-save_data: {*PATH}/example/
+## Where the samples will be written
+save_data: {*PATH}/example
 
 # Prevent overwriting existing files in the folder
 overwrite: True
@@ -22,27 +23,41 @@ tgt_vocab: {*PATH}/example.vocab.tgt
 
 # Train on a single GPU
 world_size: 1
-gpu_ranks: [ 0 ]
-
-# supported types: GloVe, word2vec
-word_vec_size: 100
+gpu_ranks: [0]
 
 # Where to save the checkpoints
 save_model: {*PATH}/checkpoints/
+valid_steps: 10000
 save_checkpoint_steps: 10000
 train_steps: 200000
-valid_steps: 10000
 
-encoder_type: brnn
-decoder_type: rnn
-rnn_type: LSTM
-enc_layers: 2
-dec_layers: 2
+layers: 6
 rnn_size: 512
-learning_rate: 0.001
-early_stopping: 4
-optim: adam
-learning_rate_decay: 0.01
+word_vec_size: 512
+transformer_ff: 2048
+heads: 8
+encoder_type: transformer
+decoder_type: transformer
+position_encoding: True
 
+max_generator_batches: 2
+dropout: 0.1
+batch_size: 2048
+batch_type: tokens
+normalization: tokens
+accum_count: 4
+
+optim: adam
+adam_beta2: 0.998
+decay_method: noam
+warmup_steps: 10000
+learning_rate: 2
+max_grad_norm: 0
+param_init: 0
+param_init_glorot: True
+label_smoothing: 0.1
+copy_attn: True
+
+# tensorboard option
 tensorboard: True
 tensorboard_log_dir: {*PATH}/board

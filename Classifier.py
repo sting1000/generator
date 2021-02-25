@@ -8,7 +8,9 @@ from transformers import TrainingArguments, Trainer
 from transformers import DataCollatorForTokenClassification
 from tqdm import tqdm
 from src.classification_report import confusion_matrix
-from src.utils import read_txt
+from src.utils import read_txt, check_folder
+
+
 
 
 def read_dataset_from_csv(csv_path):
@@ -37,7 +39,7 @@ def merge_col_from_tag(row, col, tag):
     return l
 
 
-def save_classifier_result( dataset, tag, output_file):
+def save_classifier_result(dataset, tag, output_file):
     """
     return a df['sentence_id', 'token', 'tag']
     token can be a phrase
@@ -68,39 +70,32 @@ def dataset_to_df(dataset):
 
 class Classifier:
     def __init__(self, pretrained, prepared_dir, classifier_dir):
+        """
+        pretrained is None means disable classifier
+        """
         self.pretrained = pretrained
         self.classifier_dir = classifier_dir
         self.prepared_dir = prepared_dir
-
-        # tokenize and make datasets dict
-        self.metric = load_metric("seqeval")
-        self.model = AutoModelForTokenClassification.from_pretrained(self.pretrained, num_labels=3)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.pretrained)
         self.datasets = DatasetDict({
             'train': read_dataset_from_csv(prepared_dir + '/train.csv'),
             'test': read_dataset_from_csv(prepared_dir + '/test.csv'),
             'validation': read_dataset_from_csv(prepared_dir + '/validation.csv')
         })
+        self.metric = load_metric("seqeval")
         self.label_list = self.datasets["train"].features["tag"].feature.names
+        check_folder(self.classifier_dir)
 
-        self.data_collator = DataCollatorForTokenClassification(self.tokenizer)
+        if pretrained:
+            self.model = AutoModelForTokenClassification.from_pretrained(self.pretrained,
+                                                                         num_labels=len(self.label_list))
+            self.tokenizer = AutoTokenizer.from_pretrained(self.pretrained)
+            self.data_collator = DataCollatorForTokenClassification(self.tokenizer)
 
     def train(self, num_train_epochs=10, learning_rate=1e-5, weight_decay=1e-2,
               per_device_train_batch_size=16, per_device_eval_batch_size=16):
-
         def compute_metrics(p):
             predictions, labels = p
-            predictions = np.argmax(predictions, axis=2)
-
-            # Remove ignored index (special tokens)
-            true_predictions = [
-                [self.label_list[p] for (p, l) in zip(prediction, label) if l != -100]
-                for prediction, label in zip(predictions, labels)
-            ]
-            true_labels = [
-                [self.label_list[l] for (p, l) in zip(prediction, label) if l != -100]
-                for prediction, label in zip(predictions, labels)
-            ]
+            true_labels, true_predictions = self.process_pred_labels(predictions, labels)
             results = self.metric.compute(predictions=true_predictions, references=true_labels)
             return {
                 "precision": results["overall_precision"],
@@ -109,66 +104,99 @@ class Classifier:
                 "accuracy": results["overall_accuracy"],
             }
 
-        tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
-        train_args = TrainingArguments(
-            "{}/exp".format(self.classifier_dir),
-            evaluation_strategy="epoch",
-            learning_rate=learning_rate,
-            per_device_train_batch_size=per_device_train_batch_size,
-            per_device_eval_batch_size=per_device_eval_batch_size,
-            num_train_epochs=num_train_epochs,
-            weight_decay=weight_decay,
-            load_best_model_at_end=True
-        )
+        if self.pretrained:
+            tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
+            train_args = TrainingArguments(
+                "{}/exp".format(self.classifier_dir),
+                evaluation_strategy="epoch",
+                learning_rate=learning_rate,
+                per_device_train_batch_size=per_device_train_batch_size,
+                per_device_eval_batch_size=per_device_eval_batch_size,
+                num_train_epochs=num_train_epochs,
+                weight_decay=weight_decay,
+                load_best_model_at_end=True
+            )
 
-        trainer = Trainer(
-            self.model,
-            train_args,
-            train_dataset=tokenized_datasets["train"],
-            eval_dataset=tokenized_datasets["validation"],
-            data_collator=self.data_collator,
-            tokenizer=self.tokenizer,
-            compute_metrics=compute_metrics
-        )
-        # fine tuning model
-        trainer.train()
-        trainer.save_model(self.classifier_dir)
-        print("Trainer is saved to ", self.classifier_dir)
+            trainer = Trainer(
+                self.model,
+                train_args,
+                train_dataset=tokenized_datasets["train"],
+                eval_dataset=tokenized_datasets["validation"],
+                data_collator=self.data_collator,
+                tokenizer=self.tokenizer,
+                compute_metrics=compute_metrics
+            )
+            # fine tuning model
+            trainer.train()
+            trainer.save_model(self.classifier_dir)
+            print("Trainer is saved to ", self.classifier_dir)
+        else:
+            print("No need to train!")
 
     def eval(self, key='test'):
         tqdm.pandas()
-        print("Predicting {}...".format(key))
-        tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
-        trainer = Trainer(model=self.model, tokenizer=self.tokenizer, data_collator=self.data_collator)
-        true_labels, true_predictions = self.predict_dataset(trainer, tokenized_datasets[key])
-
         pred_out_path = '{}/{}_classified_pred.csv'.format(self.classifier_dir, key)
         label_out_path = '{}/{}_classified_label.csv'.format(self.classifier_dir, key)
-        pred_result = save_classifier_result(self.datasets[key], true_predictions, pred_out_path)
-        label_result = save_classifier_result(self.datasets[key], true_labels, label_out_path)
 
-        confusion_matrix(true_predictions, true_labels)
-        return pred_result, label_result
+        print("Predicting {}...".format(key))
+        if self.pretrained:
+            tokenized_datasets = self.datasets.map(self.tokenize_and_align_labels, batched=True)
+            trainer = Trainer(model=self.model, tokenizer=self.tokenizer, data_collator=self.data_collator)
+            true_labels, true_predictions = self.predict_dataset(trainer, tokenized_datasets[key])
+
+            pred_result = save_classifier_result(self.datasets[key], true_predictions, pred_out_path)
+            label_result = save_classifier_result(self.datasets[key], true_labels, label_out_path)
+
+            # print result
+            results = self.metric.compute(predictions=true_predictions, references=true_labels)
+            print(" precision:\t{}\n recall:\t{}\n f1:\t{}\n accuracy:\t{}\n".format(
+                results["overall_precision"],
+                results["overall_recall"],
+                results["overall_f1"],
+                results["overall_accuracy"])
+            )
+            confusion_matrix(true_predictions, true_labels)
+            return pred_result, label_result
+        else:
+            df = pd.read_csv('{}/{}.csv'.format(self.prepared_dir, key),
+                             converters={'token': str, 'written': str, 'spoken': str})
+            result = df[['sentence_id', 'token']].groupby(['sentence_id']).agg({'token': ' '.join})
+            result['tag'] = 'B'
+            result.to_csv(pred_out_path, index=False)
+            result.to_csv(label_out_path, index=False)
+            print("Result saved to ", pred_out_path)
+            print("Result saved to ", label_out_path)
+            return result, result
 
     def predict(self, input_path, output_path):
         key = 'tmp'
         input_df = pd.DataFrame()
-        input_df['src_token'] = read_txt(input_path)
-        input_df['src_token'] = input_df['src_token'].str.lower()
-        input_df['token'] = input_df['src_token'].str.split()
-        input_df['tag'] = input_df['token'].apply(lambda x: ['O'] * len(x))
-        input_df['sentence_id'] = input_df.index
 
-        trainer = Trainer(model=self.model, tokenizer=self.tokenizer, data_collator=self.data_collator)
-        feature_tag = Sequence(ClassLabel(num_classes=3, names=self.label_list))
-        input_df['tag'] = input_df['tag'].apply(feature_tag.feature.str2int)
-        eval_dataset = Dataset.from_pandas(input_df)
-        eval_dataset.features["tag"] = feature_tag
-        # predict
-        tokenized_datasets = DatasetDict({key: eval_dataset}).map(self.tokenize_and_align_labels, batched=True)
-        _, true_predictions = self.predict_dataset(trainer, tokenized_datasets[key])
-        result = save_classifier_result(eval_dataset, true_predictions, output_path)
-        return result
+
+        if self.pretrained:
+            input_df['src_token'] = read_txt(input_path)
+            input_df['src_token'] = input_df['src_token'].str.lower()
+            input_df['token'] = input_df['src_token'].str.split()
+            input_df['tag'] = input_df['token'].apply(lambda x: ['O'] * len(x))
+            input_df['sentence_id'] = input_df.index
+
+            trainer = Trainer(model=self.model, tokenizer=self.tokenizer, data_collator=self.data_collator)
+            feature_tag = Sequence(ClassLabel(num_classes=3, names=self.label_list))
+            input_df['tag'] = input_df['tag'].apply(feature_tag.feature.str2int)
+            eval_dataset = Dataset.from_pandas(input_df)
+            eval_dataset.features["tag"] = feature_tag
+            # predict
+            tokenized_datasets = DatasetDict({key: eval_dataset}).map(self.tokenize_and_align_labels, batched=True)
+            _, true_predictions = self.predict_dataset(trainer, tokenized_datasets[key])
+            result = save_classifier_result(eval_dataset, true_predictions, output_path)
+            return result
+        else:
+            input_df['token'] = read_txt(input_path)
+            input_df['sentence_id'] = input_df.index
+            input_df['tag'] = 'B'
+            input_df.to_csv(output_path, index=False)
+            print("Result saved to ", output_path)
+            return input_df
 
     def tokenize_and_align_labels(self, examples):
         labels = []
@@ -193,9 +221,11 @@ class Classifier:
 
     def predict_dataset(self, trainer, data):
         predictions, labels, _ = trainer.predict(data)
-        predictions = np.argmax(predictions, axis=2)
+        return self.process_pred_labels(predictions, labels)
 
+    def process_pred_labels(self, predictions, labels):
         # Remove ignored index (special tokens)
+        predictions = np.argmax(predictions, axis=2)
         true_predictions = [
             [self.label_list[p] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)

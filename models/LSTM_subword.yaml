@@ -3,6 +3,20 @@ save_data: {*PATH}/example/
 # Prevent overwriting existing files in the folder
 overwrite: True
 
+# Tokenization options
+src_subword_type: bpe
+src_subword_model: model-16k
+tgt_subword_type: bpe
+tgt_subword_model: model-16k
+
+# Number of candidates for SentencePiece sampling
+subword_nbest: 20
+# Smoothing parameter for SentencePiece sampling
+subword_alpha: 0.1
+# Specific arguments for pyonmttok
+src_onmttok_kwargs: "{'mode': 'none', 'spacer_annotate': True}"
+tgt_onmttok_kwargs: "{'mode': 'none', 'spacer_annotate': True}"
+
 # Corpus opts:
 data:
     train:
@@ -10,11 +24,13 @@ data:
         path_tgt: {*PATH}/data/tgt_train.txt
         src_seq_length: 256
         tgt_seq_length: 256
+        transforms: [bpe]
     valid:
         path_src: {*PATH}/data/src_validation.txt
         path_tgt: {*PATH}/data/tgt_validation.txt
         src_seq_length: 256
         tgt_seq_length: 256
+        transforms: [bpe]
 
 # Where the vocab(s) will be written
 src_vocab: {*PATH}/example.vocab.src

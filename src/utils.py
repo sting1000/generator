@@ -339,6 +339,13 @@ def check_folder(folder_path):
             if exc.errno != errno.EEXIST:
                 raise
 
+def read_sentence_from_csv(csv_path):
+    test = pd.read_csv(csv_path, converters={'token': str, 'written': str, 'spoken': str})
+    data = test[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
+    data['tgt_token'], data['src_token'] = data['written'], data['spoken']
+    data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
+    return data.reset_index()
+
 
 def get_normalizer_ckpt(normalizer_dir, step):
     if step == -1:

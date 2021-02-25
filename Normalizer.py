@@ -5,7 +5,7 @@ from src.utils import check_folder, get_normalizer_ckpt, onmt_txt_to_df, read_tx
 
 
 class Normalizer:
-    def __init__(self, model_yaml_path, prepared_dir, normalizer_dir, onmt_dir='./OpenNMT-py', no_classifier=0,
+    def __init__(self, model_yaml_path, prepared_dir, normalizer_dir, onmt_dir='./OpenNMT-py', no_classifier=True,
                  encoder_level='char', decoder_level='char'):
         self.normalizer_dir = normalizer_dir
         self.onmt_dir = onmt_dir
@@ -29,15 +29,18 @@ class Normalizer:
         command_build_vocab = "python {onmt_path}/build_vocab.py " \
                               "-config  {yaml_path} " \
                               "-n_sample -1".format(onmt_path=self.onmt_dir, yaml_path=self.new_yaml_path)
+        print(command_build_vocab)
+        os.system(command_build_vocab)
+        print("Done!")
 
         # train command to use opennmt
         print("Training...")
         command_train = "python {onmt_path}/train.py " \
                         "-config {yaml_path}".format(onmt_path=self.onmt_dir, yaml_path=self.new_yaml_path)
 
-        # execute opennmt
-        os.system(command_build_vocab)
+        print(command_train)
         os.system(command_train)
+        print("Done!")
 
     def eval(self, key='test', normalizer_step=-1):
         """
@@ -65,7 +68,9 @@ class Normalizer:
         result[['pred']].to_csv(hyp_path, header=False, index=False)
         result[['tgt']].to_csv(ref_path, header=False, index=False)
 
-        print('wer -c {ref_path} {hyp_path}'.format(ref_path=ref_path, hyp_path=hyp_path))
+        command_wer = 'wer {ref_path} {hyp_path}'.format(ref_path=ref_path, hyp_path=hyp_path)
+        print(command_wer)
+        print(os.popen(command_wer).read())
 
     def predict(self, input_path, output_path, tgt_path=None, normalizer_step=-1):
         input_df = pd.DataFrame()
@@ -100,7 +105,7 @@ class Normalizer:
                                                                            src=src_path,
                                                                            output=pred_path,
                                                                            beam_size=5)
-        os.system(command_pred)
+        print(os.popen(command_pred).read())
 
         result = onmt_txt_to_df(self.normalizer_dir, key, self.encoder_level, self.decoder_level)
         result[['pred']].to_csv(output_path, index=False, header=False)

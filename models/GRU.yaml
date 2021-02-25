@@ -8,13 +8,13 @@ data:
     train:
         path_src: {*PATH}/data/src_train.txt
         path_tgt: {*PATH}/data/tgt_train.txt
-        src_seq_length: 100
-        tgt_seq_length: 100
+        src_seq_length: 256
+        tgt_seq_length: 256
     valid:
         path_src: {*PATH}/data/src_validation.txt
         path_tgt: {*PATH}/data/tgt_validation.txt
-        src_seq_length: 100
-        tgt_seq_length: 100
+        src_seq_length: 256
+        tgt_seq_length: 256
 
 # Where the vocab(s) will be written
 src_vocab: {*PATH}/example.vocab.src

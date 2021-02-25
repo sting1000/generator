@@ -1,0 +1,11 @@
+seqeval==1.2.2
+transformers==4.3.2
+numpy==1.18.3
+pandas==1.2.1
+datasets==1.2.1
+edit_distance==1.0.4
+tqdm==4.45.0
+asr_evaluation==2.0.4
+plato_ai_asr_preprocessor==1.0.11
+requests==2.23.0
+matplotlib==3.2.1
