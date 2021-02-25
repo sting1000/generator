@@ -4,6 +4,7 @@ from pathlib import Path
 import unicodedata
 
 import pandas
+import requests
 from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 from edit_distance import SequenceMatcher
 import pandas as pd
@@ -412,3 +413,11 @@ def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, d
         tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
         data[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
         data[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)
+
+
+def call_rb_API(text, language):
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    data = {"text": text, "language": language}
+    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
+                             headers=headers, json=data)
+    return eval(response.text)['text']

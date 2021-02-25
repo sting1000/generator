@@ -1,8 +1,7 @@
 import argparse
 import pandas as pd
 from tqdm import tqdm
-from eval_pipeline import call_rb_API
-from src.utils import check_folder
+from src.utils import check_folder, call_rb_API
 
 
 def main():

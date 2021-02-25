@@ -70,7 +70,7 @@ for lang in ['de', 'en', 'fr', 'it']:
 
     for p in tqdm(main_corpus_data):
         data_clean.append(filter_trian_datapoint(p))
-output_path = './data/museli_analysis.json'
+output_path = '../data/museli_analysis.json'
 df = pd.DataFrame(data_clean)
 df = df[df.src != '']
 df = df[df.intent != 'Unk']

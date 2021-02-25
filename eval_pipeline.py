@@ -2,17 +2,7 @@ import argparse
 import os
 import pandas as pd
 from tqdm import tqdm
-import requests
-from src.utils import replace_space, make_src_tgt_txt, get_normalizer_ckpt, onmt_txt_to_df
-
-
-def call_rb_API(text, language):
-    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    data = {"text": text, "language": language}
-    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
-                             headers=headers, json=data)
-    return eval(response.text)['text']
-
+from src.utils import replace_space, make_src_tgt_txt, get_normalizer_ckpt, onmt_txt_to_df, call_rb_API
 
 def main():
     parser = argparse.ArgumentParser()
