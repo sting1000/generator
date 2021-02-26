@@ -6,7 +6,11 @@ from src.utils import read_sentence_from_csv, check_folder
 
 class Pipeline:
     def __init__(self, pipeline_dir, prepared_dir, classifier_dir, pretrained, normalizer_dir, model_yaml_path,
-                 encoder_level='char', decoder_level='char', onmt_dir='./OpenNMT-py'):
+                 encoder_level='char', decoder_level='char', onmt_dir='./OpenNMT-py', language='en'):
+        """
+        pretrained =  None to disable the classifier
+        model_yaml_path = None to use Rule-based normalizer
+        """
         self.pipeline_dir = pipeline_dir
         self.prepared_dir = prepared_dir
         self.classifier_dir = classifier_dir
@@ -23,7 +27,8 @@ class Pipeline:
                                      no_classifier=False if pretrained else True,
                                      onmt_dir=onmt_dir,
                                      encoder_level=encoder_level,
-                                     decoder_level=decoder_level)
+                                     decoder_level=decoder_level,
+                                     language=language)
 
     def train(self, num_train_epochs=10, learning_rate=1e-5, weight_decay=1e-2,
               per_device_train_batch_size=16, per_device_eval_batch_size=16):

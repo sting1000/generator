@@ -7,10 +7,7 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import TrainingArguments, Trainer
 from transformers import DataCollatorForTokenClassification
 from tqdm import tqdm
-from src.classification_report import confusion_matrix
-from src.utils import read_txt, check_folder
-
-
+from src.utils import read_txt, check_folder, confusion_matrix
 
 
 def read_dataset_from_csv(csv_path):
@@ -171,7 +168,6 @@ class Classifier:
     def predict(self, input_path, output_path):
         key = 'tmp'
         input_df = pd.DataFrame()
-
 
         if self.pretrained:
             input_df['src_token'] = read_txt(input_path)

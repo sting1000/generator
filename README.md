@@ -52,44 +52,50 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![ProcessorPipeline][product-screenshot]](https://example.com)
+This project implement a 2-layer cascade post-processor for Automatic Speech Recognition (ASR) system.
+The purpose of post-processor is to format the spoken-style text toward the corresponding written-style text, 
+such as *six feet* to *6ft*, *one hundred fifty pounds* to *150lb*. 
 
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo_name`, `twitter_handle`, `email`, `project_title`, `project_description`
+Comparing to Rule-based processor, this cascade post-processor is more accurate, flexible and economical.
+The processor pipeline contains two main modules: Classifier and Normalizer. 
+Classifier assigns label to each token, which is similar to Named Entity Recognition (NER). 
+The labeled sequences that require normalization are sent to Normalizer for conversion.
+Normalizer employs Neural Network (RNN structure) and learn transform rules from dataset. 
+Thus, the interest sequences are converted to written form, and put but to original sentence as output.
 
-
-### Built With
-
-* []()
-* []()
-* []()
-
+With the help of [Huggingface](https://github.com/huggingface/transformers) and [OpenNMT](https://github.com/OpenNMT/OpenNMT-py),
+it is easy and fast to try powerful models and complex RNN structure. For Classifier, pretrained models can be chosen from
+DistilBert, Bert, XLM, etc. For RNN Normalizer, Bi-LSTM, Transformer, GRU are all possible units to use. Moreover, some
+cutting-edge tricks like copy mechanism can be added through the configure file. 
+Therefore, this 2-layer cascade post-processor can be customize according to dataset size, language, use cases, etc. 
+TBNorm* entity(s). 
+These entities are sent to  **Normalizer** for further conversion.
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
 ### Installation
-
 1. Clone the repo
    ```sh
    git clone https://github.com/github_username/repo_name.git
    ```
-2. Install NPM packages
+2. Clone OpenNMT to repository root
    ```sh
-   npm install
+   cd repo_name
+   git clone https://github.com/OpenNMT/OpenNMT-py.git
    ```
+3. Install requirements
+   ```sh
+   pip install requirements.txt
+   ```
+### Prepare dataset
+In folder `./tools`, we provide code to prepare dataset from 3 difference source
+
+#### Generated
+```sh
+   git clone https://github.com/github_username/repo_name.git
+ ```
 
 
 
@@ -109,25 +115,5 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 
 
 
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-
-* []()
-* []()
-* []()
 
 

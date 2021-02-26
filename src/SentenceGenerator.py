@@ -3,7 +3,8 @@ import random
 import itertools
 from collections import OrderedDict
 from tqdm import tqdm
-from src.utils import Normalizer, check_folder
+from src.utils import check_folder
+from src.Processor import Processor
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -15,7 +16,7 @@ class SentenceGenerator:
         self.padding = 0
         self.templates = templates
         self.entities = entities
-        self.normalizer = Normalizer().normalize_text
+        self.normalizer = Processor().normalize_text
         self.tags_entities_dic = LRUCache(size=LRU_size)
         self.max_combo_amount = max_combo_amount
         self.sentence_num = 0

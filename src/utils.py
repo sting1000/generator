@@ -1,20 +1,14 @@
-import errno
-import os
-from pathlib import Path
+import re, os, random, errno
+import itertools, requests
 import unicodedata
-
-import pandas
-import requests
-from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
-from edit_distance import SequenceMatcher
+import numpy as np
 import pandas as pd
-import json
-
-from plato_ai_asr_preprocessor.preprocessor import Preprocessor
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-import re
-import random
+from matplotlib import pyplot as plt
+from src.Processor import Processor
+from edit_distance import SequenceMatcher
+from sklearn.metrics import confusion_matrix as cm
+from asr_evaluation.asr_evaluation import get_error_count, get_match_count, print_diff
 
 
 def replace_space(s: str):
@@ -30,15 +24,207 @@ def recover_space(s: str):
     return str(s)
 
 
-def read_data(path):
-    df = pd.read_csv(path).drop_duplicates()
-    df.columns = ['id', 'language', 'src_token', 'tgt_token', 'entities_dic']
-    df['src_token'] = df['src_token'].str.lower()
-    df['tgt_token'] = df['tgt_token'].str.lower()
-    df['tgt_char'] = df.tgt_token.apply(replace_space)
-    df['src_char'] = df.src_token.apply(replace_space)
-    df['entities_dic'] = df.entities_dic.apply(eval)
-    return df
+def filter_aliases(row) -> list:
+    """
+    Filters list of aliases to keep only the useful ones.
+    It is used to remove all the noisy aliases given by tv that are useful for ASR.
+
+    E.g. ['s r f 1', 'SRF 1', 'srf eins'] becomes ['srf 1']
+    """
+    aliases = row['aliases'] + [str(row['value'])]
+    language = row['language']
+
+    regex = re.compile(r'\b[a-zA-Z]\b')
+    for item in aliases:
+        item = str(item)
+        if regex.findall(item):  # modified
+            upper_alias = restore_abbreviations_in_text(text=item, uppercase=True).strip()
+            aliases.remove(item)
+            if upper_alias not in aliases:
+                aliases.append(upper_alias)
+
+    # remove norm duplication
+    aliases_set = set([clean_string(x) for x in aliases])
+    norm2alas = {}
+    for alas in aliases_set:
+        norm = Processor().normalize_text(alas, language)
+        if norm in norm2alas:
+            if len(norm2alas[norm]) > len(alas):
+                norm2alas[norm] = alas
+        else:
+            norm2alas[norm] = alas
+    return list(norm2alas.values())
+
+
+def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
+    """
+    Restores malformed abbreviations in text.
+    E.g. 'Go to S R F 1' becomes 'Go to SRF 1'.
+    """
+    abbreviations = find_space_separated_abbreviations(text=text)
+    if abbreviations:
+        for abbreviation in abbreviations:
+            if uppercase:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation.upper())
+            else:
+                text = text.replace(' '.join(list(abbreviation)), abbreviation)
+    return text
+
+
+def find_space_separated_abbreviations(text: str) -> list:
+    """
+    Finds abbreviations in text written with space among their letters.
+    E.g. 'Go to S R F 1' finds 'SRF' as abbreviation.
+    """
+    regex = re.compile(r'\b[a-zA-Z]\b')
+
+    # initialize values
+    abbreviations = []
+    abbreviation = ''
+    last_pos = -1
+
+    for item in regex.finditer(text):
+        if last_pos == -1:
+            abbreviation += item.group()
+            last_pos = item.span()[1]
+        elif item.span()[0] == last_pos + 1:
+            abbreviation += item.group()
+            last_pos = item.span()[1]
+        elif len(abbreviation) > 1:
+            abbreviations.append(abbreviation)
+            abbreviation = item.group()
+            last_pos = -1
+        elif len(abbreviation) == 1:
+            abbreviation = item.group()
+            last_pos = -1
+
+    # append last found abbreviation
+    if len(abbreviation) > 1:
+        abbreviations.append(abbreviation)
+
+    return abbreviations
+
+
+def generate_NumSequence(language, amount=3000, max_length=12):
+    entity_list = []
+    entity_type = "NumberSequence"
+    for i in tqdm(range(amount)):
+        length = random.randint(3, max_length)
+        low = 10 ** length
+        high = low * 10 - 1
+        value = str(random.randint(low, high))
+        item = {
+            "type": entity_type,
+            "language": language,
+            "spoken": Processor().normalize_text(' '.join(list(value)), language),
+            "written": value,
+            "entities_dic": []
+        }
+        entity_list.append(item)
+    return entity_list
+
+
+def unicodeToAscii(s):
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', s)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+
+def clean_string(s):
+    s = s.lower().strip()  # unicodeToAscii()
+    s = re.sub(r"([a-zA-Z]+)[:\-\'.]", r"\1 ", s)
+    s = re.sub(r'(\d+)[:.] ', r'\1 ', s)
+    s = re.sub(r"[!\"#'()*,\-;<=>?@_`~|]", r" ", s)
+    s = re.sub(r"([+])", r" \1 ", s)
+    s = re.sub(r'\s+', ' ', s)
+    s = re.sub(r' [.\-:] ', ' ', s)
+    s = re.sub(r'(\d+)[:.] ', r'\1 ', s)  # a. -> a
+    s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
+    s = re.sub(r': ', r' ', s)  # 2: -> ' '
+    s = re.sub(r"([^\d\W]+)(\d+)", r"\1 \2", s)
+    s = re.sub(r"(\d+)([^\d\W]+)", r"\1 \2", s)
+    s = s.strip()
+    return s
+
+
+def remove_noisy_tags(text: str) -> str:
+    """
+    Removes the CH, D, F, I, HD tags from the string.
+    """
+    text = re.sub(r'\b(?:)(CH|DE|FR|EN|F|HD|UHD)\b', '', text, flags=re.IGNORECASE)
+    return text
+
+
+def check_folder(folder_path):
+    if folder_path[-1] != '/':
+        folder_path += '/'
+    if not os.path.exists(os.path.dirname(folder_path)):
+        try:
+            os.makedirs(os.path.dirname(folder_path))
+            print("Crete folder: ", folder_path)
+        except OSError as exc:
+            # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+
+def read_sentence_from_csv(csv_path):
+    test = pd.read_csv(csv_path, converters={'token': str, 'written': str, 'spoken': str})
+    data = test[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
+    data['tgt_token'], data['src_token'] = data['written'], data['spoken']
+    data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
+    return data.reset_index()
+
+
+def read_txt(path):
+    with open(path) as f:
+        content = f.readlines()
+        content = [x.strip() for x in content]
+    return content
+
+
+def call_rb_API(text, language):
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    data = {"text": text, "language": language}
+    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
+                             headers=headers, json=data)
+    return eval(response.text)['text']
+
+
+def confusion_matrix(results, truth, classes=['B', 'I', 'O']):
+    matrix = cm(flatten(truth), flatten(results))
+    plot_confusion_matrix(matrix, classes=classes,
+                          title='Confusion Matrix')
+
+
+def plot_confusion_matrix(cm, classes,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    """
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+
+
+def flatten(li):
+    return [item for sublist in li for item in sublist]
 
 
 def add_pred(df, path, decoder_level):
@@ -142,282 +328,10 @@ def print_errors(df, n, random_state=1):
 
 
 def read_data_json(path):
-    df = pd.read_json(path)  # .drop_duplicates()
+    df = pd.read_json(path)
     df.columns = ['id', 'language', 'src_token', 'tgt_token', 'entities_dic']
     df['src_token'] = df['src_token'].astype(str).str.lower()
     df['tgt_token'] = df['tgt_token'].astype(str).str.lower()
     df['tgt_char'] = df.tgt_token.apply(replace_space)
     df['src_char'] = df.src_token.apply(replace_space)
-    # df['entities_dic'] = df.entities_dic.apply(eval)
     return df
-
-
-def dump_json(outfile, data, has_no_output):
-    if data:
-        if has_no_output:
-            outfile.write(json.dumps(data))
-        else:
-            outfile.write(",")
-            outfile.write(json.dumps(data))
-        has_no_output = False
-    return has_no_output
-
-
-# generate pairs for training
-def make_src_tgt_txt(df, key, normalizer_dir, encoder_level, decoder_level):
-    """
-    df should have columns src_{encoder_level}, tgt_{decoder_level}
-    type in ['test', 'validation', 'train']
-    """
-    print("Making src tgt for: ", key)
-    check_folder(normalizer_dir)
-    src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
-    tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
-    df[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
-    df[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)
-
-
-def make_onmt_yaml(yaml_path, new_yaml_path, model_path):
-    with open(yaml_path) as f:
-        lines = f.readlines()
-    with open(new_yaml_path, "w+") as f:
-        for ind, l in enumerate(lines):
-            lines[ind] = re.sub("\{\*PATH\}", str(model_path), l)
-        f.writelines(lines)
-
-
-def filter_aliases(row) -> list:
-    """
-    Filters list of aliases to keep only the useful ones.
-    It is used to remove all the noisy aliases given by tv that are useful for ASR.
-
-    E.g. ['s r f 1', 'SRF 1', 'srf eins'] becomes ['srf 1']
-    """
-    aliases = row['aliases'] + [str(row['value'])]
-    language = row['language']
-
-    regex = re.compile(r'\b[a-zA-Z]\b')
-    for item in aliases:
-        item = str(item)
-        if regex.findall(item):  # modified
-            upper_alias = restore_abbreviations_in_text(text=item, uppercase=True).strip()
-            aliases.remove(item)
-            if upper_alias not in aliases:
-                aliases.append(upper_alias)
-
-    # remove norm duplication
-    aliases_set = set([clean_string(x) for x in aliases])
-    norm2alas = {}
-    for alas in aliases_set:
-        norm = Normalizer().normalize_text(alas, language)
-        if norm in norm2alas:
-            if len(norm2alas[norm]) > len(alas):
-                norm2alas[norm] = alas
-        else:
-            norm2alas[norm] = alas
-    return list(norm2alas.values())
-
-
-def restore_abbreviations_in_text(text: str, uppercase=False) -> str:
-    """
-    Restores malformed abbreviations in text.
-    E.g. 'Go to S R F 1' becomes 'Go to SRF 1'.
-    """
-    abbreviations = find_space_separated_abbreviations(text=text)
-    if abbreviations:
-        for abbreviation in abbreviations:
-            if uppercase:
-                text = text.replace(' '.join(list(abbreviation)), abbreviation.upper())
-            else:
-                text = text.replace(' '.join(list(abbreviation)), abbreviation)
-    return text
-
-
-def find_space_separated_abbreviations(text: str) -> list:
-    """
-    Finds abbreviations in text written with space among their letters.
-    E.g. 'Go to S R F 1' finds 'SRF' as abbreviation.
-    """
-    regex = re.compile(r'\b[a-zA-Z]\b')
-
-    # initialize values
-    abbreviations = []
-    abbreviation = ''
-    last_pos = -1
-
-    for item in regex.finditer(text):
-        if last_pos == -1:
-            abbreviation += item.group()
-            last_pos = item.span()[1]
-        elif item.span()[0] == last_pos + 1:
-            abbreviation += item.group()
-            last_pos = item.span()[1]
-        elif len(abbreviation) > 1:
-            abbreviations.append(abbreviation)
-            abbreviation = item.group()
-            last_pos = -1
-        elif len(abbreviation) == 1:
-            abbreviation = item.group()
-            last_pos = -1
-
-    # append last found abbreviation
-    if len(abbreviation) > 1:
-        abbreviations.append(abbreviation)
-
-    return abbreviations
-
-
-def generate_NumSequence(language, amount=3000, max_length=12):
-    entity_list = []
-    entity_type = "NumberSequence"
-    for i in tqdm(range(amount)):
-        length = random.randint(3, max_length)
-        low = 10 ** length
-        high = low * 10 - 1
-        value = str(random.randint(low, high))
-        item = {
-            "type": entity_type,
-            "language": language,
-            "spoken": Normalizer().normalize_text(' '.join(list(value)), language),
-            "written": value,
-            "entities_dic": []
-        }
-        entity_list.append(item)
-    return entity_list
-
-
-def unicodeToAscii(s):
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', s)
-        if unicodedata.category(c) != 'Mn'
-    )
-
-
-def clean_string(s):
-    s = s.lower().strip()  # unicodeToAscii()
-    s = re.sub(r"([a-zA-Z]+)[\:\-\'\.]", r"\1 ", s)  # colun: dsfa -> colun dsfa
-    s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)
-    s = re.sub(r"[!\"#'()*,\-;<=>?@_`~|]", r" ", s)  # colun-dsfa -> colun dsfa
-    s = re.sub(r"([\+])", r" \1 ", s)
-    s = re.sub(r'\s+', ' ', s)
-    s = re.sub(r' [.\-:] ', ' ', s)
-    s = re.sub(r'(\d+)[\:.] ', r'\1 ', s)  # a. -> a
-    s = re.sub(r'\.{2,}', r' ', s)  # ... -> ''
-    s = re.sub(r'\: ', r' ', s)  # 2: -> ' '
-    s = re.sub(r"([^\d\W]+)(\d+)", r"\1 \2", s)
-    s = re.sub(r"(\d+)([^\d\W]+)", r"\1 \2", s)
-    s = s.strip()
-    return s
-
-
-def remove_noisy_tags(text: str) -> str:
-    """
-    Removes the CH, D, F, I, HD tags from the string.
-    """
-    text = re.sub(r'\b(?:)(CH|DE|FR|EN|F|HD|UHD)\b', '', text, flags=re.IGNORECASE)
-    return text
-
-
-class Normalizer:
-    preprocessor: Preprocessor = None
-
-    def __init__(self):
-        self.preprocessor = Preprocessor(use_case='kaldi-lm', cleaner_config=None, abbreviation_config=None)
-
-    def normalize_text(self, text: str, language: str) -> str:
-        normalized_text, _ = self.preprocessor.process(text=text, language=language)
-        return normalized_text
-
-
-def check_folder(folder_path):
-    if folder_path[-1] != '/':
-        folder_path += '/'
-    if not os.path.exists(os.path.dirname(folder_path)):
-        try:
-            os.makedirs(os.path.dirname(folder_path))
-            print("Crete folder: ", folder_path)
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
-
-def read_sentence_from_csv(csv_path):
-    test = pd.read_csv(csv_path, converters={'token': str, 'written': str, 'spoken': str})
-    data = test[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-    data['tgt_token'], data['src_token'] = data['written'], data['spoken']
-    data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
-    return data.reset_index()
-
-
-def get_normalizer_ckpt(normalizer_dir, step):
-    if step == -1:
-        _, _, filenames = next(os.walk(normalizer_dir + '/checkpoints'))
-        f_name = filenames[-1]
-        model_path = normalizer_dir + '/checkpoints/{}'.format(f_name)
-    else:
-        model_path = normalizer_dir + '/checkpoints/_step_{}.pt'.format(step)
-    return model_path
-
-
-def read_txt(path):
-    with open(path) as f:
-        content = f.readlines()
-        content = [x.strip() for x in content]
-    return content
-
-
-def onmt_txt_to_df(normalizer_dir, key, encoder_level, decoder_level, have_pred=True):
-    """
-    read src, tgt, pred file in normalizer_dir
-    return a dataframe with 3 columns
-    if pred does not exist, use tgt as default
-    """
-    # define path
-    src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
-    tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
-    pred_path = '{}/data/pred_{}.txt'.format(normalizer_dir, key)
-
-    # read files
-    # TODO: auto check have_pred existence
-    result = pd.DataFrame()
-    result['src'] = read_txt(src_path)
-    result['tgt'] = read_txt(tgt_path)
-    result['pred'] = read_txt(pred_path) if have_pred else result['tgt']
-
-    # process format
-    if encoder_level == 'char':
-        result['src'] = result['src'].apply(recover_space)
-    if decoder_level == 'char':
-        result['tgt'] = result['tgt'].apply(recover_space)
-        result['pred'] = result['pred'].apply(recover_space)
-    return result
-
-
-def make_onmt_data(prepared_dir, normalizer_dir, no_classifier, encoder_level, decoder_level):
-    """
-    create txt data in normalizer_dir/data using prepared_dir files
-    """
-    for key in ['train', 'validation', 'test']:
-        df = pd.read_csv('{}/{}.csv'.format(prepared_dir, key),
-                         converters={'token': str, 'written': str, 'spoken': str})
-        data = df if no_classifier else df[df.tag != 'O']  # choose which part as src
-        data = data[['sentence_id', 'token_id', 'language', 'written', 'spoken']].drop_duplicates()
-        data['tgt_token'], data['src_token'] = data['written'], data['spoken']
-
-        if no_classifier:
-            data = data.groupby(['sentence_id']).agg({'src_token': ' '.join, 'tgt_token': ' '.join})
-        data['tgt_char'] = data['tgt_token'].apply(replace_space)
-        data['src_char'] = data['src_token'].apply(replace_space)
-
-        print("Making src tgt for: ", key)
-        src_path = '{}/data/src_{}.txt'.format(normalizer_dir, key)
-        tgt_path = '{}/data/tgt_{}.txt'.format(normalizer_dir, key)
-        data[['src_' + encoder_level]].to_csv(src_path, header=False, index=False)
-        data[['tgt_' + decoder_level]].to_csv(tgt_path, header=False, index=False)
-
-
-def call_rb_API(text, language):
-    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    data = {"text": text, "language": language}
-    response = requests.post('https://plato-core-postprocessor-develop.scapp-corp.swisscom.com/api/compute',
-                             headers=headers, json=data)
-    return eval(response.text)['text']

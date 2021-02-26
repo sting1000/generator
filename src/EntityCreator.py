@@ -1,4 +1,4 @@
-from src.utils import Normalizer
+from src.Processor import Processor
 
 
 class EntityCreator:
@@ -59,7 +59,7 @@ def make_item(value, item_type, lan, aliases=None):
         "value": value,
         "type": item_type,
         "language": lan,
-        "normalizedValue": Normalizer().normalize_text(value, lan),
+        "normalizedValue": Processor().normalize_text(value, lan),
         "aliases": aliases
     }
     return item
