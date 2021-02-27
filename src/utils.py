@@ -1,3 +1,4 @@
+import pickle
 import re, os, random, errno
 import itertools, requests
 import unicodedata
@@ -335,3 +336,14 @@ def read_data_json(path):
     df['tgt_char'] = df.tgt_token.apply(replace_space)
     df['src_char'] = df.src_token.apply(replace_space)
     return df
+
+
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:  # Overwrites any existing file.
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+
+
+def load_object(filename):
+    with open(filename, 'rb') as input:
+        obj = pickle.load(input)
+    return obj

@@ -1,6 +1,7 @@
+import json
 import os
-from Classifier import Classifier
-from Normalizer import Normalizer
+from src.Classifier import Classifier
+from src.Normalizer import Normalizer
 from src.utils import read_sentence_from_csv, check_folder
 
 
@@ -24,22 +25,36 @@ class Pipeline:
         check_folder(self.pipeline_dir + '/tmp')
         self.Classifier = Classifier(pretrained, prepared_dir, classifier_dir)
         self.Normalizer = Normalizer(model_yaml_path, prepared_dir, normalizer_dir,
-                                     no_classifier=False if pretrained else True,
+                                     norm_only=False if pretrained else True,
                                      onmt_dir=onmt_dir,
                                      encoder_level=encoder_level,
                                      decoder_level=decoder_level,
                                      language=language)
 
-    def train(self, num_train_epochs=10, learning_rate=1e-5, weight_decay=1e-2,
-              per_device_train_batch_size=16, per_device_eval_batch_size=16):
-        print("Start training classifier...")
-        self.Classifier.train(num_train_epochs, learning_rate, weight_decay,
-                              per_device_train_batch_size, per_device_eval_batch_size)
+    def train(self, num_train_epochs=10, learning_rate=1e-5, weight_decay=1e-2, per_device_train_batch_size=16,
+              per_device_eval_batch_size=16, mode='pipeline'):
+        if mode == 'pipeline':
+            print("---pipeline mode---")
+            print("Start training classifier...")
+            self.Classifier.train(num_train_epochs, learning_rate, weight_decay,
+                                  per_device_train_batch_size, per_device_eval_batch_size)
+            print("Start training normalizer...")
+            self.Normalizer.train()
 
-        print("Start training normalizer...")
-        self.Normalizer.train()
+        elif mode == 'normalizer':
+            print("---normalizer mode---")
+            print("Start training normalizer...")
+            self.Normalizer.train()
 
-    def eval(self, key='test', normalizer_step=-1):
+        elif mode == 'classifier':
+            print("---classifier mode---")
+            print("Start training classifier...")
+            self.Classifier.train(num_train_epochs, learning_rate, weight_decay,
+                                  per_device_train_batch_size, per_device_eval_batch_size)
+        else:
+            print("Mode Error! Skip all training!")
+
+    def eval(self, key='test', normalizer_step=-1, use_gpu=True):
         # make test data as sentence
         df = read_sentence_from_csv("{}/{}.csv".format(self.prepared_dir, key))
         input_path = '{}/{}_input.txt'.format(self.pipeline_dir, key)
@@ -58,8 +73,10 @@ class Pipeline:
         df_TBNorm['token'].to_csv(tbn_path, header=False, index=False)
 
         print("Start evaluating normalizer...")
-        df_nor = self.Normalizer.predict(input_path=tbn_path, output_path=norm_path,
-                                         normalizer_step=normalizer_step)
+        df_nor = self.Normalizer.predict(input_path=tbn_path,
+                                         output_path=norm_path,
+                                         normalizer_step=normalizer_step,
+                                         use_gpu=use_gpu)
 
         df_cls['pred'] = df_cls['token']
         id_TBNorm = df_cls.index[df_cls['tag'] == 'B'].tolist()
@@ -71,7 +88,7 @@ class Pipeline:
         print(command_wer)
         print(os.popen(command_wer).read())
 
-    def predict(self, input_path, output_path, normalizer_step):
+    def predict(self, input_path, output_path, normalizer_step=-1, use_gpu=True):
         tmp_dir = self.pipeline_dir + '/tmp'
         key = 'tmp'
         cls_path = '{}/{}_classified.csv'.format(tmp_dir, key)
@@ -84,8 +101,10 @@ class Pipeline:
         df_TBNorm['token'].to_csv(tbn_path, header=False, index=False)
 
         print("Start predicting normalizer...")
-        df_nor = self.Normalizer.predict(input_path=tbn_path, output_path=norm_path,
-                                         normalizer_step=normalizer_step)
+        df_nor = self.Normalizer.predict(input_path=tbn_path,
+                                         output_path=norm_path,
+                                         normalizer_step=normalizer_step,
+                                         use_gpu=use_gpu)
 
         df_cls['pred'] = df_cls['token']
         id_TBNorm = df_cls.index[df_cls['tag'] == 'B'].tolist()
@@ -93,3 +112,19 @@ class Pipeline:
         result = df_cls.groupby(['sentence_id']).agg({'pred': ' '.join})
         result[['pred']].to_csv(output_path, header=False, index=False)
         print("Prediction saved to: ", output_path)
+
+
+def load_pipeline(pipeline_dir):
+    with open(pipeline_dir + '/pipeline_args.txt', 'r') as f:
+        p_args = json.load(f)
+    pipeline = Pipeline(pipeline_dir=p_args['pipeline_dir'],
+                        prepared_dir=p_args['prepared_dir'],
+                        classifier_dir=p_args['classifier_dir'],
+                        pretrained=p_args['pretrained'],
+                        normalizer_dir=p_args['normalizer_dir'],
+                        model_yaml_path=p_args['model_yaml'],
+                        encoder_level=p_args['encoder_level'],
+                        decoder_level=p_args['decoder_level'],
+                        onmt_dir=p_args['onmt_dir'],
+                        language=p_args['language'])
+    return pipeline

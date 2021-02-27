@@ -128,7 +128,7 @@ class Classifier:
             trainer.save_model(self.classifier_dir)
             print("Trainer is saved to ", self.classifier_dir)
         else:
-            print("No need to train!")
+            print("Classifier is disabled. No need to train!")
 
     def eval(self, key='test'):
         tqdm.pandas()

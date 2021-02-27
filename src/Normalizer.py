@@ -49,7 +49,7 @@ class Normalizer:
         os.system(command_train)
         print("Done!")
 
-    def eval(self, key='test', normalizer_step=-1):
+    def eval(self, key='test', normalizer_step=-1, use_gpu=True):
         """
         default to eval on test dataset
         """
@@ -69,12 +69,13 @@ class Normalizer:
             pred_path = '{}/data/pred_{}.txt'.format(self.normalizer_dir, key)
             ckpt_path = self.get_ckpt_path(step=normalizer_step)
             print("Predicting {} by {}".format(key, ckpt_path))
-            command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} -gpu 0 " \
-                           "-beam_size {beam_size} -report_time".format(onmt_path=self.onmt_dir,
-                                                                        model=ckpt_path,
-                                                                        src=src_path,
-                                                                        output=pred_path,
-                                                                        beam_size=5)
+            command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
+                           "-beam_size {beam_size} -report_time {gpu}".format(onmt_path=self.onmt_dir,
+                                                                              model=ckpt_path,
+                                                                              src=src_path,
+                                                                              output=pred_path,
+                                                                              beam_size=5,
+                                                                              gpu="-gpu 0" if use_gpu else "")
             print(os.popen(command_pred).read())
             result = self.read_key_txt_files(key)
 
@@ -92,14 +93,15 @@ class Normalizer:
         print(command_wer)
         print(os.popen(command_wer).read())
 
-    def predict(self, input_path, output_path, normalizer_step=-1):
+    def predict(self, input_path, output_path, normalizer_step=-1, use_gpu=True):
+        tqdm.pandas()
         result = pd.DataFrame()
         if not self.yaml_path:
             # Rule based
             result['src'] = read_txt(input_path)
             result['tgt'] = result['src']
             print("Start RB predicting...")
-            result['pred'] = result['src_token'].progress_apply(call_rb_API, args=(self.language,))
+            result['pred'] = result['src'].progress_apply(call_rb_API, args=(self.language,))
         else:
             # RNN
             input_df = pd.DataFrame()
@@ -122,11 +124,12 @@ class Normalizer:
             ckpt_path = self.get_ckpt_path(step=normalizer_step)
             print("Predicting test dataset by: ", ckpt_path)
             command_pred = "python {onmt_path}/translate.py -model {model} -src {src} -output {output} " \
-                           "-beam_size {beam_size} -report_time -gpu 0".format(onmt_path=self.onmt_dir,
-                                                                               model=ckpt_path,
-                                                                               src=src_path,
-                                                                               output=pred_path,
-                                                                               beam_size=5)
+                           "-beam_size {beam_size} -report_time {gpu}".format(onmt_path=self.onmt_dir,
+                                                                              model=ckpt_path,
+                                                                              src=src_path,
+                                                                              output=pred_path,
+                                                                              beam_size=5,
+                                                                              gpu="-gpu 0" if use_gpu else "")
             print(os.popen(command_pred).read())
             result = self.read_key_txt_files(key)
 

@@ -19,7 +19,7 @@ def main():
                         help="make/ pred")
     parser.add_argument("--pred_file", default='./example_intput.txt', type=str,
                         required=False,
-                        help="The output dir from make_Generated_dataset.py default as ./output")
+                        help="The output dir from prepare.py default as ./output")
     parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert_LSTM', type=str, required=False,
                         help="Directory to save model and data")
     parser.add_argument("--language", default='de', type=str, required=False,

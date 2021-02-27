@@ -40,7 +40,7 @@ def mix_entity_types(entity_df, type_list):
 def prepare_templates(templates_file, languages):
     print("Preparing Templates...")
     templates = pd.read_json(templates_file)[['id'] + languages]
-    df_flat_templates = pd.DataFrame(columns=["id", "language", "text"])
+    df_flat_templates = pd.DataFrame(columns=["intent", "language", "text"])
     for tem_id in tqdm(templates.id):
         for lang in languages:
             text_list = templates[templates['id'] == tem_id][lang].values[0]['texts']
@@ -82,7 +82,7 @@ def main():
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The output will be saved to this directory default as ./output")
     parser.add_argument("--no_tagging", default=0, type=int, required=False,
-                        help="add tag information to datasets")
+                        help="disable the tag column in datasets")
     parser.add_argument("--padding", default=0, type=int, required=False,
                         help="padding size (int) to both head and tail of each sentence")
     parser.add_argument("--valid_ratio", default=0.1, type=float, required=False,

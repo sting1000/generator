@@ -1,14 +1,8 @@
 {
   "templates_file": "data/templates.json",
   "entities_file": "data/entities.json",
-  "languages": [
-    "de"
-  ],
-  "max_combo_amount": 3000,
-  "max_channel_range": 3000,
-  "mix_entity_types": [
-    "VodName",
-    "SeriesName",
-    "BroadcastName"
-  ]
+  "languages": ["en"],
+  "max_combo_amount": 30,
+  "max_channel_range": 30,
+  "mix_entity_types": ["VodName", "SeriesName", "BroadcastName"]
 }

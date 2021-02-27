@@ -7,6 +7,7 @@ valid_ratio = 0.15
 test_ratio = 0.15
 len_thresh = 50
 prepared_dir = './TNChallenge'
+meta_path = '../TNChallenge.csv'
 
 
 def tag2bio(row):
@@ -19,7 +20,7 @@ def tag2bio(row):
 
 
 tqdm.pandas()
-df = pd.read_csv('../TNChallenge.csv', converters={'before': str, 'after': str})
+df = pd.read_csv(meta_path, converters={'before': str, 'after': str})
 df = df.dropna()
 df['after'] =df['after'].str.lower()
 df['before'] =df['before'].str.lower()
