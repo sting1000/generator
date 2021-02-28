@@ -112,6 +112,7 @@ def main():
     meta_path = gen.permute(folder_path=args.prepared_dir, tagging=(1 - args.no_tagging), padding=args.padding)
     meta = pd.read_csv(meta_path, converters={'token': str, 'written': str, 'spoken': str})
 
+    # split train test and validation
     valid_ratio = args.valid_ratio
     test_ratio = args.test_ratio
     sentence_id_list = list(range(max(meta['sentence_id'])))
@@ -126,6 +127,7 @@ def main():
     valid = meta[meta['sentence_id'].isin(valid_id)]
     train = meta[meta['sentence_id'].isin(train_id)]
 
+    # save datasets
     train.to_csv(args.prepared_dir + "/train.csv", index=False)
     valid.to_csv(args.prepared_dir + "/validation.csv", index=False)
     test.to_csv(args.prepared_dir + "/test.csv", index=False)

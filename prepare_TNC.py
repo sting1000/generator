@@ -18,7 +18,7 @@ def tag2bio(row):
         tag_list = ['B-TBNorm'] + ['I-TBNorm'] * (len(row['token']) - 1)
         return tag_list
 
-
+# clean data
 tqdm.pandas()
 df = pd.read_csv(meta_path, converters={'before': str, 'after': str})
 df = df.dropna()
@@ -34,6 +34,7 @@ df['token'] = df['spoken'].str.split()
 df['tag'] = df.apply(tag2bio, axis=1)
 df = df[(df['written'] != '') & (df['spoken'] != '')]
 
+# save to prepared dir
 check_folder('./TNChallenge')
 meta_path = './TNChallenge/meta.csv'
 with open(meta_path, 'w+') as outfile:
@@ -52,14 +53,12 @@ with open(meta_path, 'w+') as outfile:
             r_values.append(str(row['token'][i]))
             r_values.append(str(row['tag'][i]))
             outfile.write('\t'.join(r_values) + '\n')
-
-
     df.progress_apply(write_meta, axis=1)
 
+# split data
+random.seed(42)
 meta = pd.read_csv(meta_path, sep='\t', converters={'token': str, 'written': str, 'spoken': str})
 meta['language'] = 'en'
-
-random.seed(42)
 sentence_id_list = list(range(max(meta['sentence_id'])))
 random.shuffle(sentence_id_list)
 train_sep_position = int((test_ratio + valid_ratio) * len(sentence_id_list))
@@ -72,6 +71,7 @@ test = meta[meta['sentence_id'].isin(test_id)]
 valid = meta[meta['sentence_id'].isin(valid_id)]
 train = meta[meta['sentence_id'].isin(train_id)]
 
+# save train, test, validation
 train.to_csv(prepared_dir + "/train.csv", index=False)
 valid.to_csv(prepared_dir + "/validation.csv", index=False)
 test.to_csv(prepared_dir + "/test.csv", index=False)

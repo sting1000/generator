@@ -7,7 +7,7 @@ from src.utils import check_folder
 def main():
     parser = argparse.ArgumentParser()
     # pipeline args
-    parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert-base_LSTM2', type=str,
+    parser.add_argument("--pipeline_dir", default='./output/pipeline/distilbert-base_LSTM', type=str,
                         required=False, help="Directory to save pipeline data")
     parser.add_argument("--prepared_dir", default='./output', type=str, required=False,
                         help="The prepared dataset location (containing test.csv, train.csv, validation.csv)")
@@ -19,7 +19,7 @@ def main():
                         help="Load model from huggingface pretrained/ local pretrained. set None to disable classifier")
 
     # normalizer args
-    parser.add_argument("--normalizer_dir", default='./output/normalizer/dummy', type=str, required=False,
+    parser.add_argument("--normalizer_dir", default='./output/normalizer/LSTM', type=str, required=False,
                         help="Directory to save normalizer model and data")
     parser.add_argument("--model_yaml", default='./config/dummy.yaml', type=str, required=False,
                         help="Load normalizer model from OpenNMT yaml file")
@@ -29,7 +29,7 @@ def main():
                         help="char or token")
     parser.add_argument("--language", default='en', type=str, required=False,
                         help="language of the dataset (used only for Rule-based normalizer)")
-    parser.add_argument("--onmt_dir", default='../OpenNMT-py', type=str, required=False,
+    parser.add_argument("--onmt_dir", default='./OpenNMT-py', type=str, required=False,
                         help="OpenNMT package location")
 
     # load config values

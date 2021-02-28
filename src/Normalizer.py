@@ -39,7 +39,7 @@ class Normalizer:
                               "-n_sample -1".format(onmt_path=self.onmt_dir, yaml_path=self.new_yaml_path)
         print(command_build_vocab)
         os.system(command_build_vocab)
-        print("Done!")
+        print("Building Done!")
 
         # train command to use opennmt
         print("Training...")
@@ -47,11 +47,12 @@ class Normalizer:
                         "-config {yaml_path}".format(onmt_path=self.onmt_dir, yaml_path=self.new_yaml_path)
         print(command_train)
         os.system(command_train)
-        print("Done!")
+        print("Training Done!")
 
     def eval(self, key='test', normalizer_step=-1, use_gpu=True):
         """
         default to eval on test dataset
+        normalizer_step: steps shown in checkpoints
         """
         tqdm.pandas()
         result = pd.DataFrame()
@@ -94,6 +95,10 @@ class Normalizer:
         print(os.popen(command_wer).read())
 
     def predict(self, input_path, output_path, normalizer_step=-1, use_gpu=True):
+        """
+        Use Normalizer to predict input txt file.
+        The output txt is saved to output_path
+        """
         tqdm.pandas()
         result = pd.DataFrame()
         if not self.yaml_path:
@@ -140,7 +145,8 @@ class Normalizer:
 
     def process_data(self):
         """
-        create txt data in normalizer_dir/data using prepared_dir files
+        create src and tgt txt data in normalizer_dir/data/
+        the data is necessary to run OpenNMT
         """
         for key in ['train', 'validation', 'test']:
             df = pd.read_csv('{}/{}.csv'.format(self.prepared_dir, key),
@@ -161,6 +167,9 @@ class Normalizer:
             data[['tgt_' + self.decoder_level]].to_csv(tgt_path, header=False, index=False)
 
     def process_yaml(self):
+        """
+        replace "\{\*PATH\}" in yaml template and make a new one in norm_dir
+        """
         with open(self.yaml_path) as f:
             lines = f.readlines()
         with open(self.new_yaml_path, "w+") as f:
@@ -169,6 +178,9 @@ class Normalizer:
             f.writelines(lines)
 
     def show_ckpt(self):
+        """
+        print all checkpoint of this normalizer
+        """
         _, _, filenames = next(os.walk(self.normalizer_dir + '/checkpoints'))
         print(filenames)
 

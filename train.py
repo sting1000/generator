@@ -9,7 +9,7 @@ def main():
     parser.add_argument("--mode", default='pipeline', type=str,
                         required=False, help="[pipeline, normalizer, classifier]")
 
-    parser.add_argument("--num_train_epochs", default=1, type=int, required=False,
+    parser.add_argument("--num_train_epochs", default=10, type=int, required=False,
                         help="classifier TrainingArguments")
     parser.add_argument("--per_device_train_batch_size", default=16, type=int, required=False,
                         help="classifier TrainingArguments")

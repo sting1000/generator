@@ -17,21 +17,25 @@ The labeled sequences that require normalization are sent to Normalizer for conv
 Normalizer employs Neural Network (RNN structure) and learn transform rules from dataset. 
 Thus, the interest sequences are converted to written form, and put but to original sentence as output.
 
+![Pipeline]()
 
 Beside the intelligence, one big feature is customizablility. You can free to combine classifier model and normalizer
 from various choices. For Classifier, pretrained models can be chosen from DistilBert, Bert, XLM, etc. 
 For RNN Normalizer, Bi-LSTM, Transformer, GRU are all available to use. Moreover, some
 cutting-edge tricks like copy mechanism can be easy to add through the configure file. 
 
+## High Level Overview
+![High Level]()
+
 ## Getting Started
 ### Step 0: Installation
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone <repo_name.git>
    ```
 2. Clone OpenNMT to repository root
    ```sh
-   cd repo_name
+   cd <repo_name>
    git clone https://github.com/OpenNMT/OpenNMT-py.git
    ```
 3. Install requirements
@@ -138,7 +142,7 @@ Before running, make sure three things are ready: prepared datasets, pipeline fo
 Now, you can simply run the command to train the dummy pipeline `distilbert-base_LSTM`:
 
 ```sh
-python train.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM --prepared_dir ./output
+python train.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM --mode pipeline --num_train_epochs 1
 ```
 After running, the trained classifier and normalizer are saved to their designated directory.
 The pipeline configuration are saved to `pipeline_dir` as `pipeline_args.txt`.
@@ -158,12 +162,12 @@ All results including classifier prediction, normalizer prediction and final out
 The files have same prefix as `--key`.
 
 ```sh
-python evaluate.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM  --normalize_step -1 --use_gpu=0
+python evaluate.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM  --normalizer_step -1 --use_gpu=0
 ``` 
 
 Here are the augments:
 * `pipeline_dir`: str, trained pipeline dir including pipeline_args.txt
-* `normalize_step`: int, the training step of normalizer, -1 denotes as the last one
+* `normalizer_step`: int, the training step of normalizer, -1 denotes as the last one
 * `use_gpu`: int, default as 1, 1 to use gpu, 0 to use cpu
 * `key`: str, default as test, choose dataset to evaluate [test, train, validation]
 
@@ -173,21 +177,29 @@ wer ref.txt hyp.txt
 ```
  ### Step 4: Predict
 Finally, we can use the trained pipeline to do prediction. 
-The input is txt file. One sentence per line. 
+The input is txt file. One sentence per line. the prediction will go to output_path as a txt file.
+
+If you run following this tutorial, the result of Step 3 and 4 will be bad 
+since we just train very few steps on very few data. 
 
 Run the command below to have the output txt file:
 ```sh
-python predict.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM --input_path ./example/input.txt --output_path ./example/output.txt --normalize_step -1 --use_gpu=0
+python predict.py --pipeline_dir ./output/pipeline/distilbert-base_LSTM --input_path ./example/input.txt --output_path ./example/output.txt --normalizer_step -1 --use_gpu=0
 ``` 
 Here are the augments for `predict.py`:
 * `pipeline_dir`: str, trained pipeline dir including pipeline_args.txt
 * `input_path`: str, txt file that will be predicted
 * `output_path`: str, output txt file path
-* `normalize_step`: int, the training step of normalizer, -1 denotes as the last one
+* `normalizer_step`: int, the training step of normalizer, -1 denotes as the last one
 * `use_gpu`: int, default as 1, 1 to use gpu, 0 to use cpu
 
 ## Pipelines from trained
-Due to the feature of cascade, it is easy to reuse the trained classifier/ normalizer. There are steps to try new pipeline:
+Due to the feature of cascade, it is easy to reuse the trained classifier/ normalizer.
+It is recommended to do experiments in Jupyter Notebook, 
+so the `Normalizer` and `Classifier` can be easily called from the object `Pipeline` without reloading.
+The API is similar: you can train/ eval/ pred them individually.
+
+There is the steps to create new pipeline in Terminal:
 1. Use `build.py`  with new `--normalizer_dir` and `--classifier_dir`  to create a new pipeline folder. 
 Pay attention that settings like encoder/ decoder should be changed accordingly
 2. Check if one/both of the module(s) is not trained. 
@@ -195,7 +207,8 @@ If so, run `train.py` which provides `--mode` option to train one module/ whole 
 2. Enjoy new pipeline! It can be used to `evaluate.py` and `predict.py` without extra training.  
 
 ## Other datasets
-### [Text Normalization Challenge](https://www.kaggle.com/c/text-normalization-challenge-english-language/overview)
+### Text Normalization Challenge
+In [Text Normalization Challenge](https://www.kaggle.com/c/text-normalization-challenge-english-language/overview),
 Google provided with a large EN corpus of text. Each sentence has a sentence_id. Each token within a sentence has a token_id. 
 The before column contains the raw text, the after column contains the normalized text. 
 The training set contains an additional column, class, which is provided to show the token type. 
@@ -258,3 +271,6 @@ Then calculate and save OTER results.
     ├── requirements.txt 
     ├── .gitignore
     └── README.md
+
+## Low Level Overview
+![Low Level]()

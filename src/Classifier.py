@@ -11,6 +11,9 @@ from src.utils import read_txt, check_folder, confusion_matrix
 
 
 def read_dataset_from_csv(csv_path):
+    """
+    read the prepared csv data as Dataset object
+    """
     df = pd.read_csv(csv_path, converters={'token': str, 'written': str, 'spoken': str})
     feature_tag = Sequence(ClassLabel(num_classes=3, names=list(pd.factorize(df['tag'])[1])))
     df['tag'] = df['tag'].apply(feature_tag.feature.str2int)
@@ -21,6 +24,14 @@ def read_dataset_from_csv(csv_path):
 
 
 def merge_col_from_tag(row, col, tag):
+    """
+    The function merged items in the list from designated row[col] according to row[tag]
+    col is the column of token list such as [this, is, three, dollar]
+    tag is the column of tag list such as [O, O, B-TBNorm, I-TBNorm]
+    Return: [this, is, three dollar]
+
+    If the row[col] is tag, it will return [O, O, B], which is the tag for the result above
+    """
     l = row[col].copy()
     if col in ['tag', 'tag_pred']:
         for tup in get_entities(row[tag])[::-1]:
